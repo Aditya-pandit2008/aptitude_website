@@ -1,0 +1,350 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f7e7bf 0%, #edcf8d 45%, #faf1e6 100%);
+  color: #4f3c6f;
+  overflow-x: hidden;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── LEFT SECTION ───────────────────────────────────── */
+.leftsection {
+  width: 45%;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f3d36f 0%, #e4c16d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 50px;
+}
+
+.form-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  padding-top: 115px;
+}
+
+.form-wrap .welcome {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.welcome h1 {
+  font-size: 56px;
+  color: #6b3f92;
+  font-family: "Rozha One", serif;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: #53386e;
+  line-height: 1.7;
+  max-width: 300px;
+}
+
+/* ── SIGNUP CARD ────────────────────────────────────── */
+.Signup-page {
+  width: 100%;
+  padding: 30px 28px;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.55);
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.09);
+  backdrop-filter: blur(14px);
+}
+
+.signup-logo {
+  text-align: center;
+  font-size: 26px;
+  color: #6b3f92;
+  margin-bottom: 10px;
+}
+
+.Signup-page h2 {
+  text-align: center;
+  font-size: 26px;
+  color: #6b3f92;
+  margin-bottom: 20px;
+  font-family: "Rozha One", serif;
+  letter-spacing: 1px;
+}
+
+/* ── INPUTS ─────────────────────────────────────────── */
+.input-box {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 13px 46px 13px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.88);
+  color: #4f3c6f;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.25s ease;
+}
+
+.input-box input:focus {
+  border-color: #9b63af;
+  box-shadow: 0 0 0 3px rgba(155,99,175,0.15);
+}
+
+.input-box input::placeholder {
+  color: #9b7fb1;
+  font-size: 13px;
+}
+
+.input-box i {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #7f6b92;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.input-box i:hover { color: #6b3f92; }
+
+/* ── PASSWORD STRENGTH ──────────────────────────────── */
+.pw-strength-wrap {
+  height: 5px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 4px;
+  margin: -8px 0 4px;
+  overflow: hidden;
+}
+
+.pw-strength-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+}
+
+.pw-strength-label {
+  font-size: 11px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  min-height: 16px;
+}
+
+/* ── OPTIONS ────────────────────────────────────────── */
+.options {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5e3f7d;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.remember-label input { width: 15px; height: 15px; cursor: pointer; }
+
+.terms-link {
+  color: #6b3f92;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ── SUBMIT BUTTON ──────────────────────────────────── */
+.signup-submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #9b63af;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 10px 24px rgba(155,99,175,0.22);
+}
+
+.signup-submit-btn:hover:not(:disabled) {
+  background: #884f9b;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(155,99,175,0.3);
+}
+
+.signup-submit-btn:disabled { opacity: 0.65; cursor: default; }
+
+.btn-icon { font-size: 13px; }
+
+/* ── DIVIDER ────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0 12px;
+  color: rgba(80,56,106,0.5);
+  font-size: 12px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(80,56,106,0.18);
+}
+
+/* ── SOCIAL BUTTONS ─────────────────────────────────── */
+.social-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.social-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.22);
+  border-radius: 8px;
+  color: #5e3f7d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s;
+}
+
+.social-btn:hover {
+  background: rgba(255,255,255,0.38);
+  transform: translateY(-1px);
+}
+
+/* ── SIGNIN LINK ────────────────────────────────────── */
+.signup-text {
+  text-align: center;
+  font-size: 13px;
+  color: #5e3f7d;
+}
+
+.signup-text a {
+  color: #5e3f7d;
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ── RIGHT SECTION ──────────────────────────────────── */
+.Rightsection {
+  width: 55%;
+  min-height: 100vh;
+  background: #f8f5f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 60px;
+}
+
+.right-content {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.brand-badge { margin-bottom: 20px; }
+
+.brand-logo { max-width: 90px; height: auto; }
+
+.right-heading {
+  font-size: 34px;
+  color: #4f3c6f;
+  font-family: "Rozha One", serif;
+  line-height: 1.15;
+  margin-bottom: 12px;
+}
+
+.right-sub {
+  color: #6b5c7e;
+  font-size: 14px;
+  line-height: 1.7;
+  margin-bottom: 24px;
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 28px;
+  text-align: left;
+}
+
+.feat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #4f3c6f;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  font-weight: 500;
+}
+
+.feat-item i {
+  color: #9b63af;
+  font-size: 16px;
+  width: 20px;
+  text-align: center;
+}
+
+.hero-illustration img {
+  width: 100%;
+  max-width: 380px;
+  height: auto;
+  border-radius: 14px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 992px) {
+  .container { flex-direction: column; }
+  .leftsection, .Rightsection { width: 100%; min-height: auto; }
+  .leftsection { padding: 50px 26px; }
+  .Rightsection { padding: 36px 24px; }
+  .form-wrap { padding-top: 120px; }
+}
+
+@media (max-width: 600px) {
+  .welcome h1 { font-size: 40px; }
+  .Signup-page { padding: 24px 18px; }
+  .right-heading { font-size: 26px; }
+  .features-list { gap: 8px; }
+}

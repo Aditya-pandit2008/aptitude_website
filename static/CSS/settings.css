@@ -1,0 +1,416 @@
+@import url("/static/CSS/profile.css");
+
+/* ── Page header ─────────────────────────────────────────────────── */
+.page-header {
+  margin-bottom: 22px;
+}
+
+.page-header h1 {
+  align-items: center;
+  display: flex;
+  font-size: 38px;
+  gap: 12px;
+}
+
+.page-header p {
+  color: #6d6a64;
+  margin-top: 6px;
+}
+
+.eyebrow {
+  color: #6d6a64;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+/* ── Two-column layout (HTML uses .settings-layout) ─────────────── */
+.settings-layout {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: 220px minmax(0, 1fr);
+}
+
+/* ── Settings sidebar nav (HTML uses .settings-nav) ─────────────── */
+.settings-nav {
+  background: #fffcf2;
+  border: 1px solid #ece5cf;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 14px;
+  align-self: start;
+}
+
+/* ── Nav items (HTML uses .nav-item, NOT .menu-item) ─────────────── */
+.nav-item {
+  align-items: center;
+  border-radius: 8px;
+  color: #4b4b4b;
+  cursor: pointer;
+  display: flex;
+  font-weight: 700;
+  gap: 12px;
+  margin-bottom: 4px;
+  padding: 13px 14px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background: #eadba3;
+  color: #222;
+}
+
+.nav-item i {
+  width: 18px;
+  text-align: center;
+}
+
+/* ── Settings body (HTML uses .settings-body) ────────────────────── */
+.settings-body {
+  background: #fffcf2;
+  border: 1px solid #ece5cf;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 28px;
+}
+
+/* ── Sections ────────────────────────────────────────────────────── */
+.settings-section {
+  display: none;
+}
+
+.settings-section.active {
+  display: block;
+}
+
+.section-title {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #ece5cf;
+}
+
+.section-title i {
+  color: #4d4742;
+  font-size: 22px;
+  margin-top: 3px;
+}
+
+.section-title h2 {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.section-title p {
+  color: #6d6a64;
+  font-size: 13px;
+}
+
+.sub-heading {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 20px 0 10px;
+  color: #4d4742;
+}
+
+/* ── Form elements ───────────────────────────────────────────────── */
+.form-group {
+  display: grid;
+  gap: 7px;
+  margin-bottom: 16px;
+}
+
+.form-input {
+  border: 1px solid #d8cfb5;
+  border-radius: 8px;
+  font: inherit;
+  padding: 12px 14px;
+  width: 100%;
+  background: #fff;
+}
+
+.form-input:focus {
+  border-color: #8d6a9f;
+  outline: none;
+}
+
+.form-input:disabled {
+  background: #f0ede4;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.form-group small {
+  color: #6d6a64;
+  font-size: 12px;
+}
+
+.form-msg {
+  font-size: 13px;
+  margin-top: 8px;
+  min-height: 18px;
+}
+
+.form-msg.success { color: #3f7d46; }
+.form-msg.error   { color: #b45748; }
+
+/* ── Password field with eye button ──────────────────────────────── */
+.pass-wrap {
+  position: relative;
+  display: flex;
+}
+
+.pass-wrap .form-input {
+  padding-right: 46px;
+}
+
+.eye-btn {
+  background: none;
+  border: none;
+  color: #6d6a64;
+  cursor: pointer;
+  font-size: 15px;
+  padding: 0 14px;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.eye-btn:hover {
+  color: #4d4742;
+}
+
+/* ── Password strength bar ───────────────────────────────────────── */
+.pass-strength-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+  margin-bottom: 8px;
+}
+
+.bar-track {
+  flex: 1;
+  background: #e4d9bd;
+  border-radius: 4px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease, background 0.3s ease;
+  width: 0%;
+}
+
+#pass-label {
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 42px;
+  color: #4d4742;
+}
+
+/* ── Pref row (two columns side by side) ─────────────────────────── */
+.pref-row {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 4px;
+}
+
+/* ── Toggle switches ─────────────────────────────────────────────── */
+.toggle-group {
+  border: 1px solid #ece5cf;
+  border-radius: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+
+.toggle-item {
+  align-items: center;
+  border-bottom: 1px solid #ece5cf;
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 18px;
+}
+
+.toggle-item:last-child {
+  border-bottom: none;
+}
+
+.toggle-info strong {
+  display: block;
+  font-size: 14px;
+}
+
+.toggle-info span {
+  color: #6d6a64;
+  font-size: 12px;
+}
+
+.toggle {
+  cursor: pointer;
+  display: inline-block;
+  height: 24px;
+  position: relative;
+  width: 44px;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  height: 0;
+  opacity: 0;
+  width: 0;
+}
+
+.toggle .slider {
+  background: #d8cfb5;
+  border-radius: 24px;
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: 0.25s;
+}
+
+.toggle .slider:before {
+  background: #fff;
+  border-radius: 50%;
+  bottom: 3px;
+  content: "";
+  height: 18px;
+  left: 3px;
+  position: absolute;
+  transition: 0.25s;
+  width: 18px;
+}
+
+.toggle input:checked + .slider {
+  background: #4d4742;
+}
+
+.toggle input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* ── Danger zone ─────────────────────────────────────────────────── */
+.danger-zone {
+  border: 1px solid #e8c5c0;
+  border-radius: 10px;
+  margin-top: 28px;
+  padding: 20px;
+}
+
+.danger-zone h3 {
+  color: #b45748;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+
+.danger-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.danger-item {
+  align-items: center;
+  background: #f9f7f4;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 16px;
+}
+
+.danger-item.danger-red {
+  background: #fdf4f3;
+}
+
+.danger-item strong {
+  display: block;
+  font-size: 14px;
+}
+
+.danger-item p {
+  color: #6d6a64;
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* ── Notification toast (already in profile.css but repeated for safety) */
+.notification {
+  border-radius: 8px;
+  color: #fff;
+  opacity: 0;
+  padding: 14px 18px;
+  position: fixed;
+  right: 22px;
+  top: 22px;
+  transform: translateY(-8px);
+  transition: 0.2s ease;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.notification.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.notification.success { background: #3f7d46; }
+.notification.error   { background: #b45748; }
+
+/* ── Sidebar avatar circle ───────────────────────────────────────── */
+.sidebar-avatar-circle {
+  align-items: center;
+  background: #4d4742;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  font-size: 18px;
+  font-weight: 800;
+  height: 38px;
+  justify-content: center;
+  width: 38px;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .settings-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-nav {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .nav-item {
+    justify-content: center;
+    text-align: center;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .settings-nav {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pref-row {
+    grid-template-columns: 1fr;
+  }
+}

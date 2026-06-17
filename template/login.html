@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Login to your Aptitude Test account and continue your placement preparation journey." />
+    <meta name="theme-color" content="#e4cb71" />
+    <title>Login - Aptitude Test | Continue Your Journey</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/static/CSS/login.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Rozha+One&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="left-section">
+        <div class="form-wrap">
+          <div class="welcome">
+            <h1 class="welcome-title">Welcome<br>Back</h1>
+            <p class="welcome-subtitle">Ready to sharpen your skills? Login and continue your aptitude journey.</p>
+          </div>
+          <div class="login-card">
+            <div class="login-logo">
+              <i class="fa-solid fa-brain"></i>
+            </div>
+            <h2 class="login-heading">LOGIN</h2>
+
+            <div class="input-box">
+              <input type="email" id="login-email" placeholder="EMAIL" autocomplete="email" />
+              <i class="fa-solid fa-envelope"></i>
+            </div>
+            <div class="input-box">
+              <input type="password" id="login-password" placeholder="PASSWORD" autocomplete="current-password" />
+              <i class="fa-solid fa-eye" id="toggle-password"></i>
+            </div>
+
+            <div class="options">
+              <label class="remember-label">
+                <input type="checkbox" id="remember-me" />
+                <span class="remember-text">Remember me</span>
+              </label>
+              <a href="/forgot-password" class="forgot-password">Forgot password?</a>
+            </div>
+
+            <button class="login-btn" id="login-submit">
+              <span class="btn-text">LOGIN</span>
+              <i class="fa-solid fa-arrow-right btn-icon"></i>
+            </button>
+
+            <div class="divider"><span>or continue with</span></div>
+
+            <div class="social-row">
+              <button class="social-btn" title="Google">
+                <i class="fa-brands fa-google"></i> Google
+              </button>
+              <button class="social-btn" title="GitHub">
+                <i class="fa-brands fa-github"></i> GitHub
+              </button>
+            </div>
+
+            <div class="signup-text">Don't have an account? <a href="/signup">Sign Up</a></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-section">
+        <div class="right-content">
+          <div class="brand-badge">
+            <img src="/images/Apti-logo.png" alt="Apti Logo" class="brand-logo" />
+          </div>
+          <h2 class="right-heading">Master Aptitude.<br>Crack Placements.</h2>
+          <p class="right-sub">AI-generated questions that adapt to your level. Practice smarter, not harder.</p>
+          <div class="stats-row">
+            <div class="stat-box">
+              <span class="stat-num">10K+</span>
+              <span class="stat-label">Questions</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num">5+</span>
+              <span class="stat-label">Topics</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num">AI</span>
+              <span class="stat-label">Powered</span>
+            </div>
+          </div>
+          <div class="hero-illustration">
+            <img src="/images/Sign-up logo.jpeg" alt="Login Illustration" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="/static/JS/script.js"></script>
+    <script>
+      // Password toggle
+      document.getElementById('toggle-password')?.addEventListener('click', function () {
+        const input = document.getElementById('login-password');
+        const isPass = input.type === 'password';
+        input.type = isPass ? 'text' : 'password';
+        this.classList.toggle('fa-eye', !isPass);
+        this.classList.toggle('fa-eye-slash', isPass);
+      });
+
+      // Remember me — pre-fill email
+      window.addEventListener('DOMContentLoaded', () => {
+        const saved = localStorage.getItem('rememberedEmail');
+        if (saved) {
+          document.getElementById('login-email').value = saved;
+          document.getElementById('remember-me').checked = true;
+        }
+      });
+
+      // Submit
+      document.getElementById('login-submit')?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value.trim();
+        const password = document.getElementById('login-password').value;
+        const remember = document.getElementById('remember-me').checked;
+        const btn = document.getElementById('login-submit');
+
+        if (!email || !password) { showNotification('Please fill in all fields', 'error'); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showNotification('Enter a valid email', 'error'); return; }
+        if (password.length < 8) { showNotification('Password must be at least 8 characters', 'error'); return; }
+
+        btn.disabled = true;
+        btn.querySelector('.btn-text').textContent = 'Logging in…';
+
+        try {
+          const res = await fetch('/api/v1/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+          });
+          const data = await res.json();
+          if (!res.ok) { showNotification(data.error || 'Login failed', 'error'); return; }
+
+          if (remember) localStorage.setItem('rememberedEmail', email);
+          else localStorage.removeItem('rememberedEmail');
+
+          localStorage.setItem('access_token', data.access_token);
+          localStorage.setItem('refresh_token', data.refresh_token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          showNotification('Login successful! Redirecting…', 'success');
+          setTimeout(() => { window.location.href = '/Dashboard'; }, 900);
+        } catch {
+          showNotification('Unable to connect to server', 'error');
+        } finally {
+          btn.disabled = false;
+          btn.querySelector('.btn-text').textContent = 'LOGIN';
+        }
+      });
+
+      // Enter key submit
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') document.getElementById('login-submit')?.click();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,343 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f7e6b7 0%, #eed397 45%, #fbf2e6 100%);
+  color: #4e3d6d;
+  overflow-x: hidden;
+}
+
+.container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── LEFT SECTION ───────────────────────────────────── */
+.left-section {
+  width: 42%;
+  min-height: 100vh;
+  background: #e6b31f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 50px;
+}
+
+.form-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  padding-top: 110px;
+}
+
+.form-wrap .welcome {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.welcome-title {
+  font-size: 58px;
+  color: #6b3f92;
+  font-family: "Rozha One", serif;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.welcome-subtitle {
+  font-size: 14px;
+  color: #53386e;
+  line-height: 1.7;
+  max-width: 320px;
+}
+
+/* ── LOGIN CARD ─────────────────────────────────────── */
+.login-card {
+  width: 100%;
+  padding: 32px 28px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06));
+  border: 1px solid rgba(255,255,255,0.55);
+  border-radius: 16px;
+  box-shadow: inset 0 6px 12px rgba(255,255,255,0.25), 0 18px 40px rgba(0,0,0,0.12);
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 28px;
+  color: #6b3f92;
+}
+
+.login-heading {
+  text-align: center;
+  font-size: 28px;
+  color: rgba(80,56,106,0.95);
+  margin-bottom: 22px;
+  font-family: "Rye", serif;
+  letter-spacing: 2px;
+}
+
+/* ── INPUTS ─────────────────────────────────────────── */
+.input-box {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 13px 46px 13px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.7);
+  background: rgba(255,255,255,0.22);
+  color: rgba(76,53,110,0.95);
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-box input:focus {
+  border-color: rgba(120,80,140,0.9);
+  background: rgba(255,255,255,0.32);
+  box-shadow: 0 4px 12px rgba(120,80,140,0.14);
+}
+
+.input-box input::placeholder {
+  color: rgba(80,56,106,0.55);
+  font-size: 12px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+
+.input-box i {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(80,56,106,0.65);
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.input-box i:hover { color: #6b3f92; }
+
+/* ── OPTIONS ROW ────────────────────────────────────── */
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 10px 0 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #5e3f7d;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.remember-label input { width: 15px; height: 15px; cursor: pointer; }
+
+.forgot-password {
+  color: #5e3f7d;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+.forgot-password:hover { text-decoration: underline; }
+
+/* ── LOGIN BUTTON ───────────────────────────────────── */
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  background: #d3f0b8;
+  border: none;
+  color: rgba(56,56,56,0.9);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  letter-spacing: 1px;
+}
+
+.login-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  background: #c4e79f;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.login-btn:disabled { opacity: 0.65; cursor: default; }
+
+.btn-icon { font-size: 14px; }
+
+/* ── DIVIDER ────────────────────────────────────────── */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 14px;
+  color: rgba(80,56,106,0.55);
+  font-size: 12px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(80,56,106,0.2);
+}
+
+/* ── SOCIAL BUTTONS ─────────────────────────────────── */
+.social-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.social-btn {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.18);
+  border-radius: 8px;
+  color: #5e3f7d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  transition: all 0.2s;
+}
+
+.social-btn:hover {
+  background: rgba(255,255,255,0.32);
+  transform: translateY(-1px);
+}
+
+/* ── SIGNUP LINK ────────────────────────────────────── */
+.signup-text {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(72,52,106,0.9);
+}
+
+.signup-text a {
+  color: rgba(72,52,106,0.95);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+/* ── RIGHT SECTION ──────────────────────────────────── */
+.right-section {
+  width: 58%;
+  min-height: 100vh;
+  background: #f8f5f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 60px;
+}
+
+.right-content {
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+}
+
+.brand-badge {
+  margin-bottom: 24px;
+}
+
+.brand-logo {
+  max-width: 100px;
+  height: auto;
+}
+
+.right-heading {
+  font-size: 36px;
+  color: #4e3d6d;
+  font-family: "Rozha One", serif;
+  line-height: 1.15;
+  margin-bottom: 12px;
+}
+
+.right-sub {
+  color: #6b5c7e;
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+.stat-box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 22px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.stat-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #6b3f92;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #888;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.hero-illustration img {
+  width: 100%;
+  max-width: 420px;
+  height: auto;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+}
+
+/* ── RESPONSIVE ─────────────────────────────────────── */
+@media (max-width: 992px) {
+  .container { flex-direction: column; }
+  .left-section, .right-section { width: 100%; min-height: auto; }
+  .left-section { padding: 50px 28px; }
+  .right-section { padding: 36px 24px; }
+  .form-wrap { padding-top: 120px; }
+}
+
+@media (max-width: 600px) {
+  .welcome-title { font-size: 40px; }
+  .login-card { padding: 26px 20px; }
+  .stats-row { gap: 14px; }
+  .stat-box { padding: 12px 16px; min-width: 70px; }
+  .right-heading { font-size: 28px; }
+}

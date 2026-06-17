@@ -1,0 +1,846 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="AI-powered aptitude practice — pick a topic, get Groq-generated questions adaptive to your level.">
+  <meta name="theme-color" content="#ead690">
+  <title>Aptitude Practice - AI Powered</title>
+  <link rel="stylesheet" href="/static/CSS/test-page.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    /* ── TOPIC CARDS (replacing the old static grid) ── */
+    .section-header {
+      padding: 32px 40px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .section-header h2 { font-size: 22px; color: #222; }
+    .level-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
+    }
+    .level-beginner     { background:#d4edda; color:#2e6b3a; }
+    .level-intermediate { background:#fff3cd; color:#856404; }
+    .level-advanced     { background:#f8d7da; color:#842029; }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+      padding: 24px 40px 10px;
+    }
+    .topic-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 22px 20px 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      cursor: pointer;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      position: relative;
+      overflow: hidden;
+      border: 2px solid transparent;
+    }
+    .topic-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 28px rgba(0,0,0,0.13);
+      border-color: #eadba3;
+    }
+    .topic-card .card-icon {
+      width: 46px; height: 46px;
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+    .topic-card h3 { font-size: 16px; color: #222; margin-bottom: 6px; }
+    .topic-card .card-meta {
+      font-size: 12px; color: #888; display: flex; gap: 12px; margin-bottom: 14px;
+    }
+    .topic-card .card-meta span { display:flex; align-items:center; gap:4px; }
+    .topic-card .start-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #4d4742; color: #fff;
+      border: none; border-radius: 8px; padding: 9px 18px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .topic-card .start-btn:hover { background: #2f2b28; }
+    .topic-card .diff-badge {
+      position: absolute; top: 14px; right: 14px;
+      padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700;
+    }
+    .diff-easy   { background:#d4edda; color:#2e6b3a; }
+    .diff-medium { background:#fff3cd; color:#856404; }
+    .diff-hard   { background:#f8d7da; color:#842029; }
+
+    .topic-card .progress-row {
+      margin-top: 10px;
+    }
+    .topic-card .progress-label {
+      display: flex; justify-content: space-between;
+      font-size: 11px; color: #999; margin-bottom: 4px;
+    }
+    .progress-bar-bg {
+      background: #f0ece4; border-radius: 4px; height: 5px; overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%; background: #4d4742; border-radius: 4px;
+      transition: width 0.4s ease;
+    }
+
+    /* ── QUICK STATS ROW ── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 0 40px 10px;
+      margin-top: 8px;
+    }
+    .stat-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .stat-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .stat-label { font-size: 12px; color: #888; }
+    .stat-value { font-size: 20px; font-weight: 800; color: #222; }
+
+    /* ── QUIZ MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(3px);
+      z-index: 2000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: #fff;
+      border-radius: 18px;
+      width: 100%; max-width: 720px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 30px 32px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      transform: translateY(20px);
+      transition: transform 0.2s;
+      position: relative;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 22px; gap: 12px;
+    }
+    .modal-header h2 { font-size: 20px; color: #222; }
+    .modal-close {
+      background: #f0ece4; border: none; border-radius: 8px;
+      width: 34px; height: 34px; cursor: pointer;
+      font-size: 16px; color: #555; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .modal-close:hover { background: #e0dbd0; }
+
+    /* Config panel inside modal */
+    .config-row {
+      display: grid; grid-template-columns: 1fr 1fr 1fr;
+      gap: 14px; margin-bottom: 22px;
+    }
+    .config-label {
+      font-size: 12px; font-weight: 700; color: #555;
+      display: flex; flex-direction: column; gap: 6px;
+    }
+    .config-label select {
+      border: 1px solid #ded6bd; border-radius: 8px;
+      padding: 9px 10px; font: inherit; background: #fff;
+      font-size: 13px;
+    }
+
+    .gen-btn {
+      width: 100%; padding: 14px;
+      background: #4d4742; color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.15s;
+      margin-bottom: 20px;
+    }
+    .gen-btn:hover:not(:disabled) { background: #2f2b28; }
+    .gen-btn:disabled { opacity: 0.6; cursor: default; }
+
+    /* Status bar in modal */
+    .modal-status {
+      background: #fffcf2; border: 1px solid #ece5cf;
+      border-radius: 8px; padding: 12px 16px;
+      font-size: 13px; color: #4b4b4b;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px; margin-bottom: 16px;
+    }
+    .modal-timer {
+      background: #eadba3; border-radius: 6px;
+      padding: 6px 12px; font-size: 13px; font-weight: 800;
+      color: #2f2b28; display: flex; align-items: center; gap: 6px;
+      flex-shrink: 0;
+    }
+    .modal-timer.danger { color: #b83232; }
+
+    /* Question inside modal */
+    .modal-question { margin-bottom: 18px; }
+    .modal-q-meta {
+      font-size: 12px; font-weight: 700; color: #6b5c4a;
+      display: flex; justify-content: space-between; margin-bottom: 8px;
+    }
+    .modal-question h3 { font-size: 16px; color: #222; margin-bottom: 12px; line-height: 1.5; }
+    .modal-options { display: grid; gap: 8px; }
+    .modal-option {
+      display: flex; align-items: center; gap: 10px;
+      background: #f8f7f5; border: 1px solid #eee7d3;
+      border-radius: 8px; padding: 11px 14px;
+      cursor: pointer; transition: background 0.15s;
+      font-size: 14px;
+    }
+    .modal-option:hover { background: #eadba3; }
+    .modal-option input[type=radio] { accent-color: #4d4742; }
+    .modal-option.opt-correct { background: #d4edda; border-color: #3f7d46; font-weight: 700; }
+    .modal-option.opt-wrong   { background: #f8d7da; border-color: #b45748; }
+
+    .modal-answer-detail {
+      background: #fffcf2; border-left: 3px solid #4d4742;
+      border-radius: 6px; padding: 10px 14px;
+      font-size: 13px; color: #5d5952; margin-top: 10px;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .ans-status-correct { color: #3f7d46; font-weight: 700; }
+    .ans-status-wrong   { color: #b45748; font-weight: 700; }
+    .ans-status-skip    { color: #888;    font-weight: 700; }
+
+    .modal-submit-btn {
+      width: 100%; padding: 13px;
+      background: #eadba3; color: #2f2b28;
+      border: none; border-radius: 10px;
+      font-size: 15px; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      transition: background 0.15s; margin-top: 18px;
+    }
+    .modal-submit-btn:hover:not(:disabled) { background: #e0cc8c; }
+    .modal-submit-btn:disabled { opacity: 0.6; cursor: default; }
+
+    /* Result inside modal */
+    .modal-result {
+      background: linear-gradient(135deg, #fffcf2, #fdf5e0);
+      border: 1px solid #ece5cf; border-radius: 12px;
+      padding: 22px; text-align: center; margin-top: 16px;
+    }
+    .result-pct { font-size: 52px; font-weight: 900; color: #4d4742; line-height: 1; }
+    .result-sub { color: #6b5c4a; font-size: 14px; margin: 6px 0 16px; }
+    .result-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-retry { background: #4d4742; color: #fff; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; display:flex;align-items:center;gap:8px; }
+    .btn-retry:hover { background: #2f2b28; }
+    .btn-close-modal { background: #eadba3; color: #2f2b28; border: none; border-radius: 8px; padding: 10px 22px; font-size: 14px; font-weight: 700; cursor: pointer; }
+
+    /* Spinner */
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Sidebar active link style */
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px; cursor: pointer;
+      color: #555; font-size: 14px; transition: 0.2s;
+      margin: 4px 0;
+    }
+    .sidebar-link:hover, .sidebar-link.active { background: #fff; color: #d17b43; font-weight: 600; }
+    .sidebar-link i { width: 22px; text-align: center; }
+
+    /* Responsive */
+    @media (max-width: 1100px) { .topic-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px)  {
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .config-row  { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 700px)  {
+      .topic-grid  { grid-template-columns: 1fr; padding: 16px 18px; }
+      .stats-strip { padding: 0 18px; }
+      .section-header { padding: 20px 18px 0; }
+      .modal { padding: 20px 18px; }
+      .config-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar" id="sidebar">
+    <button id="close-btn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    <a class="logo" href="/Dashboard"><img src="/images/Apti-logo.png" alt="Logo"></a>
+
+    <div class="active-task" style="cursor:default;">
+      <i class="fa-solid fa-layer-group"></i>
+      <span>Practice Tests</span>
+    </div>
+
+    <div class="menu-section">
+      <h4>Sections</h4>
+      <ul id="sidebar-sections" style="list-style:none;padding:0;">
+        <li class="sidebar-link" data-topic="Quantitative Aptitude"><i class="fa-solid fa-chart-column"></i> Quantitative</li>
+        <li class="sidebar-link" data-topic="Logical Reasoning"><i class="fa-solid fa-chart-pie"></i> Logical Reasoning</li>
+        <li class="sidebar-link" data-topic="Verbal Ability"><i class="fa-solid fa-gears"></i> Verbal Ability</li>
+        <li class="sidebar-link" data-topic="Data Interpretation"><i class="fa-solid fa-signal"></i> Data Interpretation</li>
+        <li class="sidebar-link" data-topic="Puzzle Solving"><i class="fa-solid fa-lightbulb"></i> Puzzle Solving</li>
+        <li class="sidebar-link" data-topic="Quick Revision"><i class="fa-solid fa-chart-line"></i> Quick Revision</li>
+      </ul>
+    </div>
+
+    <hr>
+    <div class="menu-section">
+      <h4>Resources</h4>
+      <ul style="list-style:none;padding:0;">
+        <li class="sidebar-link"><i class="fa-solid fa-book"></i> Study Notes</li>
+        <li class="sidebar-link"><i class="fa-solid fa-graduation-cap"></i> Tips &amp; Tricks</li>
+        <li class="sidebar-link"><i class="fa-solid fa-heart"></i> Motivation</li>
+      </ul>
+    </div>
+
+    <hr>
+    <div class="menu-section">
+      <h4>Account</h4>
+      <ul style="list-style:none;padding:0;">
+        <li class="sidebar-link" data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <main class="main-content">
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="left-nav">
+        <i class="fa-solid fa-bars" id="menu-btn" style="cursor:pointer;font-size:20px;"></i>
+        <h1 style="font-size:20px;font-weight:700;">Aptitude Practice</h1>
+      </div>
+      <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="topic-search" placeholder="Search topics">
+      </div>
+    </nav>
+
+    <!-- STATS STRIP -->
+    <div class="stats-strip" id="stats-strip">
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fdf5e0;color:#d17b43;"><i class="fa-solid fa-fire"></i></div>
+        <div><div class="stat-label">Tests Taken</div><div class="stat-value" id="stat-tests">0</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#d4edda;color:#2e6b3a;"><i class="fa-solid fa-check-circle"></i></div>
+        <div><div class="stat-label">Avg Accuracy</div><div class="stat-value" id="stat-accuracy">—</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#e8d5f5;color:#6b3f92;"><i class="fa-solid fa-trophy"></i></div>
+        <div><div class="stat-label">Total XP</div><div class="stat-value" id="stat-xp">0</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:#fff3cd;color:#856404;"><i class="fa-solid fa-bolt"></i></div>
+        <div><div class="stat-label">Your Level</div><div class="stat-value" id="stat-level" style="font-size:14px;margin-top:2px;">—</div></div>
+      </div>
+    </div>
+
+    <!-- SECTION HEADER -->
+    <div class="section-header">
+      <h2>Choose a Topic to Practice</h2>
+      <span id="level-pill" class="level-pill level-beginner">🟢 Beginner</span>
+    </div>
+
+    <!-- TOPIC CARDS GRID -->
+    <div class="topic-grid" id="topic-grid">
+      <!-- injected by JS -->
+    </div>
+
+  </main>
+</div>
+
+<!-- ── QUIZ MODAL ── -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div>
+        <p class="eyebrow" id="modal-eyebrow">Groq AI Quiz</p>
+        <h2 id="modal-title">Topic Name</h2>
+      </div>
+      <button class="modal-close" id="modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- Config panel (shown before start) -->
+    <div id="modal-config">
+      <div class="config-row">
+        <label class="config-label">
+          Difficulty
+          <select id="m-difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+        </label>
+        <label class="config-label">
+          Questions
+          <select id="m-count">
+            <option value="5">5 questions</option>
+            <option value="10" selected>10 questions</option>
+            <option value="15">15 questions</option>
+          </select>
+        </label>
+        <label class="config-label">
+          Timer
+          <select id="m-timer">
+            <option value="300">5 min</option>
+            <option value="600" selected>10 min</option>
+            <option value="900">15 min</option>
+          </select>
+        </label>
+      </div>
+      <button class="gen-btn" id="gen-btn">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> Generate &amp; Start
+      </button>
+    </div>
+
+    <!-- Status + timer row -->
+    <div class="modal-status" id="modal-status-row" style="display:none;">
+      <span id="modal-status-text">Loading…</span>
+      <div class="modal-timer" id="modal-timer"><i class="fa-regular fa-clock"></i><span id="modal-timer-text">—</span></div>
+    </div>
+
+    <!-- Questions area -->
+    <div id="modal-questions"></div>
+
+    <!-- Result area -->
+    <div id="modal-result" style="display:none;"></div>
+  </div>
+</div>
+
+<script src="/static/JS/script.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* ── Auth ── */
+  const token = localStorage.getItem('access_token');
+  if (!token) { window.location.href = '/login'; return; }
+
+  /* ── Storage keys ── */
+  const LEVEL_KEY   = 'apti_user_level';
+  const HISTORY_KEY = 'apti_score_history';
+  const STATS_KEY   = 'apti_stats';
+
+  /* ── Topic definitions ── */
+  const TOPICS = [
+    { id: 'quant',   name: 'Quantitative Aptitude', icon: 'fa-calculator',   color: '#fdf5e0', iconColor: '#d17b43', questions: 20, mins: 15, desc: 'Arithmetic, algebra, percentages & more' },
+    { id: 'logical', name: 'Logical Reasoning',     icon: 'fa-brain',        color: '#e8d5f5', iconColor: '#6b3f92', questions: 18, mins: 15, desc: 'Patterns, sequences & deductive logic' },
+    { id: 'verbal',  name: 'Verbal Ability',        icon: 'fa-book-open',    color: '#d4edda', iconColor: '#2e6b3a', questions: 15, mins: 12, desc: 'Vocabulary, grammar & comprehension' },
+    { id: 'di',      name: 'Data Interpretation',   icon: 'fa-chart-simple', color: '#dbeafe', iconColor: '#1e40af', questions: 12, mins: 12, desc: 'Tables, charts, graphs & data analysis' },
+    { id: 'puzzle',  name: 'Puzzle Solving',        icon: 'fa-puzzle-piece', color: '#fce7d6', iconColor: '#c05621', questions: 10, mins: 10, desc: 'Seating, blood relations, coding-decoding' },
+    { id: 'quick',   name: 'Quick Revision',        icon: 'fa-stopwatch',    color: '#f0fdf4', iconColor: '#16a34a', questions: 8,  mins: 8,  desc: 'Fast-fire mixed aptitude questions' },
+  ];
+
+  /* ── Level helpers ── */
+  function getLevel()    { return localStorage.getItem(LEVEL_KEY) || 'beginner'; }
+  function levelDiff(l)  { return { beginner:'easy', intermediate:'medium', advanced:'hard' }[l] || 'medium'; }
+  function levelLabel(l) {
+    return { beginner:'🟢 Beginner', intermediate:'🟡 Intermediate', advanced:'🔴 Advanced' }[l] || l;
+  }
+  function levelClass(l) { return 'level-' + l; }
+  function diffClass(d)  { return 'diff-' + d; }
+
+  function getStats() {
+    try { return JSON.parse(localStorage.getItem(STATS_KEY) || '{}'); } catch { return {}; }
+  }
+  function saveStats(s) { localStorage.setItem(STATS_KEY, JSON.stringify(s)); }
+
+  function getTopicStat(topicId) {
+    const s = getStats();
+    return s[topicId] || { attempts: 0, bestPct: 0, totalPct: 0 };
+  }
+  function updateTopicStat(topicId, pct) {
+    const s = getStats();
+    const t = s[topicId] || { attempts: 0, bestPct: 0, totalPct: 0, xp: 0 };
+    t.attempts++;
+    t.totalPct += pct;
+    if (pct > t.bestPct) t.bestPct = pct;
+    t.xp = (t.xp || 0) + Math.round(pct / 10) * 10 + 25;
+    s[topicId] = t;
+    saveStats(s);
+    return t;
+  }
+
+  function updateUserLevel(pct) {
+    let history = JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+    history.push(pct); if (history.length > 5) history = history.slice(-5);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    const avg = history.reduce((a, b) => a + b, 0) / history.length;
+    const lvl = avg >= 75 ? 'advanced' : avg >= 45 ? 'intermediate' : 'beginner';
+    localStorage.setItem(LEVEL_KEY, lvl);
+    return lvl;
+  }
+
+  /* ── Render stats strip ── */
+  function renderStats() {
+    const s    = getStats();
+    const lvl  = getLevel();
+    let tests  = 0, totalPct = 0, xp = 0;
+    Object.values(s).forEach(t => {
+      tests  += t.attempts || 0;
+      totalPct += t.totalPct || 0;
+      xp     += t.xp || 0;
+    });
+    const avgPct = tests ? Math.round(totalPct / tests) : null;
+    document.getElementById('stat-tests').textContent    = tests;
+    document.getElementById('stat-accuracy').textContent = avgPct !== null ? avgPct + '%' : '—';
+    document.getElementById('stat-xp').textContent       = xp;
+    document.getElementById('stat-level').innerHTML      = `<span class="level-pill ${levelClass(lvl)}" style="padding:3px 10px;font-size:12px;">${levelLabel(lvl)}</span>`;
+
+    const pill = document.getElementById('level-pill');
+    if (pill) { pill.textContent = levelLabel(lvl); pill.className = 'level-pill ' + levelClass(lvl); }
+  }
+
+  /* ── Build topic grid ── */
+  function renderTopics(filter) {
+    const grid  = document.getElementById('topic-grid');
+    const lvl   = getLevel();
+    const autoDiff = levelDiff(lvl);
+
+    const filtered = filter
+      ? TOPICS.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()))
+      : TOPICS;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<p style="grid-column:1/-1;color:#888;padding:20px;">No topics match "${filter}".</p>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(t => {
+      const stat    = getTopicStat(t.id);
+      const avgPct  = stat.attempts ? Math.round(stat.totalPct / stat.attempts) : null;
+      const progW   = avgPct !== null ? avgPct : 0;
+
+      return `
+        <div class="topic-card" data-topic="${t.id}" data-name="${t.name}">
+          <span class="diff-badge ${diffClass(autoDiff)}">${autoDiff}</span>
+          <div class="card-icon" style="background:${t.color};color:${t.iconColor};">
+            <i class="fa-solid ${t.icon}"></i>
+          </div>
+          <h3>${t.name}</h3>
+          <p style="font-size:12px;color:#888;margin-bottom:10px;">${t.desc}</p>
+          <div class="card-meta">
+            <span><i class="fa-solid fa-circle-question"></i> ${t.questions} questions</span>
+            <span><i class="fa-regular fa-clock"></i> ${t.mins} mins</span>
+            ${stat.attempts ? `<span><i class="fa-solid fa-repeat"></i> ${stat.attempts}x done</span>` : ''}
+          </div>
+          ${stat.attempts ? `
+            <div class="progress-row">
+              <div class="progress-label"><span>Avg score</span><span>${avgPct}%</span></div>
+              <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${progW}%"></div></div>
+            </div>` : ''}
+          <button class="start-btn" data-topic="${t.id}" data-name="${t.name}">
+            <i class="fa-solid fa-play"></i> Start Now
+          </button>
+        </div>
+      `;
+    }).join('');
+
+    // Bind start buttons + card clicks
+    grid.querySelectorAll('.start-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openModal(btn.dataset.topic, btn.dataset.name);
+      });
+    });
+    grid.querySelectorAll('.topic-card').forEach(card => {
+      card.addEventListener('click', () => openModal(card.dataset.topic, card.dataset.name));
+    });
+  }
+
+  /* ── Sidebar section clicks ── */
+  document.querySelectorAll('.sidebar-link[data-topic]').forEach(li => {
+    li.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+      li.classList.add('active');
+      const topic = TOPICS.find(t => t.name === li.dataset.topic);
+      if (topic) openModal(topic.id, topic.name);
+      document.getElementById('sidebar').classList.remove('show');
+    });
+  });
+
+  /* ── Search ── */
+  document.getElementById('topic-search').addEventListener('input', function () {
+    renderTopics(this.value.trim());
+  });
+
+  /* ── Sidebar toggle ── */
+  document.getElementById('menu-btn').addEventListener('click',  () => document.getElementById('sidebar').classList.add('show'));
+  document.getElementById('close-btn').addEventListener('click', () => document.getElementById('sidebar').classList.remove('show'));
+
+  /* ── Logout ── */
+  document.querySelectorAll('[data-action="logout"]').forEach(el =>
+    el.addEventListener('click', () => {
+      ['access_token','refresh_token','user'].forEach(k => localStorage.removeItem(k));
+      window.location.href = '/login';
+    })
+  );
+
+  /* ════════════════════════════════════════════════════════
+     MODAL + QUIZ ENGINE
+  ════════════════════════════════════════════════════════ */
+  let quiz = { topic:null, topicId:null, questions:[], timerId:null, remaining:0, submitted:false, startedAt:null };
+
+  function openModal(topicId, topicName) {
+    quiz.topicId = topicId; quiz.topic = topicName;
+    const lvl      = getLevel();
+    const autoDiff = levelDiff(lvl);
+
+    document.getElementById('modal-eyebrow').textContent = 'Groq AI Quiz · ' + levelLabel(lvl);
+    document.getElementById('modal-title').textContent   = topicName;
+    document.getElementById('m-difficulty').value        = autoDiff;
+
+    // Reset modal state
+    document.getElementById('modal-config').style.display    = '';
+    document.getElementById('modal-status-row').style.display = 'none';
+    document.getElementById('modal-questions').innerHTML      = '';
+    document.getElementById('modal-result').style.display     = 'none';
+    document.getElementById('gen-btn').disabled               = false;
+    document.getElementById('gen-btn').innerHTML              = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate &amp; Start';
+
+    document.getElementById('modal-overlay').classList.add('open');
+    clearQuizTimer();
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    clearQuizTimer();
+  }
+
+  document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-overlay')) closeModal();
+  });
+
+  /* ── Generate questions ── */
+  document.getElementById('gen-btn').addEventListener('click', async () => {
+    const difficulty = document.getElementById('m-difficulty').value;
+    const count      = Number(document.getElementById('m-count').value);
+    const timerSecs  = Number(document.getElementById('m-timer').value);
+    const btn        = document.getElementById('gen-btn');
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Generating with Groq AI…';
+
+    document.getElementById('modal-config').style.display     = 'none';
+    document.getElementById('modal-status-row').style.display = 'flex';
+    document.getElementById('modal-status-text').textContent  = `✨ Generating ${count} AI questions on "${quiz.topic}"…`;
+    document.getElementById('modal-timer-text').textContent   = '—';
+    document.getElementById('modal-questions').innerHTML      = '';
+    document.getElementById('modal-result').style.display     = 'none';
+
+    try {
+      const res = await fetch('/api/v1/ai/aptitude-questions', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + token },
+        body: JSON.stringify({ category: quiz.topic, difficulty, count }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw Object.assign(new Error(data.error || 'Failed'), { status: res.status });
+
+      quiz.questions  = data.questions || [];
+      quiz.remaining  = timerSecs;
+      quiz.submitted  = false;
+      quiz.startedAt  = Date.now();
+      renderQuizQuestions(difficulty);
+      startQuizTimer();
+    } catch (err) {
+      if (err.status === 401) { closeModal(); window.location.href = '/login'; return; }
+      document.getElementById('modal-status-text').textContent =
+        err.status === 503
+          ? '⚠️ AI not configured. Set GROQ_API_KEY in backend/.env'
+          : '⚠️ Could not generate questions. Check your GROQ_API_KEY and try again.';
+      // Re-show config so user can retry
+      document.getElementById('modal-config').style.display = '';
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fa-solid fa-rotate-right"></i> Retry';
+    }
+  });
+
+  /* ── Render quiz questions ── */
+  function renderQuizQuestions(difficulty) {
+    if (!quiz.questions.length) {
+      document.getElementById('modal-status-text').textContent = 'No questions generated. Try a different topic.';
+      return;
+    }
+    document.getElementById('modal-status-text').textContent =
+      `${quiz.questions.length} questions ready (${difficulty}) — pick one answer each, then submit.`;
+
+    const wrap = document.getElementById('modal-questions');
+    wrap.innerHTML = quiz.questions.map((q, i) => `
+      <div class="modal-question" data-index="${i}">
+        <div class="modal-q-meta">
+          <span>Q${i+1} of ${quiz.questions.length}</span>
+          <span>${esc(q.category_name || quiz.topic)} · ${esc(q.difficulty)}</span>
+        </div>
+        <h3>${esc(q.text)}</h3>
+        <div class="modal-options">
+          ${q.options.map((opt, oi) => `
+            <label class="modal-option" id="mopt-${i}-${oi}">
+              <input type="radio" name="mq${i}" value="${oi}">
+              <span>${esc(opt)}</span>
+            </label>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    // Submit button
+    const sub = document.createElement('button');
+    sub.id = 'modal-sub-btn';
+    sub.className = 'modal-submit-btn';
+    sub.innerHTML = '<i class="fa-solid fa-check"></i> Submit Test';
+    sub.addEventListener('click', submitQuiz);
+    wrap.appendChild(sub);
+  }
+
+  /* ── Submit quiz ── */
+  function submitQuiz() {
+    if (quiz.submitted) return;
+    quiz.submitted = true;
+    clearQuizTimer();
+
+    document.getElementById('modal-questions').querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+    document.getElementById('modal-sub-btn')?.remove();
+
+    const answers = quiz.questions.map((q, i) => {
+      const checked = document.querySelector(`input[name="mq${i}"]:checked`);
+      const sel = checked ? Number(checked.value) : null;
+      return { sel, correct: q.correct_option, ok: sel !== null && sel === q.correct_option, q };
+    });
+
+    const correct  = answers.filter(a => a.ok).length;
+    const total    = quiz.questions.length;
+    const pct      = total ? Math.round(correct / total * 100) : 0;
+    const timeTaken = Math.round((Date.now() - quiz.startedAt) / 1000);
+    const xp       = correct * 10 + 25;
+
+    // Highlight answers
+    answers.forEach((a, i) => {
+      a.q.options.forEach((_, oi) => {
+        const lbl = document.getElementById(`mopt-${i}-${oi}`);
+        if (!lbl) return;
+        if (oi === a.correct) lbl.classList.add('opt-correct');
+        else if (oi === a.sel && !a.ok) lbl.classList.add('opt-wrong');
+      });
+      const detail = document.createElement('div');
+      detail.className = 'modal-answer-detail';
+      const skip = a.sel === null;
+      detail.innerHTML = `
+        <span class="${skip?'ans-status-skip':a.ok?'ans-status-correct':'ans-status-wrong'}">
+          ${skip?'⏭️ Skipped':a.ok?'✅ Correct!':'❌ Incorrect'}
+        </span>
+        ${!a.ok||skip ? `<span>Your answer: ${skip?'—':esc(a.q.options[a.sel])}</span>` : ''}
+        <span>Correct: <strong>${esc(a.q.options[a.correct])}</strong></span>
+        ${a.q.explanation ? `<span>💡 ${esc(a.q.explanation)}</span>` : ''}
+      `;
+      document.querySelector(`.modal-question[data-index="${i}"]`)?.appendChild(detail);
+    });
+
+    // Update stats + level
+    const stat = updateTopicStat(quiz.topicId, pct);
+    const newLevel = updateUserLevel(pct);
+    renderStats();
+    renderTopics(document.getElementById('topic-search').value.trim());
+
+    // Status bar
+    document.getElementById('modal-status-text').innerHTML =
+      `Done! <strong>${correct}/${total}</strong> correct · <strong>${pct}%</strong> · ${formatTime(timeTaken)} · +${xp} XP`;
+
+    // Result banner
+    const resultEl = document.getElementById('modal-result');
+    resultEl.style.display = '';
+    const medal = pct >= 80 ? '🏆' : pct >= 50 ? '👍' : '📚';
+    resultEl.innerHTML = `
+      <div class="modal-result">
+        <div class="result-pct">${medal} ${pct}%</div>
+        <div class="result-sub">${correct}/${total} correct &nbsp;·&nbsp; ${formatTime(timeTaken)} &nbsp;·&nbsp; +${xp} XP</div>
+        <div class="result-sub">Best score on this topic: ${stat.bestPct}% &nbsp;|&nbsp; Level: ${levelLabel(newLevel)}</div>
+        <div class="result-btns">
+          <button class="btn-retry" id="modal-retry-btn"><i class="fa-solid fa-rotate-right"></i> Try Again</button>
+          <button class="btn-close-modal" id="modal-done-btn">Done</button>
+        </div>
+      </div>
+    `;
+    document.getElementById('modal-retry-btn').addEventListener('click', () => openModal(quiz.topicId, quiz.topic));
+    document.getElementById('modal-done-btn').addEventListener('click', closeModal);
+
+    // Scroll to result
+    resultEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Best-effort backend save
+    try {
+      const backendAnswers = quiz.questions.map((q, i) => ({
+        question_id: q.id, selected_option: answers[i].sel,
+        time_spent: Math.max(1, Math.round(timeTaken / total)),
+      }));
+      fetch('/api/v1/tests/submit', {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json','Authorization':'Bearer '+token },
+        body: JSON.stringify({ answers: backendAnswers, time_taken: timeTaken }),
+      }).catch(() => {});
+    } catch {}
+  }
+
+  /* ── Timer ── */
+  function startQuizTimer() {
+    clearQuizTimer();
+    updateTimerDisplay();
+    quiz.timerId = setInterval(() => {
+      quiz.remaining--;
+      updateTimerDisplay();
+      if (quiz.remaining <= 0) {
+        document.getElementById('modal-status-text').textContent = '⏰ Time up! Auto-submitting…';
+        submitQuiz();
+      }
+    }, 1000);
+  }
+  function clearQuizTimer() {
+    if (quiz.timerId) { clearInterval(quiz.timerId); quiz.timerId = null; }
+  }
+  function updateTimerDisplay() {
+    const el = document.getElementById('modal-timer-text');
+    if (el) el.textContent = formatTime(Math.max(quiz.remaining, 0));
+    const box = document.getElementById('modal-timer');
+    if (box) box.classList.toggle('danger', quiz.remaining <= 30 && quiz.startedAt);
+  }
+
+  /* ── Helpers ── */
+  function formatTime(s) { return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+  function esc(v) {
+    return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                    .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }
+
+  /* ── Init ── */
+  renderStats();
+  renderTopics();
+})();
+</script>
+</body>
+</html>

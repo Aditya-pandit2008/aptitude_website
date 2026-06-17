@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Your personal Aptitude Test Dashboard - track progress, manage tasks, and prepare for placements." />
+    <meta name="theme-color" content="#d8d7d3" />
+    <title>Dashboard - Aptitude Test | Your Learning Hub</title>
+
+    <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  </head>
+  <body>
+    <div class="container">
+      <aside class="sidebar">
+        <a class="logo" href="/Dashboard">
+          <img src="/images/Apti-logo.png" width="230" height="90" alt="Logo" />
+        </a>
+
+        <ul class="menu">
+          <li class="active" data-page="/Dashboard">
+            <i class="fa-solid fa-house"></i>
+            Dashboard
+          </li>
+          <li data-page="/test-page">
+            <i class="fa-solid fa-bullseye"></i>
+            Set Tasks
+          </li>
+          <li data-page="/aptitude-test">
+            <i class="fa-regular fa-calendar"></i>
+            Aptitude Tests
+          </li>
+          <li data-page="/resources">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            Resources
+          </li>
+          <li data-page="/bookmarks">
+            <i class="fa-regular fa-bookmark"></i>
+            Saved Questions
+          </li>
+          <li data-page="/profile">
+            <i class="fa-solid fa-user"></i>
+            Profile
+          </li>
+          <li data-action="logout">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            Logout
+          </li>
+        </ul>
+
+        <div class="bottom-menu">
+          <div class="profile" data-page="/profile">
+            <img src="https://i.pravatar.cc/50" alt="" id="sidebar-avatar" />
+            <span id="profile-name">Student</span>
+          </div>
+          <div class="bottom-item" data-page="/test-page">
+            <i class="fa-solid fa-book-open"></i>
+            Practice Now
+          </div>
+          <div class="bottom-item" data-page="/settings">
+            <i class="fa-solid fa-gear"></i>
+            Settings
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="dashboard-head">
+          <div>
+            <p class="eyebrow">Welcome back</p>
+            <h1 id="dashboard-title">Dashboard</h1>
+          </div>
+          <a class="primary-action" href="/test-page">
+            <i class="fa-solid fa-play"></i>
+            Start Test
+          </a>
+        </div>
+
+        <div class="stats" style="grid-template-columns: repeat(5, 1fr);">
+          <div class="card">
+            <h2 id="stat-tests">0</h2>
+            <p>tests completed</p>
+          </div>
+          <div class="card">
+            <h2 id="stat-questions">0</h2>
+            <p>questions solved</p>
+          </div>
+          <div class="card">
+            <h2 id="stat-accuracy">0%</h2>
+            <p>average accuracy</p>
+          </div>
+          <div class="card">
+            <h2 id="stat-xp">0</h2>
+            <p>total XP earned</p>
+          </div>
+          <div class="card">
+            <h2 id="stat-streak">0</h2>
+            <p>🔥 day streak</p>
+          </div>
+        </div>
+
+        <section class="progress-section">
+          <div class="section-header">
+            <h2>Topic Progress</h2>
+            <a class="section-title" href="/test-page">Practice</a>
+          </div>
+          <div id="topic-progress" class="empty-state">Complete a test to see your topic progress.</div>
+        </section>
+
+        <section class="reward-section">
+          <div class="section-header">
+            <h3>Recent Test Activity</h3>
+            <a class="section-title" href="/test-page">New test</a>
+          </div>
+          <div id="recent-attempts" class="reward-cards">
+            <div class="empty-state">No test attempts yet.</div>
+          </div>
+        </section>
+
+        <section class="reward-section recommendations">
+          <h3>Recommended Focus</h3>
+          <div id="recommendations" class="focus-list">
+            <div class="empty-state">Your recommendations will appear after your first test.</div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/JS/script.js"></script>
+    <script src="/static/JS/dashboard.js"></script>
+  </body>
+</html>

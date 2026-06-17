@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Create your Aptitude Test account and start your placement preparation today.">
+  <meta name="theme-color" content="#e4cb71">
+  <title>Sign Up - Aptitude Test | Start Your Placement Journey</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/CSS/signup.css">
+</head>
+<body>
+  <div class="container">
+    <div class="leftsection">
+      <div class="form-wrap">
+        <div class="welcome">
+          <h1>Create<br>Account</h1>
+          <p class="welcome-subtitle">Join thousands preparing for placements with AI-powered aptitude tests.</p>
+        </div>
+
+        <div class="Signup-page">
+          <div class="signup-logo"><i class="fa-solid fa-user-graduate"></i></div>
+          <h2>Sign Up</h2>
+
+          <div class="input-box">
+            <input type="text" id="su-name" placeholder="Full Name" autocomplete="name" />
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <div class="input-box">
+            <input type="email" id="su-email" placeholder="Email Address" autocomplete="email" />
+            <i class="fa-solid fa-envelope"></i>
+          </div>
+          <div class="input-box">
+            <input type="password" id="su-password" placeholder="Password (min 8 chars)" autocomplete="new-password" />
+            <i class="fa-solid fa-eye" id="toggle-pw1"></i>
+          </div>
+          <div class="input-box">
+            <input type="password" id="su-confirm" placeholder="Confirm Password" autocomplete="new-password" />
+            <i class="fa-solid fa-eye" id="toggle-pw2"></i>
+          </div>
+
+          <!-- Password strength bar -->
+          <div class="pw-strength-wrap">
+            <div class="pw-strength-bar" id="pw-bar"></div>
+          </div>
+          <p class="pw-strength-label" id="pw-label"></p>
+
+          <div class="options">
+            <label class="remember-label">
+              <input type="checkbox" id="su-terms" />
+              <span class="remember-text">I agree to <a href="#" class="terms-link">Terms &amp; Conditions</a></span>
+            </label>
+          </div>
+
+          <button class="signup-submit-btn" id="signup-submit">
+            <span class="btn-text">Create Account</span>
+            <i class="fa-solid fa-arrow-right btn-icon"></i>
+          </button>
+
+          <div class="divider"><span>or sign up with</span></div>
+          <div class="social-row">
+            <button class="social-btn"><i class="fa-brands fa-google"></i> Google</button>
+            <button class="social-btn"><i class="fa-brands fa-github"></i> GitHub</button>
+          </div>
+
+          <div class="signup-text">Already have an account? <a href="/login">Login</a></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="Rightsection">
+      <div class="right-content">
+        <div class="brand-badge">
+          <img src="/images/Apti-logo.png" alt="Apti Logo" class="brand-logo" />
+        </div>
+        <h2 class="right-heading">Start Smart.<br>Practice Daily.</h2>
+        <p class="right-sub">AI questions that match your level — from beginner to advanced, automatically.</p>
+        <div class="features-list">
+          <div class="feat-item"><i class="fa-solid fa-wand-magic-sparkles"></i> AI-generated questions via Groq</div>
+          <div class="feat-item"><i class="fa-solid fa-chart-line"></i> Adaptive difficulty based on your score</div>
+          <div class="feat-item"><i class="fa-solid fa-trophy"></i> XP, streaks &amp; leaderboards</div>
+          <div class="feat-item"><i class="fa-solid fa-bookmark"></i> Bookmark questions for revision</div>
+        </div>
+        <div class="hero-illustration">
+          <img src="/images/Sign-up logo.jpeg" alt="Sign up illustration" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/JS/script.js"></script>
+  <script>
+    // Password toggle helpers
+    function makeToggle(iconId, inputId) {
+      document.getElementById(iconId)?.addEventListener('click', function () {
+        const inp = document.getElementById(inputId);
+        const isPass = inp.type === 'password';
+        inp.type = isPass ? 'text' : 'password';
+        this.classList.toggle('fa-eye', !isPass);
+        this.classList.toggle('fa-eye-slash', isPass);
+      });
+    }
+    makeToggle('toggle-pw1', 'su-password');
+    makeToggle('toggle-pw2', 'su-confirm');
+
+    // Password strength meter
+    document.getElementById('su-password')?.addEventListener('input', function () {
+      const val = this.value;
+      const bar = document.getElementById('pw-bar');
+      const lbl = document.getElementById('pw-label');
+      let score = 0;
+      if (val.length >= 8) score++;
+      if (/[A-Z]/.test(val)) score++;
+      if (/[0-9]/.test(val)) score++;
+      if (/[^A-Za-z0-9]/.test(val)) score++;
+      const levels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+      const colors = ['', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71'];
+      bar.style.width = (score * 25) + '%';
+      bar.style.background = colors[score] || '';
+      lbl.textContent = score > 0 ? levels[score] : '';
+      lbl.style.color = colors[score] || '';
+    });
+
+    // Submit
+    document.getElementById('signup-submit')?.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const name    = document.getElementById('su-name').value.trim();
+      const email   = document.getElementById('su-email').value.trim();
+      const pw      = document.getElementById('su-password').value;
+      const confirm = document.getElementById('su-confirm').value;
+      const terms   = document.getElementById('su-terms').checked;
+      const btn     = document.getElementById('signup-submit');
+
+      if (!name || !email || !pw || !confirm) { showNotification('Please fill in all fields', 'error'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showNotification('Enter a valid email', 'error'); return; }
+      if (pw.length < 8) { showNotification('Password must be at least 8 characters', 'error'); return; }
+      if (pw !== confirm) { showNotification('Passwords do not match', 'error'); return; }
+      if (!terms) { showNotification('Please accept the Terms & Conditions', 'error'); return; }
+
+      btn.disabled = true;
+      btn.querySelector('.btn-text').textContent = 'Creating account…';
+
+      try {
+        const res = await fetch('/api/v1/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: name, email, password: pw })
+        });
+        const data = await res.json();
+        if (!res.ok) { showNotification(data.error || 'Sign up failed', 'error'); return; }
+
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        showNotification('Account created! Redirecting…', 'success');
+        setTimeout(() => { window.location.href = '/Dashboard'; }, 900);
+      } catch {
+        showNotification('Unable to connect to server', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.querySelector('.btn-text').textContent = 'Create Account';
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') document.getElementById('signup-submit')?.click();
+    });
+  </script>
+</body>
+</html>

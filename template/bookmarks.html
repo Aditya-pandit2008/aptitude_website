@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Review saved aptitude questions and explanations.">
+  <meta name="theme-color" content="#dfdbd6">
+  <title>Saved Questions - Aptitude Test</title>
+  <link rel="stylesheet" href="/static/CSS/test-page.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" alt="Logo">
+      </a>
+
+      <a class="active-task" href="/Dashboard">
+        <i class="fa-solid fa-table-columns"></i>
+        <span>Dashboard</span>
+      </a>
+
+      <div class="menu-section">
+        <h4>Revision</h4>
+        <ul>
+          <li onclick="location.href='/test-page'"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+          <li onclick="location.href='/bookmarks'"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
+          <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <nav class="navbar">
+        <div class="left-nav">
+          <img src="/images/Apti-logo.png" alt="Logo">
+        </div>
+      </nav>
+
+      <section class="task-builder">
+        <div>
+          <p class="eyebrow">Revision</p>
+          <h1>Saved Questions</h1>
+          <p class="subtext">Questions you bookmark from test review appear here for focused revision.</p>
+        </div>
+        <a class="primary-btn" href="/template/test-page.html">
+          <i class="fa-solid fa-play"></i>
+          Practice More
+        </a>
+      </section>
+
+      <section id="bookmark-status" class="status-panel">Loading saved questions...</section>
+      <section id="bookmark-list" class="question-area"></section>
+    </main>
+  </div>
+
+  <script src="/static/JS/bookmarks.js"></script>
+</body>
+</html>

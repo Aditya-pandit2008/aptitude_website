@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Aptitude resources, formulas, topic notes, and preparation links." />
+  <title>Resources - Aptitude Test</title>
+  <link rel="stylesheet" href="/static/CSS/test-page.css" />
+  <link rel="stylesheet" href="/static/CSS/profile.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    .resource-hero {
+      align-items: center;
+      background: #fffcf2;
+      border: 1px solid #ece5cf;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      padding: 28px;
+    }
+    .resource-grid {
+      display: grid;
+      gap: 18px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .resource-card {
+      background: #fff;
+      border: 1px solid #ece5cf;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+    .resource-card i {
+      background: #eadba3;
+      border-radius: 8px;
+      color: #4d4742;
+      font-size: 20px;
+      margin-bottom: 14px;
+      padding: 12px;
+    }
+    .resource-card h3 {
+      margin-bottom: 8px;
+    }
+    .resource-card p,
+    .formula-list li {
+      color: #6d6a64;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .resource-card button,
+    .resource-card a {
+      background: #4d4742;
+      border: 0;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+      display: inline-flex;
+      font-weight: 800;
+      margin-top: 14px;
+      padding: 10px 14px;
+      text-decoration: none;
+    }
+    .formula-list {
+      display: grid;
+      gap: 9px;
+      list-style: none;
+      margin-top: 12px;
+    }
+    .formula-list li {
+      background: #f8f7f5;
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+    @media (max-width: 900px) {
+      .resource-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 620px) {
+      .resource-grid {
+        grid-template-columns: 1fr;
+      }
+      .resource-hero {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <a class="logo" href="/Dashboard"><img src="/images/Apti-logo.png" width="230" height="90" alt="Logo" /></a>
+      <ul class="menu">
+        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+        <li class="active" data-page="/resources"><i class="fa-solid fa-magnifying-glass"></i> Resources</li>
+        <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
+        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
+        <li data-page="/settings"><i class="fa-solid fa-gear"></i> Settings</li>
+        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <section class="resource-hero">
+        <div>
+          <p class="eyebrow">Preparation Library</p>
+          <h1>Resources</h1>
+          <p class="muted">Quick formulas, revision checklists, and practice routes for placement aptitude.</p>
+        </div>
+        <a class="btn-primary" href="/test-page"><i class="fa-solid fa-play"></i>&nbsp; Practice Now</a>
+      </section>
+
+      <section class="resource-grid">
+        <article class="resource-card">
+          <i class="fa-solid fa-calculator"></i>
+          <h3>Quant Formula Sheet</h3>
+          <p>Percentages, profit-loss, time-work, speed-distance, averages, ratios, and simple interest.</p>
+          <ul class="formula-list">
+            <li>Percentage change = change / original x 100</li>
+            <li>Speed = distance / time</li>
+            <li>Average = sum of values / count</li>
+          </ul>
+        </article>
+        <article class="resource-card">
+          <i class="fa-solid fa-brain"></i>
+          <h3>Reasoning Checklist</h3>
+          <p>Use structured tables for seating, track assumptions in syllogisms, and mark fixed clues first.</p>
+          <a href="/aptitude-test">Try Reasoning</a>
+        </article>
+        <article class="resource-card">
+          <i class="fa-solid fa-book-open"></i>
+          <h3>Verbal Practice</h3>
+          <p>Read the question before passage scans, eliminate absolute options, and watch tense agreement.</p>
+          <a href="/aptitude-test">Try Verbal</a>
+        </article>
+        <article class="resource-card">
+          <i class="fa-solid fa-chart-simple"></i>
+          <h3>Data Interpretation</h3>
+          <p>Convert chart values into one small table before solving. It prevents most calculation slips.</p>
+          <a href="/aptitude-test">Try DI</a>
+        </article>
+        <article class="resource-card">
+          <i class="fa-solid fa-list-check"></i>
+          <h3>Daily Plan</h3>
+          <p>20 minutes formulas, 25 minutes practice, 10 minutes review, and 5 minutes saved questions.</p>
+          <button id="save-plan">Save Plan</button>
+        </article>
+        <article class="resource-card">
+          <i class="fa-solid fa-bookmark"></i>
+          <h3>Revision Queue</h3>
+          <p>Every saved question should get a short note: why it was missed and the shortcut to solve it.</p>
+          <a href="/bookmarks">Open Saved</a>
+        </article>
+      </section>
+    </main>
+  </div>
+  <div id="notification" class="notification"></div>
+  <script>
+    (function () {
+      if (!localStorage.getItem('access_token')) {
+        window.location.href = '/login';
+        return;
+      }
+      document.querySelectorAll('[data-page]').forEach((item) => {
+        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+      });
+      document.querySelectorAll('[data-action="logout"]').forEach((item) => {
+        item.addEventListener('click', () => {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
+        });
+      });
+      document.getElementById('save-plan').addEventListener('click', () => {
+        localStorage.setItem('apti_daily_plan_saved', 'true');
+        const box = document.getElementById('notification');
+        box.textContent = 'Daily plan saved.';
+        box.className = 'notification active success';
+        setTimeout(() => box.classList.remove('active'), 2500);
+      });
+    })();
+  </script>
+</body>
+</html>
