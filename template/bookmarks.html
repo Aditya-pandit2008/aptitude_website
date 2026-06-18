@@ -1,60 +1,243 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Review saved aptitude questions and explanations.">
-  <meta name="theme-color" content="#dfdbd6">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Review and revise your saved aptitude questions and explanations." />
+  <meta name="theme-color" content="#dfdbd6" />
   <title>Saved Questions - Aptitude Test</title>
-  <link rel="stylesheet" href="/static/CSS/test-page.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <link rel="stylesheet" href="/static/CSS/test-page.css" />
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* Override test-page's zero-padding main-content for this page */
+    .main-content {
+      padding: 0 !important;
+    }
+
+    /* Page hero banner */
+    .bookmarks-hero {
+      background: linear-gradient(135deg, #fffcf2 0%, #fdf6de 100%);
+      border-bottom: 1px solid #ece5cf;
+      padding: 36px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .bookmarks-hero .eyebrow {
+      color: #6b5c4a;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .bookmarks-hero h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1714;
+      margin-bottom: 6px;
+    }
+
+    .bookmarks-hero .subtext {
+      color: #6d6a64;
+      font-size: 14px;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    /* Bookmark content area */
+    .bookmark-body {
+      padding: 32px 40px 60px;
+    }
+
+    /* Status panel */
+    .bk-status {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 14px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: #4b4b4b;
+      font-weight: 600;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bk-status i {
+      color: #6b5c4a;
+      font-size: 16px;
+    }
+
+    /* Bookmark list */
+    .bk-list {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Empty state specific */
+    .bk-empty {
+      background: #f8f7f5;
+      border: 1.5px dashed #ddd8cc;
+      border-radius: 14px;
+      color: #888;
+      padding: 48px 32px;
+      text-align: center;
+    }
+
+    .bk-empty i {
+      font-size: 36px;
+      color: #ccc;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .bk-empty h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .bk-empty p {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .bookmarks-hero {
+        padding: 24px 20px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .bookmark-body {
+        padding: 20px;
+      }
+
+      .bookmarks-hero h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
 </head>
 <body>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div class="container">
-    <aside class="sidebar">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <button id="close-btn" aria-label="Close menu" style="display:none;position:absolute;top:18px;right:18px;border:none;background:none;font-size:24px;cursor:pointer;color:#555;">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
       <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" alt="Logo">
+        <img src="/images/Apti-logo.png" alt="Logo" />
       </a>
-
-      <a class="active-task" href="/Dashboard">
-        <i class="fa-solid fa-table-columns"></i>
-        <span>Dashboard</span>
-      </a>
-
+      <div class="menu-section">
+        <h4>Navigation</h4>
+        <ul>
+          <li onclick="location.href='/Dashboard'"><i class="fa-solid fa-house"></i> Dashboard</li>
+          <li onclick="location.href='/test-page'"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+          <li onclick="location.href='/aptitude-test'"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+          <li onclick="location.href='/resources'"><i class="fa-solid fa-book-open"></i> Resources</li>
+        </ul>
+      </div>
       <div class="menu-section">
         <h4>Revision</h4>
         <ul>
-          <li onclick="location.href='/test-page'"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-          <li onclick="location.href='/bookmarks'"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
+          <li class="active-task" onclick="location.href='/bookmarks'" style="background:#fff;border-radius:10px;color:#d17b43;font-weight:700;">
+            <i class="fa-regular fa-bookmark"></i> Saved Questions
+          </li>
+        </ul>
+      </div>
+      <div class="menu-section" style="margin-top:auto;">
+        <h4>Account</h4>
+        <ul>
+          <li onclick="location.href='/profile'"><i class="fa-solid fa-user"></i> Profile</li>
+          <li onclick="location.href='/settings'"><i class="fa-solid fa-gear"></i> Settings</li>
           <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
         </ul>
       </div>
     </aside>
 
-    <main class="main-content">
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+
+      <!-- NAVBAR (mobile) -->
       <nav class="navbar">
         <div class="left-nav">
-          <img src="/images/Apti-logo.png" alt="Logo">
+          <i class="fa-solid fa-bars" id="menu-btn"></i>
+          <img src="/images/Apti-logo.png" alt="Logo" />
+        </div>
+        <div class="right-nav">
+          <a class="primary-btn" href="/aptitude-test" style="font-size:13px;padding:10px 16px;">
+            <i class="fa-solid fa-play"></i> Practice More
+          </a>
         </div>
       </nav>
 
-      <section class="task-builder">
+      <!-- HERO -->
+      <section class="bookmarks-hero">
         <div>
           <p class="eyebrow">Revision</p>
           <h1>Saved Questions</h1>
-          <p class="subtext">Questions you bookmark from test review appear here for focused revision.</p>
+          <p class="subtext">Questions you bookmark during test review appear here for focused revision. Study your mistakes to improve.</p>
         </div>
-        <a class="primary-btn" href="/template/test-page.html">
-          <i class="fa-solid fa-play"></i>
-          Practice More
+        <a class="primary-btn" href="/aptitude-test">
+          <i class="fa-solid fa-play"></i> Practice More
         </a>
       </section>
 
-      <section id="bookmark-status" class="status-panel">Loading saved questions...</section>
-      <section id="bookmark-list" class="question-area"></section>
+      <!-- BOOKMARK BODY -->
+      <div class="bookmark-body">
+        <!-- Status / count -->
+        <div id="bookmark-status" class="bk-status">
+          <i class="fa-solid fa-spinner fa-spin"></i>
+          Loading saved questions…
+        </div>
+
+        <!-- List -->
+        <section id="bookmark-list" class="bk-list"></section>
+      </div>
+
     </main>
   </div>
 
+  <div id="notification" class="notification"></div>
+
+  <script src="/static/JS/responsive.js"></script>
   <script src="/static/JS/bookmarks.js"></script>
+  <script>
+    // Logout
+    document.querySelectorAll('[data-action="logout"]').forEach((item) => {
+      item.addEventListener('click', () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      });
+    });
+
+    // Mobile sidebar toggle
+    const menuBtn = document.getElementById('menu-btn');
+    const sidebar = document.getElementById('sidebar');
+    const closeBtn = document.getElementById('close-btn');
+    if (menuBtn) {
+      if (closeBtn) closeBtn.style.display = 'block';
+      menuBtn.addEventListener('click', () => sidebar.classList.toggle('show'));
+      if (closeBtn) closeBtn.addEventListener('click', () => sidebar.classList.remove('show'));
+    }
+  </script>
 </body>
 </html>

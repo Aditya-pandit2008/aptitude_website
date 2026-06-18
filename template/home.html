@@ -7,120 +7,270 @@
     <meta name="theme-color" content="#ead690" />
     <title>Home - Aptitude Test | Placement Preparation</title>
     <link rel="stylesheet" href="/static/CSS/home.css" />
+    <link rel="stylesheet" href="/static/CSS/responsive.css" />
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
       rel="stylesheet"
     />
     <link
-      href="https://fonts.googleapis.com/css2?family=Rye&family=Poppins:wght@300;400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Poppins:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
   </head>
 
   <body>
+    <!-- Animated background particles -->
+    <div class="particles" id="particles">
+      <span></span><span></span><span></span><span></span><span></span>
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+
     <!-- HEADER -->
-    <header>
+    <header id="main-header">
       <div class="logo">
         <img src="/images/Apti-logo.png" alt="Aptitude Test Logo" class="logo-img" />
       </div>
 
       <nav id="main-nav">
         <ul>
-          <li><a href="/aptitude-test">APTITUDE TEST</a></li>
-          <li><a href="/about-us">ABOUT US</a></li>
-          <li><a href="/login">LOGIN</a></li>
-          <li><a href="/signup">SIGN UP</a></li>
+          <li><a href="/aptitude-test"><i class="fas fa-brain nav-icon"></i>APTITUDE TEST</a></li>
+          <li><a href="/about-us"><i class="fas fa-info-circle nav-icon"></i>ABOUT US</a></li>
+          <li><a href="/login" class="nav-login-btn">LOGIN</a></li>
+          <li><a href="/signup" class="nav-signup-btn">SIGN UP</a></li>
         </ul>
       </nav>
+
+      <!-- Mobile hamburger -->
+      <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+        <span></span><span></span><span></span>
+      </button>
     </header>
 
     <!-- HERO SECTION -->
     <section class="hero">
+      <!-- Decorative blobs -->
+      <div class="blob blob1"></div>
+      <div class="blob blob2"></div>
+
       <div class="left-content">
+        <div class="hero-badge">
+          <i class="fas fa-star"></i> #1 Aptitude Platform for Placements
+        </div>
         <h1>
-          Improve Speed, Accuracy<br />
-          & Confidence with<br />
-          Daily Aptitude Practice.
+          Improve Speed,<br />
+          Accuracy &amp; Confidence<br />
+          <span class="highlight">with Daily Practice.</span>
         </h1>
+        <p class="hero-sub">
+          Master aptitude, reasoning &amp; problem-solving with AI-powered questions
+          designed for top placement tests.
+        </p>
 
         <div class="hero-btns">
-          <a href="/login" class="primary-btn">VIEW APTITUDE TEST</a>
+          <a href="/login" class="primary-btn">
+            <i class="fas fa-rocket"></i> View Aptitude Test
+          </a>
+          <a href="/login" class="secondary-btn">
+            Get Started <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
 
-          <a href="/login" class="secondary-btn">GET STARTED</a>
+        <!-- Inline trust badges -->
+        <div class="trust-row">
+          <div class="trust-item">
+            <i class="fas fa-users"></i>
+            <span>10,000+ Students</span>
+          </div>
+          <div class="trust-item">
+            <i class="fas fa-question-circle"></i>
+            <span>500+ Questions</span>
+          </div>
+          <div class="trust-item">
+            <i class="fas fa-trophy"></i>
+            <span>95% Success Rate</span>
+          </div>
         </div>
       </div>
 
       <div class="right-content">
-        <div class="center-image">
-          <img src="/images/Hero-logo.png" alt="Hero Image" />
+        <div class="hero-image-wrapper">
+          <div class="hero-glow"></div>
+          <img src="/images/Hero-logo.png" alt="Hero Image" class="hero-img" />
         </div>
 
         <!-- Review Box 1 -->
         <div class="review-box review1">
-          <div class="user">
-            <i class="fas fa-user"></i>
-          </div>
-          <p>Amazing platform! Helped me ace my placement test with great practice questions.</p>
+          <div class="user"><i class="fas fa-user-graduate"></i></div>
+          <p>Amazing platform! Helped me ace my placement test!</p>
           <div class="stars">★★★★★</div>
+          <span class="reviewer-name">Priya S.</span>
         </div>
 
         <!-- Review Box 2 -->
         <div class="review-box review2">
-          <div class="user">
-            <i class="fas fa-user"></i>
-          </div>
-          <p>Excellent content and detailed explanations. Improved my speed significantly!</p>
+          <div class="user"><i class="fas fa-user-tie"></i></div>
+          <p>Excellent explanations. Improved my speed significantly!</p>
           <div class="stars">★★★★★</div>
+          <span class="reviewer-name">Rahul M.</span>
         </div>
 
         <!-- Review Box 3 -->
         <div class="review-box review3">
-          <div class="user">
-            <i class="fas fa-user"></i>
-          </div>
-          <p>Best aptitude preparation tool. Highly recommended for job seekers!</p>
+          <div class="user"><i class="fas fa-user-check"></i></div>
+          <p>Best aptitude prep tool for job seekers!</p>
           <div class="stars">★★★★★</div>
+          <span class="reviewer-name">Anjali K.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- STATS SECTION -->
+    <section class="stats-section">
+      <div class="stats-container">
+        <div class="stat-item" data-count="10000">
+          <div class="stat-icon"><i class="fas fa-users"></i></div>
+          <div class="stat-number" id="stat-students">0</div>
+          <div class="stat-label">Active Students</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" data-count="500">
+          <div class="stat-icon"><i class="fas fa-book-open"></i></div>
+          <div class="stat-number" id="stat-questions">0</div>
+          <div class="stat-label">Practice Questions</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" data-count="95">
+          <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+          <div class="stat-number" id="stat-success">0</div>
+          <div class="stat-label">% Success Rate</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item" data-count="50">
+          <div class="stat-icon"><i class="fas fa-building"></i></div>
+          <div class="stat-number" id="stat-companies">0</div>
+          <div class="stat-label">Companies Covered</div>
         </div>
       </div>
     </section>
 
     <!-- FEATURES -->
     <section class="features">
-      <div class="feature-box">
-        <span>🎯</span>
-        <p>AI-GENERATED QUESTIONS<br />FOR EVERY TOPIC</p>
+      <div class="feature-box reveal">
+        <div class="feature-icon-wrap">
+          <span>🎯</span>
+        </div>
+        <div class="feature-text">
+          <h4>AI-Generated Questions</h4>
+          <p>FOR EVERY TOPIC</p>
+        </div>
       </div>
 
-      <div class="feature-box">
-        <span>📚</span>
-        <p>STEP-BY-STEP<br />EXPLANATIONS</p>
+      <div class="feature-box reveal">
+        <div class="feature-icon-wrap">
+          <span>📚</span>
+        </div>
+        <div class="feature-text">
+          <h4>Step-by-Step</h4>
+          <p>EXPLANATIONS</p>
+        </div>
       </div>
 
-      <div class="feature-box">
-        <span>🏆</span>
-        <p>ACHIEVE YOUR GOALS<br />BY YOUR SMART/HARD WORK</p>
+      <div class="feature-box reveal">
+        <div class="feature-icon-wrap">
+          <span>🏆</span>
+        </div>
+        <div class="feature-text">
+          <h4>Achieve Your Goals</h4>
+          <p>BY YOUR SMART WORK</p>
+        </div>
+      </div>
+
+      <div class="feature-box reveal">
+        <div class="feature-icon-wrap">
+          <span>📊</span>
+        </div>
+        <div class="feature-text">
+          <h4>Track Progress</h4>
+          <p>WITH ANALYTICS</p>
+        </div>
       </div>
     </section>
 
     <!-- CATEGORY -->
     <section class="category">
-      <h2>TOP MOST CATEGORY USED BY THE USERS</h2>
+      <div class="section-tag">Popular Topics</div>
+      <h2>TOP CATEGORIES USED BY STUDENTS</h2>
+      <p class="section-sub">Choose your domain and start practicing today</p>
 
       <div class="category-container">
-        <div class="card">DSA</div>
-        <div class="card">C++</div>
-        <div class="card">UPSC</div>
-        <div class="card">PYTHON</div>
-        <div class="card">JAVA</div>
-        <div class="card">ECS</div>
+        <div class="card reveal-card" style="--delay:0s">
+          <div class="card-icon">💻</div>
+          <div class="card-label">DSA</div>
+          <div class="card-sub">Data Structures</div>
+        </div>
+        <div class="card reveal-card" style="--delay:0.1s">
+          <div class="card-icon">⚡</div>
+          <div class="card-label">C++</div>
+          <div class="card-sub">Programming</div>
+        </div>
+        <div class="card reveal-card" style="--delay:0.2s">
+          <div class="card-icon">🏛️</div>
+          <div class="card-label">UPSC</div>
+          <div class="card-sub">Civil Services</div>
+        </div>
+        <div class="card reveal-card" style="--delay:0.3s">
+          <div class="card-icon">🐍</div>
+          <div class="card-label">PYTHON</div>
+          <div class="card-sub">Programming</div>
+        </div>
+        <div class="card reveal-card" style="--delay:0.4s">
+          <div class="card-icon">☕</div>
+          <div class="card-label">JAVA</div>
+          <div class="card-sub">Programming</div>
+        </div>
+        <div class="card reveal-card" style="--delay:0.5s">
+          <div class="card-icon">🔌</div>
+          <div class="card-label">ECS</div>
+          <div class="card-sub">Electronics</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="how-it-works">
+      <div class="section-tag">Simple Process</div>
+      <h2>HOW IT WORKS</h2>
+      <p class="section-sub">Three simple steps to placement success</p>
+      <div class="steps-container">
+        <div class="step reveal">
+          <div class="step-number">01</div>
+          <div class="step-icon"><i class="fas fa-user-plus"></i></div>
+          <h3>Sign Up Free</h3>
+          <p>Create your account in seconds and get instant access to hundreds of practice questions.</p>
+        </div>
+        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="step reveal">
+          <div class="step-number">02</div>
+          <div class="step-icon"><i class="fas fa-brain"></i></div>
+          <h3>Practice Daily</h3>
+          <p>Solve topic-wise aptitude questions with AI-generated explanations and timed tests.</p>
+        </div>
+        <div class="step-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="step reveal">
+          <div class="step-number">03</div>
+          <div class="step-icon"><i class="fas fa-trophy"></i></div>
+          <h3>Crack Placements</h3>
+          <p>Track your progress, identify weak areas, and walk into placement tests with confidence.</p>
+        </div>
       </div>
     </section>
 
     <!-- Main Section -->
     <section class="placement-section">
-      <div class="heading">
+      <div class="blob blob3"></div>
+      <div class="heading reveal">
+        <div class="section-tag light">Our Mission</div>
         <h1>Our only concern is your placement preparation</h1>
-
         <p>
           Helping students improve aptitude, reasoning, and problem-solving
           skills through smart practice, interactive quizzes, and real
@@ -130,7 +280,7 @@
 
       <div class="content">
         <!-- Left Side Images -->
-        <div class="left-side">
+        <div class="left-side reveal">
           <img src="/images/footer-img1.png" alt="Icon 1" />
           <img src="/images/footer-img2.png" alt="Rocket" class="rocket" />
           <img src="/images/footer-img3.png" alt="Icon 2" />
@@ -138,24 +288,27 @@
 
         <!-- Right Side Content -->
         <div class="right-side">
-          <div class="feature">
-            <h3>01 — Practice Aptitude Daily</h3>
+          <div class="feature reveal">
+            <div class="feature-num">01</div>
+            <h3>Practice Aptitude Daily</h3>
             <p>
               Build strong quantitative, logical reasoning, and verbal skills
               with topic-wise questions and explanations.
             </p>
           </div>
 
-          <div class="feature">
-            <h3>02 — Analyze Your Performance</h3>
+          <div class="feature reveal">
+            <div class="feature-num">02</div>
+            <h3>Analyze Your Performance</h3>
             <p>
               Track your speed, accuracy, strengths, and weak areas with
               detailed test analysis and progress reports.
             </p>
           </div>
 
-          <div class="feature">
-            <h3>03 — Prepare for Placements with Confidence</h3>
+          <div class="feature reveal">
+            <div class="feature-num">03</div>
+            <h3>Prepare for Placements with Confidence</h3>
             <p>
               Practice company-level aptitude questions, improve problem-solving
               ability, and get ready for internship and placement tests.
@@ -165,32 +318,127 @@
       </div>
     </section>
 
+    <!-- CTA BANNER -->
+    <section class="cta-banner">
+      <div class="cta-content">
+        <h2>Ready to Crack Your Placement?</h2>
+        <p>Join 10,000+ students already preparing with us. Start free today!</p>
+        <div class="cta-btns">
+          <a href="/signup" class="primary-btn large-btn">
+            <i class="fas fa-bolt"></i> Start Free Now
+          </a>
+          <a href="/aptitude-test" class="outline-btn">
+            Explore Tests <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- Footer -->
     <footer>
-      <div class="footer-container">
-        <div class="footer-box logo-box">
-          <div class="footer-logo">
-            <img src="/images/Apti-logo.png" alt="Aptitude Test Logo" class="footer-logo-img" />
+      <div class="footer-top">
+        <div class="footer-brand">
+          <img src="/images/Apti-logo.png" alt="Aptitude Test Logo" class="footer-logo-img" />
+          <p class="footer-tagline">Your shortcut to placement success.</p>
+          <div class="footer-socials">
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
           </div>
-
-          <p>CALL: 0123-4567-8910</p>
-          <p>MAIL: yourcompany@gmail.com</p>
         </div>
 
-        <div class="footer-box">
-          <h3>ABOUT</h3>
-          <p>TECHNICALS</p>
-          <p>DEVELOPER</p>
+        <div class="footer-links-group">
+          <h4>Platform</h4>
+          <ul>
+            <li><a href="/aptitude-test">Aptitude Test</a></li>
+            <li><a href="/about-us">About Us</a></li>
+            <li><a href="/login">Login</a></li>
+            <li><a href="/signup">Sign Up</a></li>
+          </ul>
         </div>
 
-        <div class="footer-box">
-          <h3>CONTACT US</h3>
-          <p>CALL: 0123-4567-8910</p>
-          <p>MAIL: yourcompany@gmail.com</p>
+        <div class="footer-links-group">
+          <h4>Categories</h4>
+          <ul>
+            <li><a href="#">DSA</a></li>
+            <li><a href="#">Python</a></li>
+            <li><a href="#">Java</a></li>
+            <li><a href="#">C++</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-group">
+          <h4>Contact Us</h4>
+          <ul>
+            <li><i class="fas fa-phone"></i> 0123-4567-8910</li>
+            <li><i class="fas fa-envelope"></i> yourcompany@gmail.com</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2025 Aptitude Test. All rights reserved.</p>
+        <div class="footer-bottom-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
         </div>
       </div>
     </footer>
 
+    <script src="/static/JS/responsive.js"></script>
     <script src="/static/JS/script.js"></script>
+    <script>
+      // Scroll reveal animation
+      const reveals = document.querySelectorAll('.reveal, .reveal-card');
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      }, { threshold: 0.12 });
+      reveals.forEach(el => observer.observe(el));
+
+      // Sticky header shadow
+      window.addEventListener('scroll', () => {
+        const header = document.getElementById('main-header');
+        header.classList.toggle('scrolled', window.scrollY > 20);
+      });
+
+      // Counter animation
+      function animateCounter(el, target, suffix = '') {
+        let count = 0;
+        const step = Math.ceil(target / 60);
+        const timer = setInterval(() => {
+          count += step;
+          if (count >= target) { count = target; clearInterval(timer); }
+          el.textContent = count.toLocaleString() + suffix;
+        }, 25);
+      }
+
+      const statsSection = document.querySelector('.stats-section');
+      let counted = false;
+      const statsObserver = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && !counted) {
+          counted = true;
+          animateCounter(document.getElementById('stat-students'), 10000, '+');
+          animateCounter(document.getElementById('stat-questions'), 500, '+');
+          animateCounter(document.getElementById('stat-success'), 95, '%');
+          animateCounter(document.getElementById('stat-companies'), 50, '+');
+        }
+      }, { threshold: 0.3 });
+      if (statsSection) statsObserver.observe(statsSection);
+
+      // Hamburger menu
+      const hamburger = document.getElementById('hamburger');
+      const nav = document.getElementById('main-nav');
+      if (hamburger) {
+        hamburger.addEventListener('click', () => {
+          nav.classList.toggle('open');
+          hamburger.classList.toggle('active');
+        });
+      }
+    </script>
   </body>
 </html>

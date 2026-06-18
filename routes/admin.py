@@ -461,3 +461,67 @@ def analytics_summary():
             for r in cat_performance
         ]
     }), 200
+
+
+# ─── Moderation Endpoints ───────────────────────────────────────────────────
+
+@admin_bp.route("/moderation/flagged", methods=["GET"])
+@jwt_required()
+def get_flagged_questions():
+    admin = _check_admin()
+    if not admin:
+        return jsonify({"error": "Unauthorized: admin access required"}), 403
+
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("per_page", 20, type=int)
+
+    paginated = (
+        Question.query
+        .filter_by(is_flagged=True)
+        .order_by(desc(Question.created_at))
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+
+    return jsonify({
+        "questions": [q.to_dict(include_answer=True) for q in paginated.items],
+        "total": paginated.total,
+        "page": page,
+        "per_page": per_page,
+        "pages": paginated.pages,
+    }), 200
+
+
+@admin_bp.route("/moderation/resolve", methods=["POST"])
+@jwt_required()
+def resolve_flagged_question():
+    admin = _check_admin()
+    if not admin:
+        return jsonify({"error": "Unauthorized: admin access required"}), 403
+
+    data = request.get_json(silent=True) or {}
+    question_id = data.get("question_id")
+    action = data.get("action")  # "approve" (deactivate) or "dismiss" (clear flag)
+
+    if not question_id or action not in ("approve", "dismiss"):
+        return jsonify({"error": "question_id and action ('approve' or 'dismiss') are required."}), 422
+
+    question = Question.query.get(question_id)
+    if not question:
+        return jsonify({"error": "Question not found"}), 404
+
+    try:
+        if action == "approve":
+            question.is_active = False
+            question.is_flagged = False
+        elif action == "dismiss":
+            question.is_flagged = False
+            question.flag_reason = None
+
+        db.session.commit()
+        return jsonify({
+            "message": f"Question flagged status resolved with action: {action}",
+            "question": question.to_dict(include_answer=True)
+        }), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500

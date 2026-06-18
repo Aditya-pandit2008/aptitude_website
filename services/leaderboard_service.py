@@ -51,3 +51,94 @@ def get_top_n(n: int = 10) -> List[dict]:
 def get_user_rank(user_id: int) -> Optional[dict]:
     e = LeaderboardEntry.query.filter_by(user_id=user_id).first()
     return e.to_dict() if e else None
+
+
+def get_top_n_timebound(n: int = 10, timeframe: str = "all_time") -> List[dict]:
+    from datetime import datetime, timedelta, timezone
+    from sqlalchemy import desc
+
+    if timeframe == "all_time":
+        return get_top_n(n)
+
+    now = datetime.now(timezone.utc)
+    if timeframe == "weekly":
+        start_date = now - timedelta(days=7)
+    elif timeframe == "monthly":
+        start_date = now - timedelta(days=30)
+    else:
+        return get_top_n(n)
+
+    stats = (
+        db.session.query(
+            User.id.label("user_id"),
+            User.username.label("username"),
+            func.coalesce(func.sum(TestAttempt.xp_earned), 0).label("timeframe_xp"),
+            func.count(TestAttempt.id).label("tests_taken"),
+            func.coalesce(func.avg(TestAttempt.accuracy), 0).label("avg_accuracy"),
+            User.total_xp.label("total_xp")
+        )
+        .join(TestAttempt, User.id == TestAttempt.user_id)
+        .filter(TestAttempt.completed_at >= start_date)
+        .group_by(User.id)
+        .order_by(desc("timeframe_xp"), desc("tests_taken"))
+        .limit(n)
+        .all()
+    )
+
+    leaderboard = []
+    for idx, row in enumerate(stats, start=1):
+        leaderboard.append({
+            "rank":         idx,
+            "user_id":      row.user_id,
+            "username":     row.username,
+            "total_score":  round(float(row.timeframe_xp), 2),
+            "tests_taken":  row.tests_taken,
+            "avg_accuracy": round(float(row.avg_accuracy), 2),
+            "total_xp":     row.total_xp,
+        })
+    return leaderboard
+
+
+def get_user_rank_timebound(user_id: int, timeframe: str = "all_time") -> Optional[dict]:
+    from datetime import datetime, timedelta, timezone
+    from sqlalchemy import desc
+
+    if timeframe == "all_time":
+        return get_user_rank(user_id)
+
+    now = datetime.now(timezone.utc)
+    if timeframe == "weekly":
+        start_date = now - timedelta(days=7)
+    elif timeframe == "monthly":
+        start_date = now - timedelta(days=30)
+    else:
+        return get_user_rank(user_id)
+
+    stats = (
+        db.session.query(
+            User.id.label("user_id"),
+            User.username.label("username"),
+            func.coalesce(func.sum(TestAttempt.xp_earned), 0).label("timeframe_xp"),
+            func.count(TestAttempt.id).label("tests_taken"),
+            func.coalesce(func.avg(TestAttempt.accuracy), 0).label("avg_accuracy"),
+            User.total_xp.label("total_xp")
+        )
+        .join(TestAttempt, User.id == TestAttempt.user_id)
+        .filter(TestAttempt.completed_at >= start_date)
+        .group_by(User.id)
+        .order_by(desc("timeframe_xp"), desc("tests_taken"))
+        .all()
+    )
+
+    for idx, row in enumerate(stats, start=1):
+        if row.user_id == user_id:
+            return {
+                "rank":         idx,
+                "user_id":      row.user_id,
+                "username":     row.username,
+                "total_score":  round(float(row.timeframe_xp), 2),
+                "tests_taken":  row.tests_taken,
+                "avg_accuracy": round(float(row.avg_accuracy), 2),
+                "total_xp":     row.total_xp,
+            }
+    return None

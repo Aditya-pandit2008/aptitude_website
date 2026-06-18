@@ -2,7 +2,7 @@
 
 /* ── Page header ─────────────────────────────────────────────────── */
 .page-header {
-  margin-bottom: 22px;
+  margin-bottom: 24px;
 }
 
 .page-header h1 {
@@ -10,70 +10,75 @@
   display: flex;
   font-size: 38px;
   gap: 12px;
+  color: #222;
+  font-weight: 700;
 }
 
 .page-header p {
   color: #6d6a64;
   margin-top: 6px;
+  font-size: 14.5px;
 }
 
 .eyebrow {
   color: #6d6a64;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-/* ── Two-column layout (HTML uses .settings-layout) ─────────────── */
+/* ── Two-column layout ───────────────────────────────────────────── */
 .settings-layout {
   display: grid;
-  gap: 22px;
-  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 24px;
+  grid-template-columns: 240px minmax(0, 1fr);
 }
 
-/* ── Settings sidebar nav (HTML uses .settings-nav) ─────────────── */
+/* ── Settings sidebar nav ────────────────────────────────────────── */
 .settings-nav {
-  background: #fffcf2;
-  border: 1px solid #ece5cf;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 14px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  padding: 16px;
   align-self: start;
 }
 
-/* ── Nav items (HTML uses .nav-item, NOT .menu-item) ─────────────── */
+/* ── Nav items ───────────────────────────────────────────────────── */
 .nav-item {
   align-items: center;
-  border-radius: 8px;
+  border-radius: 10px;
   color: #4b4b4b;
   cursor: pointer;
   display: flex;
   font-weight: 700;
   gap: 12px;
-  margin-bottom: 4px;
-  padding: 13px 14px;
-  transition: background 0.15s ease, transform 0.15s ease;
+  margin-bottom: 6px;
+  padding: 13px 16px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
 .nav-item:hover,
 .nav-item.active {
   background: #eadba3;
   color: #222;
+  transform: translateX(4px);
 }
 
 .nav-item i {
   width: 18px;
   text-align: center;
+  font-size: 15px;
 }
 
-/* ── Settings body (HTML uses .settings-body) ────────────────────── */
+/* ── Settings body ───────────────────────────────────────────────── */
 .settings-body {
-  background: #fffcf2;
-  border: 1px solid #ece5cf;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 28px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  padding: 32px;
 }
 
 /* ── Sections ────────────────────────────────────────────────────── */
@@ -90,8 +95,8 @@
   display: flex;
   gap: 16px;
   margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #ece5cf;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .section-title i {
@@ -102,61 +107,74 @@
 
 .section-title h2 {
   font-size: 20px;
-  margin-bottom: 4px;
+  color: #222;
+  font-weight: 700;
 }
 
 .section-title p {
   color: #6d6a64;
   font-size: 13px;
+  margin-top: 2px;
 }
 
 .sub-heading {
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 700;
-  margin: 20px 0 10px;
+  margin: 24px 0 12px;
   color: #4d4742;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* ── Form elements ───────────────────────────────────────────────── */
 .form-group {
   display: grid;
-  gap: 7px;
-  margin-bottom: 16px;
+  gap: 8px;
+  margin-bottom: 18px;
 }
 
 .form-input {
   border: 1px solid #d8cfb5;
-  border-radius: 8px;
+  border-radius: 10px;
   font: inherit;
-  padding: 12px 14px;
+  padding: 13px 16px;
   width: 100%;
   background: #fff;
+  transition: all 0.3s ease;
+  outline: none;
 }
 
 .form-input:focus {
   border-color: #8d6a9f;
-  outline: none;
+  box-shadow: 0 0 0 3px rgba(141, 106, 159, 0.15);
 }
 
 .form-input:disabled {
   background: #f0ede4;
-  color: #888;
+  color: #777;
   cursor: not-allowed;
 }
 
 .form-group small {
   color: #6d6a64;
   font-size: 12px;
+  margin-top: 2px;
 }
 
 .form-msg {
   font-size: 13px;
   margin-top: 8px;
   min-height: 18px;
+  font-weight: 600;
 }
 
-.form-msg.success { color: #3f7d46; }
-.form-msg.error   { color: #b45748; }
+.form-msg.success {
+  color: #3f7d46;
+}
+
+.form-msg.error {
+  color: #b45748;
+}
 
 /* ── Password field with eye button ──────────────────────────────── */
 .pass-wrap {
@@ -173,12 +191,13 @@
   border: none;
   color: #6d6a64;
   cursor: pointer;
-  font-size: 15px;
-  padding: 0 14px;
+  font-size: 16px;
+  padding: 0 16px;
   position: absolute;
   right: 0;
   top: 50%;
   transform: translateY(-50%);
+  transition: color 0.2s;
 }
 
 .eye-btn:hover {
@@ -190,8 +209,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-top: 4px;
-  margin-bottom: 8px;
+  margin-top: 6px;
+  margin-bottom: 10px;
 }
 
 .bar-track {
@@ -216,28 +235,30 @@
   color: #4d4742;
 }
 
-/* ── Pref row (two columns side by side) ─────────────────────────── */
+/* ── Pref row ────────────────────────────────────────────────────── */
 .pref-row {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   grid-template-columns: 1fr 1fr;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 /* ── Toggle switches ─────────────────────────────────────────────── */
 .toggle-group {
-  border: 1px solid #ece5cf;
-  border-radius: 10px;
-  margin-bottom: 18px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  margin-bottom: 20px;
   overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
 }
 
 .toggle-item {
   align-items: center;
-  border-bottom: 1px solid #ece5cf;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   display: flex;
   justify-content: space-between;
-  padding: 16px 18px;
+  padding: 18px 20px;
+  background: #fdfdfd;
 }
 
 .toggle-item:last-child {
@@ -246,7 +267,8 @@
 
 .toggle-info strong {
   display: block;
-  font-size: 14px;
+  font-size: 14.5px;
+  color: #222;
 }
 
 .toggle-info span {
@@ -292,81 +314,61 @@
   width: 18px;
 }
 
-.toggle input:checked + .slider {
+.toggle input:checked+.slider {
   background: #4d4742;
 }
 
-.toggle input:checked + .slider:before {
+.toggle input:checked+.slider:before {
   transform: translateX(20px);
 }
 
 /* ── Danger zone ─────────────────────────────────────────────────── */
 .danger-zone {
-  border: 1px solid #e8c5c0;
-  border-radius: 10px;
-  margin-top: 28px;
-  padding: 20px;
+  border: 1.5px dashed #e8c5c0;
+  border-radius: 12px;
+  margin-top: 32px;
+  padding: 24px;
 }
 
 .danger-zone h3 {
   color: #b45748;
   font-size: 14px;
   letter-spacing: 0.05em;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
   text-transform: uppercase;
 }
 
 .danger-actions {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 
 .danger-item {
   align-items: center;
   background: #f9f7f4;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 16px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.01);
 }
 
 .danger-item.danger-red {
   background: #fdf4f3;
+  border-color: rgba(180, 87, 72, 0.05);
 }
 
 .danger-item strong {
   display: block;
-  font-size: 14px;
+  font-size: 14.5px;
+  color: #222;
 }
 
 .danger-item p {
   color: #6d6a64;
-  font-size: 12px;
+  font-size: 12.5px;
   margin-top: 2px;
 }
-
-/* ── Notification toast (already in profile.css but repeated for safety) */
-.notification {
-  border-radius: 8px;
-  color: #fff;
-  opacity: 0;
-  padding: 14px 18px;
-  position: fixed;
-  right: 22px;
-  top: 22px;
-  transform: translateY(-8px);
-  transition: 0.2s ease;
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.notification.active {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.notification.success { background: #3f7d46; }
-.notification.error   { background: #b45748; }
 
 /* ── Sidebar avatar circle ───────────────────────────────────────── */
 .sidebar-avatar-circle {
@@ -381,27 +383,35 @@
   justify-content: center;
   width: 38px;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 /* ── Responsive ──────────────────────────────────────────────────── */
 @media (max-width: 960px) {
   .settings-layout {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 
   .settings-nav {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
+    gap: 8px;
+    padding: 10px;
   }
 
   .nav-item {
     justify-content: center;
     text-align: center;
     flex-direction: column;
-    gap: 4px;
-    padding: 10px 8px;
+    gap: 6px;
+    padding: 12px 8px;
     font-size: 12px;
+  }
+
+  .nav-item:hover,
+  .nav-item.active {
+    transform: none;
   }
 }
 

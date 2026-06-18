@@ -131,7 +131,7 @@
       error.status = response.status;
       throw error;
     }
-    return data;
+    return data.data !== undefined ? data.data : data;
   }
 
   function readUser() {

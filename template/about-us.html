@@ -1,121 +1,402 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Learn about our mission to help students master aptitude tests and placement preparation." />
-    <meta name="theme-color" content="#ead690" />
-    <title>About Us - Aptitude Test</title>
-    <link rel="stylesheet" href="/static/CSS/home.css" />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Rye&family=Poppins:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <header>
-      <div class="logo">
-        <img src="/images/Apti-logo.png" alt="Company Logo" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Learn about our mission to help students master aptitude tests and placement preparation." />
+  <meta name="theme-color" content="#ead690" />
+  <title>About Us - Aptitude Test | Our Mission</title>
+  <link rel="stylesheet" href="/static/CSS/home.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── About-page specific ─────────────────────── */
+    .about-hero {
+      background: linear-gradient(135deg, #f3dfb6 0%, #ead690 100%);
+      padding: 80px 80px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .about-hero .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    .about-blob-1 {
+      width: 300px; height: 300px;
+      background: rgba(155,99,175,0.12);
+      top: -80px; right: 15%;
+      animation: blobPulse 7s ease-in-out infinite;
+    }
+
+    .about-blob-2 {
+      width: 200px; height: 200px;
+      background: rgba(243,220,201,0.4);
+      bottom: -50px; left: 8%;
+      animation: blobPulse 9s ease-in-out infinite reverse;
+    }
+
+    .about-hero-text {
+      position: relative; z-index: 1;
+      max-width: 560px;
+    }
+
+    .about-hero-text .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(155,99,175,0.15);
+      border: 1.5px solid rgba(155,99,175,0.3);
+      color: var(--purple-dark);
+      padding: 8px 18px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .about-hero-text h1 {
+      font-family: "Rozha One", serif;
+      font-size: 2.6rem;
+      color: var(--purple);
+      line-height: 1.3;
+      margin-bottom: 18px;
+    }
+
+    .about-hero-text p {
+      font-size: 17px;
+      color: var(--text-mid);
+      line-height: 1.7;
+      max-width: 500px;
+    }
+
+    .about-hero-img {
+      position: relative; z-index: 1;
+      flex-shrink: 0;
+    }
+
+    .about-hero-img img {
+      width: 300px;
+      filter: drop-shadow(0 8px 24px rgba(155,99,175,0.25));
+      animation: heroFloat 5s ease-in-out infinite;
+    }
+
+    /* Mission cards section */
+    .mission-section {
+      padding: 80px;
+      text-align: center;
+      background: linear-gradient(180deg, var(--cream) 0%, #f0ebe0 100%);
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .mission-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 36px 28px;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+      border: 2px solid transparent;
+      transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+      text-align: left;
+    }
+
+    .mission-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--purple);
+      box-shadow: 0 16px 40px rgba(155,99,175,0.15);
+    }
+
+    .mission-card-num {
+      font-family: "Rozha One", serif;
+      font-size: 42px;
+      color: rgba(155,99,175,0.1);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+
+    .mission-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .mission-card p {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.65;
+    }
+
+    /* Why choose section */
+    .why-section {
+      background: linear-gradient(135deg, #f8f3df 0%, #f2e1b5 100%);
+      padding: 70px 8%;
+      position: relative;
+    }
+
+    .why-section .heading h1 {
+      font-family: "Rozha One", serif;
+      color: var(--purple);
+      font-size: 2rem;
+      margin-bottom: 14px;
+    }
+
+    .why-section .heading p {
+      color: var(--text-mid);
+      font-size: 16px;
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    .why-features {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+      margin-top: 40px;
+      max-width: 640px;
+    }
+
+    .why-feature {
+      display: flex;
+      gap: 18px;
+      align-items: flex-start;
+    }
+
+    .why-feature-num {
+      font-family: "Rozha One", serif;
+      font-size: 28px;
+      color: var(--purple);
+      flex-shrink: 0;
+      line-height: 1;
+      min-width: 40px;
+    }
+
+    .why-feature h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .why-feature p {
+      font-size: 14px;
+      color: var(--text-mid);
+      line-height: 1.6;
+    }
+
+    @media (max-width: 900px) {
+      .about-hero { flex-direction: column; padding: 50px 30px 40px; text-align: center; }
+      .about-hero-text h1 { font-size: 2rem; }
+      .about-hero-img img { width: 220px; }
+      .mission-grid { grid-template-columns: 1fr; max-width: 420px; }
+      .mission-section { padding: 50px 24px; }
+      .why-section { padding: 50px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header id="main-header">
+    <div class="logo">
+      <img src="/images/Apti-logo.png" alt="Aptitude Test Logo" class="logo-img" />
+    </div>
+    <nav id="main-nav">
+      <ul>
+        <li><a href="/"><i class="fas fa-home nav-icon"></i> HOME</a></li>
+        <li><a href="/aptitude-test"><i class="fas fa-brain nav-icon"></i> APTITUDE TEST</a></li>
+        <li><a href="/login" class="nav-login-btn">LOGIN</a></li>
+        <li><a href="/signup" class="nav-signup-btn">SIGN UP</a></li>
+      </ul>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- HERO -->
+  <section class="about-hero">
+    <div class="blob about-blob-1"></div>
+    <div class="blob about-blob-2"></div>
+    <div class="about-hero-text">
+      <div class="hero-badge"><i class="fas fa-heart"></i> Our Story</div>
+      <h1>We help students build confidence and succeed in placements.</h1>
+      <p>Our platform delivers expert-backed aptitude practice, progress tracking, and real test-style questions for interview success. We make preparation easy, consistent, and smart.</p>
+      <div class="hero-btns" style="margin-top:28px;">
+        <a href="/signup" class="primary-btn"><i class="fas fa-rocket"></i> Get Started</a>
+        <a href="/aptitude-test" class="secondary-btn">Practice Test <i class="fas fa-arrow-right"></i></a>
       </div>
-      <nav id="main-nav">
+    </div>
+    <div class="about-hero-img">
+      <img src="/images/Hero-logo.png" alt="About Illustration" />
+    </div>
+  </section>
+
+  <!-- FEATURES BAR -->
+  <section class="features">
+    <div class="feature-box reveal">
+      <div class="feature-icon-wrap"><span>🧠</span></div>
+      <div class="feature-text">
+        <h4>Smart Modules</h4>
+        <p>BUILT FOR GROWTH</p>
+      </div>
+    </div>
+    <div class="feature-box reveal">
+      <div class="feature-icon-wrap"><span>📈</span></div>
+      <div class="feature-text">
+        <h4>Track Progress</h4>
+        <p>ACROSS ALL TOPICS</p>
+      </div>
+    </div>
+    <div class="feature-box reveal">
+      <div class="feature-icon-wrap"><span>💡</span></div>
+      <div class="feature-text">
+        <h4>Clear Explanations</h4>
+        <p>TEST-READY STRATEGIES</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MISSION -->
+  <section class="mission-section">
+    <div class="section-tag">Our Mission</div>
+    <h2 style="font-family:'Rozha One',serif; color:var(--text-dark); margin-bottom:10px; font-size:28px;">WHAT DRIVES US</h2>
+    <p class="section-sub">Three pillars that guide everything we build</p>
+    <div class="mission-grid">
+      <div class="mission-card">
+        <div class="mission-card-num">01</div>
+        <h3>High-Quality Practice</h3>
+        <p>Support students with expertly curated questions and personalized improvement paths tailored to each individual.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card-num">02</div>
+        <h3>Reduce Test Anxiety</h3>
+        <p>Build speed, accuracy, and confidence daily through consistent practice and encouraging progress feedback.</p>
+      </div>
+      <div class="mission-card">
+        <div class="mission-card-num">03</div>
+        <h3>Reliable Resources</h3>
+        <p>Provide dependable aptitude resources that are always available, always accurate, and always exam-ready.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY CHOOSE -->
+  <section class="why-section">
+    <div class="heading">
+      <div class="section-tag">Why Us</div>
+      <h1>Why choose Aptitude Test?</h1>
+      <p>We combine expert-designed questions, progress analytics, and a friendly learning experience to help every student reach placement success.</p>
+    </div>
+    <div class="why-features">
+      <div class="why-feature">
+        <div class="why-feature-num">01</div>
+        <div>
+          <h3>Structured Preparation</h3>
+          <p>Practice topic-wise questions across reasoning, arithmetic, and verbal sections with clear study paths.</p>
+        </div>
+      </div>
+      <div class="why-feature">
+        <div class="why-feature-num">02</div>
+        <div>
+          <h3>Real Test Style</h3>
+          <p>Work with questions that mimic actual placement exams and company screening tests to build familiarity.</p>
+        </div>
+      </div>
+      <div class="why-feature">
+        <div class="why-feature-num">03</div>
+        <div>
+          <h3>Learn Faster</h3>
+          <p>Understand solutions using concise explanations, progress-based suggestions, and AI-powered analysis.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-banner">
+    <div class="cta-content">
+      <h2>Ready to Start Your Journey?</h2>
+      <p>Join 10,000+ students already preparing with us. Start free today!</p>
+      <div class="cta-btns">
+        <a href="/signup" class="primary-btn large-btn"><i class="fas fa-bolt"></i> Sign Up Free</a>
+        <a href="/" class="outline-btn">Back to Home <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="/images/Apti-logo.png" alt="Aptitude Test Logo" class="footer-logo-img" />
+        <p class="footer-tagline">Your shortcut to placement success.</p>
+        <div class="footer-socials">
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Platform</h4>
         <ul>
-          <li><a href="/template/home.html">HOME</a></li>
-          <li><a href="/template/aptitude-test.html">APTITUDE TEST</a></li>
-          <li><a href="/template/login.html">LOGIN</a></li>
-          <li><a href="/template/signup.html">SIGN UP</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/aptitude-test">Aptitude Test</a></li>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/signup">Sign Up</a></li>
         </ul>
-      </nav>
-    </header>
+      </div>
+      <div class="footer-links-group">
+        <h4>Contact Us</h4>
+        <ul>
+          <li><i class="fas fa-phone"></i> 0123-4567-8910</li>
+          <li><i class="fas fa-envelope"></i> yourcompany@gmail.com</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Aptitude Test. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
 
-    <section class="hero" style="background: #f3dfb6; padding: 80px 80px 40px;">
-      <div class="left-content">
-        <h1>We help students build confidence and succeed in placements.</h1>
-        <p style="font-size: 18px; color: #8e63aa; max-width: 600px; margin-top: 20px;">Our platform delivers expert-backed aptitude practice, progress tracking, and real test-style questions for interview success. We make preparation easy, consistent, and smart.</p>
-        <div class="hero-btns">
-          <a href="/template/get-started.html" class="primary-btn">GET STARTED</a>
-          <a href="/template/aptitude-test.html" class="secondary-btn">PRACTICE TEST</a>
-        </div>
-      </div>
-      <div class="right-content">
-        <div class="center-image">
-          <img src="/images/Hero-logo.png" alt="About Illustration" style="width: 320px;" />
-        </div>
-      </div>
-    </section>
-
-    <section class="features" style="background: #e7ddd4; padding: 70px 40px;">
-      <div class="feature-box">
-        <span>🧠</span>
-        <p>Smart aptitude modules built for growth.</p>
-      </div>
-      <div class="feature-box">
-        <span>📈</span>
-        <p>Track progress across reasoning, verbal and quantitative topics.</p>
-      </div>
-      <div class="feature-box">
-        <span>💡</span>
-        <p>Clear explanations and test-ready strategies.</p>
-      </div>
-    </section>
-
-    <section class="category" style="padding: 60px 70px;">
-      <h2>OUR MISSION</h2>
-      <div class="category-container" style="gap: 30px;">
-        <div class="card" style="width: 260px; height: auto; padding: 30px;">Support students with high-quality practice and personalized improvement.</div>
-        <div class="card" style="width: 260px; height: auto; padding: 30px;">Reduce test anxiety by building speed, accuracy, and confidence daily.</div>
-        <div class="card" style="width: 260px; height: auto; padding: 30px;">Provide reliable aptitude resources for exam-ready preparation.</div>
-      </div>
-    </section>
-
-    <section class="placement-section" style="background: linear-gradient(to right, #f8f3df, #f2e1b5); padding: 50px 8%;">
-      <div class="heading">
-        <h1>Why choose Aptitude Test?</h1>
-        <p>We combine expert-designed questions, progress analytics, and a friendly learning experience to help every student reach placement success.</p>
-      </div>
-      <div class="content" style="gap: 60px;">
-        <div class="right-side" style="padding-left: 0;">
-          <div class="feature">
-            <h3>01 — Structured Preparation</h3>
-            <p>Practice topic-wise questions across reasoning, arithmetic, and verbal sections.</p>
-          </div>
-          <div class="feature">
-            <h3>02 — Real Test Style</h3>
-            <p>Work with questions that mimic actual placement exams and company screening tests.</p>
-          </div>
-          <div class="feature">
-            <h3>03 — Learn Faster</h3>
-            <p>Understand solutions using concise explanations and progress-based suggestions.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <div class="footer-container">
-        <div class="footer-box logo-box">
-          <div class="footer-logo">
-            <img src="/images/logo.png" alt="Aptitude Test Logo" class="footer-logo-img" />
-          </div>
-          <p>CALL: 0123-4567-8910</p>
-          <p>MAIL: yourcompany@gmail.com</p>
-        </div>
-        <div class="footer-box">
-          <h3>ABOUT</h3>
-          <p>TECHNICALS</p>
-          <p>DEVELOPER</p>
-        </div>
-        <div class="footer-box">
-          <h3>CONTACT US</h3>
-          <p>CALL: 0123-4567-8910</p>
-          <p>MAIL: yourcompany@gmail.com</p>
-        </div>
-      </div>
-    </footer>
-
-    <script src="/static/JS/script.js"></script>
-  </body>
+  <script src="/static/JS/responsive.js"></script>
+  <script>
+    // Sticky header
+    window.addEventListener('scroll', () => {
+      document.getElementById('main-header').classList.toggle('scrolled', window.scrollY > 20);
+    });
+    // Hamburger
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.getElementById('main-nav');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        nav.classList.toggle('open');
+        hamburger.classList.toggle('active');
+      });
+    }
+    // Reveal animation
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
 </html>

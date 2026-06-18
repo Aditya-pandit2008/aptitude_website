@@ -1,178 +1,501 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Your Profile - Aptitude Test" />
-    <title>Profile - Aptitude Test</title>
-    <link rel="stylesheet" href="/static/CSS/profile.css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Your Profile — view stats, activity, and update your account information." />
+  <title>Profile - Aptitude Test</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/profile.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* ── Profile-page overrides on top of Dashboard.css ── */
+    .main-content {
+      padding: 36px 40px;
+    }
+
+    .profile-page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #4b4b4b;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    /* Profile hero card */
+    .profile-card {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 20px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.05);
+      padding: 32px;
+      margin-bottom: 24px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .profile-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 38px rgba(0,0,0,0.07);
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .profile-avatar {
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .profile-avatar img {
+      border: 5px solid #eadba3;
+      border-radius: 50%;
+      height: 120px;
+      object-fit: cover;
+      width: 120px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.1);
+    }
+
+    .avatar-badge {
+      align-items: center;
+      background: #4d4742;
+      border-radius: 50%;
+      bottom: 4px;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      height: 32px;
+      justify-content: center;
+      position: absolute;
+      right: 6px;
+      width: 32px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+      transition: transform 0.2s ease;
+      border: 2px solid #fff;
+    }
+
+    .avatar-badge:hover {
+      transform: scale(1.12);
+    }
+
+    .profile-info h2 {
+      font-size: 26px;
+      color: #1a1714;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .profile-info p { color: #6d6a64; font-size: 14px; }
+    .join-date { color: #9a9490; font-size: 13px; margin-top: 4px; }
+
+    /* Quick stat chips */
+    .profile-stats {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 28px;
+    }
+
+    .stat {
+      background: linear-gradient(135deg, #eadba3 0%, #f0e6b4 100%);
+      border-radius: 14px;
+      padding: 18px 16px;
+      border: 1px solid rgba(255,255,255,0.5);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      transition: transform 0.2s ease;
+      text-align: center;
+    }
+
+    .stat:hover { transform: translateY(-3px); }
+
+    .stat-value {
+      display: block;
+      font-size: 26px;
+      font-weight: 800;
+      color: #1a1714;
+    }
+
+    .stat-label {
+      color: #5f584e;
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
+      display: block;
+    }
+
+    /* Content sections */
+    .profile-section {
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 18px;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.04);
+      padding: 28px;
+      margin-bottom: 22px;
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+
+    .profile-section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.06);
+    }
+
+    .profile-section h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1a1714;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .profile-section h3 i {
+      color: #6b5c4a;
+      font-size: 16px;
+    }
+
+    /* Stats grid */
+    .stats-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .stat-box {
+      background: #eadba3;
+      border-radius: 12px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      transition: transform 0.2s ease;
+    }
+
+    .stat-box:hover { transform: translateY(-2px); }
+
+    .stat-box i {
+      color: #4d4742;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+
+    .stat-box h4 {
+      font-size: 24px;
+      font-weight: 800;
+      color: #1a1714;
+      line-height: 1.2;
+    }
+
+    .stat-box p {
+      color: #5f584e;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-top: 2px;
+    }
+
+    /* Activity list */
+    .activity-list { display: grid; gap: 10px; }
+
+    .activity-item {
+      background: #f8f7f5;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 18px;
+      border: 1px solid rgba(0,0,0,0.03);
+      font-size: 14px;
+    }
+
+    .loading, .empty { color: #6d6a64; font-size: 14px; }
+
+    /* Edit form */
+    .profile-form { display: grid; gap: 18px; }
+    .form-group { display: grid; gap: 7px; }
+
+    .form-group label {
+      color: #4d4742;
+      font-weight: 700;
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-group input {
+      border: 1.5px solid #d8cfb5;
+      border-radius: 10px;
+      font: inherit;
+      padding: 12px 14px;
+      background: #fff;
+      transition: all 0.25s ease;
+      outline: none;
+      font-size: 14.5px;
+    }
+
+    .form-group input:focus {
+      border-color: #8d6a9f;
+      box-shadow: 0 0 0 3px rgba(141,106,159,0.15);
+    }
+
+    .form-group input:disabled {
+      background: #f0ede4;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+      margin-top: 6px;
+    }
+
+    .btn-primary, .btn-secondary {
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 12px 22px;
+      font-size: 14px;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: #4d4742;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(77,71,66,0.2);
+    }
+    .btn-primary:hover {
+      background: #2f2b28;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(77,71,66,0.28);
+    }
+
+    .btn-secondary {
+      background: #eadba3;
+      color: #2f2b28;
+    }
+    .btn-secondary:hover {
+      background: #ecdca0;
+      transform: translateY(-2px);
+    }
+
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 999;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    @media (max-width: 900px) {
+      .mobile-menu-btn { display: block; }
+      .profile-stats, .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .main-content { padding: 20px; }
+      .profile-top { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .profile-stats, .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .profile-info h2 { font-size: 22px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <a class="logo" href="/Dashboard">
-                <img src="/images/Apti-logo.png" width="230" height="90" alt="Logo" />
-            </a>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="container">
 
-            <ul class="menu">
-                <li data-page="/Dashboard">
-                    <i class="fa-solid fa-house"></i>
-                    Dashboard
-                </li>
-                <li data-page="/test-page">
-                    <i class="fa-solid fa-bullseye"></i>
-                    Set Tasks
-                </li>
-                <li data-page="/aptitude-test">
-                    <i class="fa-regular fa-calendar"></i>
-                    Aptitude Tests
-                </li>
-                <li data-page="/resources">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    Resources
-                </li>
-                <li data-page="/bookmarks">
-                    <i class="fa-regular fa-bookmark"></i>
-                    Saved Questions
-                </li>
-                <li class="active" data-page="/profile">
-                    <i class="fa-solid fa-user"></i>
-                    Profile
-                </li>
-                <li data-action="logout">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    Logout
-                </li>
-            </ul>
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
+      </a>
+      <ul class="menu">
+        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+        <li data-page="/resources"><i class="fa-solid fa-book-open"></i> Resources</li>
+        <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
+        <li class="active" data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
+        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+      <div class="bottom-menu">
+        <div class="profile" data-page="/profile">
+          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
+          <span id="sidebar-username">Student</span>
+        </div>
+        <div class="bottom-item" data-page="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </div>
+      </div>
+    </aside>
 
-            <div class="bottom-menu">
-                <div class="profile" data-page="/profile">
-                    <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
-                    <span id="sidebar-username">Student</span>
-                </div>
-                <div class="bottom-item" data-page="/settings">
-                    <i class="fa-solid fa-gear"></i>
-                    Settings
-                </div>
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+
+      <!-- PAGE HEAD -->
+      <div class="profile-page-head">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <p class="eyebrow">Account</p>
+            <h1 style="font-size:32px;font-weight:800;color:#1a1714;">My Profile</h1>
+          </div>
+        </div>
+        <a class="primary-action" href="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </div>
+
+      <!-- PROFILE HERO CARD -->
+      <div class="profile-card">
+        <div class="profile-top">
+          <div class="profile-avatar">
+            <img id="profile-avatar" src="https://i.pravatar.cc/150" alt="Profile Picture" />
+            <div class="avatar-badge" id="avatar-badge" title="Change photo">
+              <i class="fas fa-camera" style="font-size:13px;"></i>
             </div>
-        </aside>
+          </div>
+          <div class="profile-info">
+            <h2 id="profile-name">User Name</h2>
+            <p id="profile-email">user@example.com</p>
+            <p class="join-date">Member since <span id="profile-joined">2024</span></p>
+          </div>
+        </div>
+        <div class="profile-stats">
+          <div class="stat">
+            <span class="stat-value" id="stat-tests-taken">0</span>
+            <span class="stat-label">Tests Taken</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-total-xp">0</span>
+            <span class="stat-label">Total XP</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-avg-accuracy">0%</span>
+            <span class="stat-label">Avg Accuracy</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="stat-streak">0</span>
+            <span class="stat-label">🔥 Streak</span>
+          </div>
+        </div>
+      </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="profile-header">
-                <h1>My Profile</h1>
+      <!-- PERFORMANCE OVERVIEW -->
+      <div class="profile-section">
+        <h3><i class="fa-solid fa-chart-pie"></i> Performance Overview</h3>
+        <div class="stats-grid">
+          <div class="stat-box">
+            <i class="fas fa-check-circle" style="color:#3f7d46;"></i>
+            <div>
+              <h4 id="correct-answers">0</h4>
+              <p>Correct</p>
             </div>
-
-            <div class="profile-container">
-                <!-- Profile Card -->
-                <section class="profile-card">
-                    <div class="profile-top">
-                        <div class="profile-avatar">
-                            <img id="profile-avatar" src="https://i.pravatar.cc/150" alt="Profile Picture" />
-                            <div class="avatar-badge" id="avatar-badge">
-                                <i class="fas fa-camera"></i>
-                            </div>
-                        </div>
-                        <div class="profile-info">
-                            <h2 id="profile-name">User Name</h2>
-                            <p id="profile-email">user@example.com</p>
-                            <p class="join-date">Member since <span id="profile-joined">2024</span></p>
-                        </div>
-                    </div>
-
-                    <div class="profile-stats">
-                        <div class="stat">
-                            <span class="stat-value" id="stat-tests-taken">0</span>
-                            <span class="stat-label">Tests Taken</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="stat-total-xp">0</span>
-                            <span class="stat-label">Total XP</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="stat-avg-accuracy">0%</span>
-                            <span class="stat-label">Avg Accuracy</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value" id="stat-streak">0</span>
-                            <span class="stat-label">🔥 Streak</span>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Statistics Section -->
-                <section class="stats-section">
-                    <h3>Performance Overview</h3>
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <i class="fas fa-check-circle"></i>
-                            <div>
-                                <h4 id="correct-answers">0</h4>
-                                <p>Correct Answers</p>
-                            </div>
-                        </div>
-                        <div class="stat-box">
-                            <i class="fas fa-times-circle"></i>
-                            <div>
-                                <h4 id="incorrect-answers">0</h4>
-                                <p>Incorrect Answers</p>
-                            </div>
-                        </div>
-                        <div class="stat-box">
-                            <i class="fas fa-bookmark"></i>
-                            <div>
-                                <h4 id="bookmarked-questions">0</h4>
-                                <p>Bookmarked Questions</p>
-                            </div>
-                        </div>
-                        <div class="stat-box">
-                            <i class="fas fa-trophy"></i>
-                            <div>
-                                <h4 id="rank-position">--</h4>
-                                <p>Leaderboard Rank</p>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Recent Activity Section -->
-                <section class="activity-section">
-                    <h3>Recent Activity</h3>
-                    <div id="activity-list" class="activity-list">
-                        <p class="loading">Loading activity...</p>
-                    </div>
-                </section>
-
-                <!-- Edit Profile Section -->
-                <section class="edit-profile-section">
-                    <h3>Edit Profile Information</h3>
-                    <form id="edit-profile-form" class="profile-form">
-                        <div class="form-group">
-                            <label for="edit-username">Username</label>
-                            <input type="text" id="edit-username" placeholder="Your username" />
-                        </div>
-
-                        <div class="form-group">
-                            <label for="edit-email">Email Address</label>
-                            <input type="email" id="edit-email" placeholder="your@email.com" disabled />
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="button" class="btn-secondary" id="cancel-edit">Cancel</button>
-                            <button type="submit" class="btn-primary">Save Changes</button>
-                        </div>
-                    </form>
-                </section>
+          </div>
+          <div class="stat-box">
+            <i class="fas fa-times-circle" style="color:#b45748;"></i>
+            <div>
+              <h4 id="incorrect-answers">0</h4>
+              <p>Incorrect</p>
             </div>
-        </main>
-    </div>
+          </div>
+          <div class="stat-box">
+            <i class="fas fa-bookmark" style="color:#6b5c4a;"></i>
+            <div>
+              <h4 id="bookmarked-questions">0</h4>
+              <p>Bookmarked</p>
+            </div>
+          </div>
+          <div class="stat-box">
+            <i class="fas fa-trophy" style="color:#b8860b;"></i>
+            <div>
+              <h4 id="rank-position">--</h4>
+              <p>Leaderboard Rank</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    <!-- Notification -->
-    <div id="notification" class="notification"></div>
+      <!-- RECENT ACTIVITY -->
+      <div class="profile-section">
+        <h3><i class="fa-solid fa-clock-rotate-left"></i> Recent Activity</h3>
+        <div id="activity-list" class="activity-list">
+          <p class="loading">Loading activity…</p>
+        </div>
+      </div>
 
-    <script src="/static/JS/profile.js"></script>
+      <!-- EDIT PROFILE -->
+      <div class="profile-section">
+        <h3><i class="fa-solid fa-pen-to-square"></i> Edit Profile Information</h3>
+        <form id="edit-profile-form" class="profile-form">
+          <div class="form-group">
+            <label for="edit-username">Username</label>
+            <input type="text" id="edit-username" placeholder="Your username" />
+          </div>
+          <div class="form-group">
+            <label for="edit-email">Email Address</label>
+            <input type="email" id="edit-email" placeholder="your@email.com" disabled />
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-secondary" id="cancel-edit">Cancel</button>
+            <button type="submit" class="btn-primary">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </main>
+  </div>
+
+  <div id="notification" class="notification"></div>
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/profile.js"></script>
+  <script>
+    // Mobile sidebar
+    const menuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => {
+        sidebarEl.classList.toggle('show');
+        overlay.classList.toggle('show');
+      });
+      overlay.addEventListener('click', () => {
+        sidebarEl.classList.remove('show');
+        overlay.classList.remove('show');
+      });
+    }
+  </script>
 </body>
 </html>

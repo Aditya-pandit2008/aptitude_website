@@ -162,9 +162,10 @@ async function loginUser(email, password) {
       return;
     }
 
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('refresh_token', data.refresh_token);
-    localStorage.setItem('user', JSON.stringify(data.user));
+    const payload = data.data || data;
+    localStorage.setItem('access_token', payload.access_token);
+    localStorage.setItem('refresh_token', payload.refresh_token);
+    localStorage.setItem('user', JSON.stringify(payload.user));
     showNotification('Login successful!', 'success');
     window.location.href = '/Dashboard';
   } catch (error) {
@@ -189,9 +190,10 @@ async function signupUser(inputs) {
       return;
     }
 
-    localStorage.setItem('access_token', data.access_token);
-    localStorage.setItem('refresh_token', data.refresh_token);
-    localStorage.setItem('user', JSON.stringify(data.user));
+    const payload = data.data || data;
+    localStorage.setItem('access_token', payload.access_token);
+    localStorage.setItem('refresh_token', payload.refresh_token);
+    localStorage.setItem('user', JSON.stringify(payload.user));
     showNotification('Account created successfully!', 'success');
     window.location.href = '/Dashboard';
   } catch (error) {

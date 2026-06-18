@@ -7,6 +7,7 @@
   <meta name="theme-color" content="#e4cb71">
   <title>Sign Up - Aptitude Test | Start Your Placement Journey</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
   <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/CSS/signup.css">
 </head>
@@ -90,6 +91,7 @@
   </div>
 
   <script src="/static/JS/script.js"></script>
+    <script src="/static/JS/responsive.js"></script>
   <script>
     // Password toggle helpers
     function makeToggle(iconId, inputId) {
@@ -150,9 +152,10 @@
         const data = await res.json();
         if (!res.ok) { showNotification(data.error || 'Sign up failed', 'error'); return; }
 
-        localStorage.setItem('access_token', data.access_token);
-        localStorage.setItem('refresh_token', data.refresh_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        const payload = data.data || data;
+        localStorage.setItem('access_token', payload.access_token);
+        localStorage.setItem('refresh_token', payload.refresh_token);
+        localStorage.setItem('user', JSON.stringify(payload.user));
         showNotification('Account created! Redirecting…', 'success');
         setTimeout(() => { window.location.href = '/Dashboard'; }, 900);
       } catch {

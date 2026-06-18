@@ -1,117 +1,268 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Get started with aptitude practice, improve your skills, and get placement ready fast." />
-    <meta name="theme-color" content="#ead690" />
-    <title>Get Started - Aptitude Test</title>
-    <link rel="stylesheet" href="/static/CSS/home.css" />
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Rye&family=Poppins:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <header>
-      <div class="logo">
-        <img src="/images/Apti-logo.png" alt="Company Logo" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Get started with aptitude practice, improve your skills, and get placement ready fast." />
+  <meta name="theme-color" content="#ead690" />
+  <title>Get Started - Aptitude Test | Begin Your Journey</title>
+  <link rel="stylesheet" href="/static/CSS/home.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    .gs-hero {
+      background: linear-gradient(135deg, #f4e7c7 0%, #ead690 100%);
+      padding: 80px 80px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .gs-hero .blob {
+      position: absolute; border-radius: 50%; filter: blur(60px); pointer-events: none;
+    }
+    .gs-blob-1 { width: 280px; height: 280px; background: rgba(155,99,175,0.12); top: -60px; right: 20%; animation: blobPulse 6s ease-in-out infinite; }
+    .gs-blob-2 { width: 180px; height: 180px; background: rgba(243,220,201,0.4); bottom: -40px; left: 10%; animation: blobPulse 8s ease-in-out infinite reverse; }
+
+    .gs-hero-text { position: relative; z-index: 1; max-width: 560px; }
+    .gs-hero-text .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(155,99,175,0.15); border: 1.5px solid rgba(155,99,175,0.3);
+      color: var(--purple-dark); padding: 8px 18px; border-radius: 30px;
+      font-size: 13px; font-weight: 600; margin-bottom: 20px;
+    }
+    .gs-hero-text h1 { font-family: "Rozha One", serif; font-size: 2.6rem; color: var(--purple); line-height: 1.3; margin-bottom: 18px; }
+    .gs-hero-text p { font-size: 17px; color: var(--text-mid); line-height: 1.7; max-width: 500px; }
+    .gs-hero-img { position: relative; z-index: 1; flex-shrink: 0; }
+    .gs-hero-img img { width: 280px; filter: drop-shadow(0 8px 24px rgba(155,99,175,0.25)); animation: heroFloat 5s ease-in-out infinite; }
+
+    /* Steps */
+    .gs-steps-section { padding: 80px; text-align: center; background: linear-gradient(180deg, #fbf5ea 0%, #f0ebe0 100%); }
+    .gs-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; max-width: 900px; margin: 0 auto; }
+    .gs-step {
+      background: #fff; border-radius: 18px; padding: 36px 28px; box-shadow: 0 6px 24px rgba(0,0,0,0.06);
+      border: 2px solid transparent; transition: all 0.3s cubic-bezier(0.25,0.46,0.45,0.94);
+      position: relative; overflow: hidden; text-align: left;
+    }
+    .gs-step::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, var(--purple), var(--gold)); }
+    .gs-step:hover { transform: translateY(-8px); border-color: var(--purple); box-shadow: 0 16px 40px rgba(155,99,175,0.15); }
+    .gs-step-num { font-family: "Rozha One", serif; font-size: 42px; color: rgba(155,99,175,0.08); position: absolute; top: 12px; right: 16px; line-height: 1; }
+    .gs-step-icon { width: 56px; height: 56px; background: rgba(155,99,175,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 18px; font-size: 24px; color: var(--purple); }
+    .gs-step h3 { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 8px; }
+    .gs-step p { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+
+    /* Why section */
+    .gs-why { background: linear-gradient(135deg, #f8f3df 0%, #eed7b4 100%); padding: 70px 8%; }
+    .gs-why .heading h1 { font-family: "Rozha One", serif; color: var(--purple); font-size: 2rem; margin-bottom: 14px; }
+    .gs-why .heading p { color: var(--text-mid); font-size: 16px; max-width: 600px; line-height: 1.7; }
+    .gs-why-list { display: grid; gap: 24px; margin-top: 36px; max-width: 640px; }
+    .gs-why-item { display: flex; gap: 16px; align-items: flex-start; }
+    .gs-why-item-num { font-family: "Rozha One", serif; font-size: 28px; color: var(--purple); flex-shrink: 0; line-height: 1; min-width: 40px; }
+    .gs-why-item h3 { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 4px; }
+    .gs-why-item p { font-size: 14px; color: var(--text-mid); line-height: 1.6; }
+
+    @media (max-width: 900px) {
+      .gs-hero { flex-direction: column; padding: 50px 30px 40px; text-align: center; }
+      .gs-hero-text h1 { font-size: 2rem; }
+      .gs-hero-img img { width: 200px; }
+      .gs-steps { grid-template-columns: 1fr; max-width: 400px; }
+      .gs-steps-section { padding: 50px 24px; }
+      .gs-why { padding: 50px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header id="main-header">
+    <div class="logo">
+      <img src="/images/Apti-logo.png" alt="Aptitude Test Logo" class="logo-img" />
+    </div>
+    <nav id="main-nav">
+      <ul>
+        <li><a href="/"><i class="fas fa-home nav-icon"></i> HOME</a></li>
+        <li><a href="/aptitude-test"><i class="fas fa-brain nav-icon"></i> APTITUDE TEST</a></li>
+        <li><a href="/login" class="nav-login-btn">LOGIN</a></li>
+        <li><a href="/signup" class="nav-signup-btn">SIGN UP</a></li>
+      </ul>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-label="Toggle Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </header>
+
+  <!-- HERO -->
+  <section class="gs-hero">
+    <div class="blob gs-blob-1"></div>
+    <div class="blob gs-blob-2"></div>
+    <div class="gs-hero-text">
+      <div class="hero-badge"><i class="fas fa-star"></i> Quick Start</div>
+      <h1>Start your aptitude journey in three easy steps.</h1>
+      <p>Join thousands of learners preparing for campus placements with daily practice, topic-based lessons, and quick performance insights.</p>
+      <div class="hero-btns" style="margin-top:28px;">
+        <a href="/signup" class="primary-btn"><i class="fas fa-bolt"></i> Sign Up Free</a>
+        <a href="/login" class="secondary-btn">I Have an Account <i class="fas fa-arrow-right"></i></a>
       </div>
-      <nav id="main-nav">
+    </div>
+    <div class="gs-hero-img">
+      <img src="/images/Hero-logo.png" alt="Get Started" />
+    </div>
+  </section>
+
+  <!-- FEATURES BAR -->
+  <section class="features">
+    <div class="feature-box reveal">
+      <div class="feature-icon-wrap"><span>📚</span></div>
+      <div class="feature-text">
+        <h4>Study Plan</h4>
+        <p>STEP BY STEP</p>
+      </div>
+    </div>
+    <div class="feature-box reveal">
+      <div class="feature-icon-wrap"><span>⏱️</span></div>
+      <div class="feature-text">
+        <h4>Fast Tests</h4>
+        <p>REAL EXAM SPEED</p>
+      </div>
+    </div>
+    <div class="feature-box reveal">
+      <div class="feature-icon-wrap"><span>🏅</span></div>
+      <div class="feature-text">
+        <h4>Daily Goals</h4>
+        <p>BUILD CONFIDENCE</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW TO GET STARTED (STEPS) -->
+  <section class="gs-steps-section">
+    <div class="section-tag">Simple Process</div>
+    <h2 style="font-family:'Rozha One',serif; color:var(--text-dark); margin-bottom:10px; font-size:28px;">HOW TO GET STARTED</h2>
+    <p class="section-sub">Three simple steps to begin your preparation</p>
+    <div class="gs-steps">
+      <div class="gs-step">
+        <div class="gs-step-num">01</div>
+        <div class="gs-step-icon"><i class="fas fa-user-plus"></i></div>
+        <h3>Create Your Account</h3>
+        <p>Sign up in seconds and choose your focus areas — quantitative, reasoning, verbal, or all of the above.</p>
+      </div>
+      <div class="gs-step">
+        <div class="gs-step-num">02</div>
+        <div class="gs-step-icon"><i class="fas fa-brain"></i></div>
+        <h3>Practice Daily</h3>
+        <p>Solve curated questions in reasoning, math, and verbal tests with AI-generated explanations after each attempt.</p>
+      </div>
+      <div class="gs-step">
+        <div class="gs-step-num">03</div>
+        <div class="gs-step-icon"><i class="fas fa-chart-line"></i></div>
+        <h3>Track Progress</h3>
+        <p>See your improvements with session metrics, speed tracking, and personalised suggestions for weak areas.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY THIS IS THE BEST PLACE -->
+  <section class="gs-why">
+    <div class="heading">
+      <div class="section-tag">Why Us</div>
+      <h1>Why this is the best place to begin.</h1>
+      <p>We give you a friendly, motivating platform where aptitude preparation becomes simple and effective.</p>
+    </div>
+    <div class="gs-why-list">
+      <div class="gs-why-item">
+        <div class="gs-why-item-num">01</div>
+        <div>
+          <h3>Easy Onboarding</h3>
+          <p>Sign up and start a practice session in under two minutes — no setup required.</p>
+        </div>
+      </div>
+      <div class="gs-why-item">
+        <div class="gs-why-item-num">02</div>
+        <div>
+          <h3>Tailored Practice</h3>
+          <p>Pick the areas you want to improve and receive AI-powered, adaptive question sets matched to your level.</p>
+        </div>
+      </div>
+      <div class="gs-why-item">
+        <div class="gs-why-item-num">03</div>
+        <div>
+          <h3>Real Progress</h3>
+          <p>See your improvements clearly with session speed metrics, accuracy charts, and performance history.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-banner">
+    <div class="cta-content">
+      <h2>Ready to Crack Your Placement?</h2>
+      <p>Join 10,000+ students. Start free today!</p>
+      <div class="cta-btns">
+        <a href="/signup" class="primary-btn large-btn"><i class="fas fa-bolt"></i> Start Free Now</a>
+        <a href="/aptitude-test" class="outline-btn">Explore Tests <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <img src="/images/Apti-logo.png" alt="Aptitude Test Logo" class="footer-logo-img" />
+        <p class="footer-tagline">Your shortcut to placement success.</p>
+        <div class="footer-socials">
+          <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+          <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+          <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-links-group">
+        <h4>Platform</h4>
         <ul>
-          <li><a href="/template/home.html">HOME</a></li>
-          <li><a href="/template/aptitude-test.html">APTITUDE TEST</a></li>
-          <li><a href="/template/login.html">LOGIN</a></li>
-          <li><a href="/template/signup.html">SIGN UP</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/aptitude-test">Aptitude Test</a></li>
+          <li><a href="/login">Login</a></li>
+          <li><a href="/signup">Sign Up</a></li>
         </ul>
-      </nav>
-    </header>
+      </div>
+      <div class="footer-links-group">
+        <h4>Contact Us</h4>
+        <ul>
+          <li><i class="fas fa-phone"></i> 0123-4567-8910</li>
+          <li><i class="fas fa-envelope"></i> yourcompany@gmail.com</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Aptitude Test. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
 
-    <section class="hero" style="background: #f4e7c7; padding: 80px 80px 40px;">
-      <div class="left-content">
-        <h1>Start your aptitude journey in three easy steps.</h1>
-        <p style="font-size: 18px; color: #8e63aa; max-width: 620px; margin-top: 20px;">Join thousands of learners preparing for campus placements with daily practice, topic-based lessons, and quick performance insights.</p>
-      </div>
-      <div class="right-content">
-        <div class="center-image">
-          <img src="/images/Hero-logo.png" alt="Get Started Image" style="width: 320px;" />
-        </div>
-      </div>
-    </section>
-
-    <section class="category" style="padding: 60px 70px; background: #fbf5ea;">
-      <h2>HOW TO GET STARTED</h2>
-      <div class="category-container" style="gap: 30px;">
-        <div class="card" style="width: 260px; height: auto; padding: 30px;">1. Create your account and choose your aptitude focus areas.</div>
-        <div class="card" style="width: 260px; height: auto; padding: 30px;">2. Practice with curated questions in reasoning, math, and verbal tests.</div>
-        <div class="card" style="width: 260px; height: auto; padding: 30px;">3. Track your progress and improve with targeted performance insights.</div>
-      </div>
-    </section>
-
-    <section class="features" style="background: #e9dccf; padding: 70px 40px;">
-      <div class="feature-box">
-        <span>📚</span>
-        <p>Step-by-step study plan for every student.</p>
-      </div>
-      <div class="feature-box">
-        <span>⏱️</span>
-        <p>Fast practice tests designed for real exam speed.</p>
-      </div>
-      <div class="feature-box">
-        <span>🏅</span>
-        <p>Build confidence with daily achievement goals.</p>
-      </div>
-    </section>
-
-    <section class="placement-section" style="background: linear-gradient(to right, #f8f3df, #eed7b4); padding: 50px 8%;">
-      <div class="heading">
-        <h1>Why this is the best place to begin.</h1>
-        <p>We give you a friendly, motivating platform where aptitude preparation becomes simple and effective.</p>
-      </div>
-      <div class="content" style="gap: 60px;">
-        <div class="right-side" style="padding-left: 0;">
-          <div class="feature">
-            <h3>01 — Easy onboarding</h3>
-            <p>Sign up and start a practice session in minutes.</p>
-          </div>
-          <div class="feature">
-            <h3>02 — Tailored practice</h3>
-            <p>Pick the areas you want to improve and receive smart question sets.</p>
-          </div>
-          <div class="feature">
-            <h3>03 — Real progress</h3>
-            <p>See your improvements clearly with session and speed metrics.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <footer>
-      <div class="footer-container">
-        <div class="footer-box logo-box">
-          <div class="footer-logo">
-            <img src="/images/logo.png" alt="Aptitude Test Logo" class="footer-logo-img" />
-          </div>
-          <p>CALL: 0123-4567-8910</p>
-          <p>MAIL: yourcompany@gmail.com</p>
-        </div>
-        <div class="footer-box">
-          <h3>ABOUT</h3>
-          <p>TECHNICALS</p>
-          <p>DEVELOPER</p>
-        </div>
-        <div class="footer-box">
-          <h3>CONTACT US</h3>
-          <p>CALL: 0123-4567-8910</p>
-          <p>MAIL: yourcompany@gmail.com</p>
-        </div>
-      </div>
-    </footer>
-
-    <script src="/static/JS/script.js"></script>
-  </body>
+  <script src="/static/JS/responsive.js"></script>
+  <script>
+    window.addEventListener('scroll', () => {
+      document.getElementById('main-header').classList.toggle('scrolled', window.scrollY > 20);
+    });
+    const hamburger = document.getElementById('hamburger');
+    const nav = document.getElementById('main-nav');
+    if (hamburger) {
+      hamburger.addEventListener('click', () => {
+        nav.classList.toggle('open');
+        hamburger.classList.toggle('active');
+      });
+    }
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+  </script>
+</body>
 </html>

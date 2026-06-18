@@ -51,8 +51,10 @@ function showSection(name) {
 async function loadUserInfo() {
     try {
         const res = await apiFetch(`${API_BASE}/auth/me`);
-        const data = await res.json();
+        const json = await res.json();
         if (!res.ok) { window.location.href = '/login'; return false; }
+
+        const data = json.data;
 
         if (data.user.role !== 'admin') {
             showPromotionUI(data.user);

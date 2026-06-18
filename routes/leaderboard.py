@@ -20,8 +20,9 @@ leaderboard_bp = Blueprint("leaderboard", __name__)
 @jwt_required()
 def get_top_leaderboard():
     """Return the top-10 leaderboard entries."""
-    entries = leaderboard_service.get_top_n(n=10)
-    return jsonify({"leaderboard": entries, "count": len(entries)}), 200
+    timeframe = request.args.get("timeframe", "all_time").lower()
+    entries = leaderboard_service.get_top_n_timebound(n=10, timeframe=timeframe)
+    return jsonify({"leaderboard": entries, "count": len(entries), "timeframe": timeframe}), 200
 
 
 @leaderboard_bp.route("/top/<int:n>", methods=["GET"])
@@ -32,8 +33,9 @@ def get_top_n(n):
     N is capped at 50 to prevent abuse.
     """
     n = min(n, 50)
-    entries = leaderboard_service.get_top_n(n=n)
-    return jsonify({"leaderboard": entries, "count": len(entries)}), 200
+    timeframe = request.args.get("timeframe", "all_time").lower()
+    entries = leaderboard_service.get_top_n_timebound(n=n, timeframe=timeframe)
+    return jsonify({"leaderboard": entries, "count": len(entries), "timeframe": timeframe}), 200
 
 
 @leaderboard_bp.route("/me", methods=["GET"])
@@ -41,10 +43,12 @@ def get_top_n(n):
 def get_my_rank():
     """Return the current user's leaderboard rank and stats."""
     user_id = get_jwt_identity()
-    entry = leaderboard_service.get_user_rank(user_id)
+    timeframe = request.args.get("timeframe", "all_time").lower()
+    entry = leaderboard_service.get_user_rank_timebound(int(user_id), timeframe=timeframe)
     if not entry:
         return jsonify({
-            "message": "No leaderboard entry yet. Complete a test to appear.",
+            "message": "No leaderboard entry yet in this timeframe. Complete a test to appear.",
             "entry": None,
+            "timeframe": timeframe,
         }), 200
-    return jsonify({"entry": entry}), 200
+    return jsonify({"entry": entry, "timeframe": timeframe}), 200

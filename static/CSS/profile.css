@@ -8,6 +8,7 @@
 body {
   background: #f7f7f5;
   color: #24211f;
+  scroll-behavior: smooth;
 }
 
 .container {
@@ -15,18 +16,26 @@ body {
   min-height: 100vh;
 }
 
+/* ── SIDEBAR ────────────────────────────────────────── */
 .sidebar {
-  background: #d8d7d3;
+  width: 260px;
+  background: #dcdbd7;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
-  padding: 20px;
-  width: 260px;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.02);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .logo {
   display: block;
   margin-bottom: 32px;
   text-decoration: none;
+  transition: transform 0.3s;
+}
+
+.logo:hover {
+  transform: scale(1.02);
 }
 
 .menu {
@@ -37,7 +46,7 @@ body {
 .bottom-item,
 .profile {
   align-items: center;
-  border-radius: 8px;
+  border-radius: 12px;
   color: #4b4b4b;
   cursor: pointer;
   display: flex;
@@ -45,17 +54,23 @@ body {
   gap: 14px;
   margin-bottom: 10px;
   padding: 14px 16px;
-  transition: 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  user-select: none;
 }
 
 .menu li:hover,
 .bottom-item:hover,
-.profile:hover,
-.menu li.active,
-.bottom-item.active {
+.profile:hover {
   background: #eadba3;
   color: #222;
   transform: translateX(6px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+}
+
+.menu li.active,
+.bottom-item.active {
+  background: #ecebe8;
+  color: #8c8c8c;
 }
 
 .bottom-menu {
@@ -66,8 +81,11 @@ body {
   border-radius: 50%;
   height: 38px;
   width: 38px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
+/* ── MAIN CONTENT ───────────────────────────────────── */
 .main-content {
   flex: 1;
   padding: 32px;
@@ -76,28 +94,40 @@ body {
 .profile-header h1 {
   font-size: 38px;
   margin-bottom: 22px;
+  color: #222;
+  font-weight: 700;
 }
 
 .profile-container {
   display: grid;
-  gap: 22px;
+  gap: 24px;
 }
 
+/* ── CARDS ──────────────────────────────────────────── */
 .profile-card,
 .stats-section,
 .activity-section,
 .edit-profile-section {
-  background: #fffcf2;
-  border: 1px solid #ece5cf;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  padding: 26px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  padding: 30px;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.profile-card:hover,
+.stats-section:hover,
+.activity-section:hover,
+.edit-profile-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.06);
 }
 
 .profile-top {
   align-items: center;
   display: flex;
-  gap: 24px;
+  gap: 28px;
 }
 
 .profile-avatar {
@@ -110,6 +140,7 @@ body {
   height: 130px;
   object-fit: cover;
   width: 130px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
 .avatar-badge {
@@ -124,31 +155,51 @@ body {
   position: absolute;
   right: 8px;
   width: 34px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.avatar-badge:hover {
+  transform: scale(1.1);
 }
 
 .profile-info h2 {
   font-size: 30px;
+  color: #222;
+  font-weight: 700;
 }
 
 .profile-info p,
 .join-date {
   color: #6d6a64;
   margin-top: 6px;
+  font-size: 14.5px;
 }
 
+/* ── STATS GRID ─────────────────────────────────────── */
 .profile-stats,
 .stats-grid {
   display: grid;
-  gap: 16px;
+  gap: 18px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  margin-top: 24px;
+  margin-top: 28px;
 }
 
 .stat,
 .stat-box {
   background: #eadba3;
-  border-radius: 8px;
-  padding: 18px;
+  border-radius: 12px;
+  padding: 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.02);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat:hover,
+.stat-box:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
 
 .stat-value,
@@ -156,6 +207,7 @@ body {
   display: block;
   font-size: 28px;
   font-weight: 800;
+  color: #2f2b28;
 }
 
 .stat-label,
@@ -163,12 +215,15 @@ body {
   color: #5f584e;
   font-size: 13px;
   font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
 }
 
 .stat-box {
   align-items: center;
   display: flex;
-  gap: 14px;
+  gap: 16px;
 }
 
 .stat-box i {
@@ -177,7 +232,10 @@ body {
 }
 
 h3 {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: #222;
+  font-weight: 700;
 }
 
 .activity-list {
@@ -187,85 +245,132 @@ h3 {
 
 .activity-item {
   background: #f8f7f5;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   justify-content: space-between;
-  padding: 14px 16px;
+  padding: 16px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.02);
 }
 
 .profile-form {
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
 .form-group {
   display: grid;
-  gap: 7px;
+  gap: 8px;
 }
 
 label {
   color: #4d4742;
   font-weight: 700;
+  font-size: 13.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 input,
 textarea,
 select {
   border: 1px solid #d8cfb5;
-  border-radius: 8px;
+  border-radius: 10px;
   font: inherit;
-  padding: 12px 14px;
+  padding: 13px 16px;
+  background: #fff;
+  transition: all 0.3s ease;
+  outline: none;
+  font-size: 14.5px;
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   border-color: #8d6a9f;
-  outline: none;
+  box-shadow: 0 0 0 3px rgba(141, 106, 159, 0.15);
+}
+
+input:disabled {
+  background: #f0ede4;
+  color: #777;
+  cursor: not-allowed;
 }
 
 .form-actions {
   display: flex;
   gap: 12px;
   justify-content: flex-end;
+  margin-top: 10px;
 }
 
+/* ── BUTTONS ────────────────────────────────────────── */
 .btn-primary,
 .btn-secondary,
 .btn-danger {
   border: 0;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  font-weight: 800;
-  padding: 12px 18px;
+  font-weight: 700;
+  padding: 13px 22px;
+  font-size: 14.5px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
 }
 
 .btn-primary {
   background: #4d4742;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(77, 71, 66, 0.2);
+}
+
+.btn-primary:hover {
+  background: #2f2b28;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(77, 71, 66, 0.3);
 }
 
 .btn-secondary {
   background: #eadba3;
   color: #222;
+  box-shadow: 0 4px 12px rgba(234, 219, 163, 0.2);
+}
+
+.btn-secondary:hover {
+  background: #ecdca0;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(234, 219, 163, 0.3);
 }
 
 .btn-danger {
   background: #b45748;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(180, 87, 72, 0.2);
 }
 
+.btn-danger:hover {
+  background: #9e4334;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(180, 87, 72, 0.3);
+}
+
+/* ── NOTIFICATIONS ──────────────────────────────────── */
 .notification {
-  border-radius: 8px;
+  border-radius: 12px;
   color: #fff;
   opacity: 0;
-  padding: 14px 18px;
+  padding: 16px 20px;
   position: fixed;
-  right: 22px;
-  top: 22px;
-  transform: translateY(-8px);
-  transition: 0.2s ease;
+  right: 24px;
+  top: 24px;
+  transform: translateY(-10px);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  font-weight: 600;
+  font-size: 14.5px;
 }
 
 .notification.active {
@@ -284,8 +389,10 @@ select:focus {
 .loading,
 .empty {
   color: #6d6a64;
+  font-size: 14.5px;
 }
 
+/* ── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 900px) {
   .container {
     flex-direction: column;
@@ -309,6 +416,7 @@ select:focus {
   .profile-top {
     align-items: flex-start;
     flex-direction: column;
+    gap: 16px;
   }
 
   .profile-stats,
