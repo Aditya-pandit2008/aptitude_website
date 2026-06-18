@@ -3,7 +3,19 @@ name = "aptitude-website"
 version = "0.1.0"
 description = "Aptitude website backend"
 requires-python = ">=3.9"
-dependencies = []
-
+dependencies = [
+    "flask>=3.0,<4.0",
+    "flask-sqlalchemy>=3.1,<4.0",
+    "flask-jwt-extended>=4.6,<5.0",
+    "flask-cors>=4.0,<5.0",
+    "flask-limiter>=3.5,<4.0",
+    "flask-migrate>=4.0,<5.0",
+    "werkzeug>=3.0,<4.0",
+    "python-dotenv>=1.0,<2.0",
+    "gunicorn>=21.0,<23.0",
+    "groq>=0.9.0",
+    "cachetools>=5.3,<6.0",
+    "psycopg2-binary>=2.9,<3.0"
+]
 [tool.vercel]
 entrypoint = "backend.app:app"
