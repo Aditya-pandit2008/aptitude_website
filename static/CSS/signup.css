@@ -26,59 +26,106 @@ body {
   align-items: center;
   justify-content: center;
   padding: 60px 50px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 8px 0 30px rgba(0, 0, 0, 0.05);
+}
+
+.leftsection::before {
+  content: "";
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 65%;
+  height: 65%;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+}
+
+.leftsection::after {
+  content: "";
+  position: absolute;
+  bottom: -10%;
+  right: -10%;
+  width: 50%;
+  height: 50%;
+  background: rgba(107, 63, 146, 0.12);
+  border-radius: 50%;
+  filter: blur(70px);
+  pointer-events: none;
 }
 
 .form-wrap {
   position: relative;
   width: 100%;
   max-width: 460px;
-  padding-top: 115px;
+  padding-top: 135px;
+  z-index: 5;
 }
 
 .form-wrap .welcome {
   position: absolute;
   top: 0;
   left: 0;
+  animation: fadeInDown 0.6s ease-out;
 }
 
 .welcome h1 {
-  font-size: 56px;
-  color: #6b3f92;
+  font-size: 54px;
+  color: #522d73;
   font-family: "Rozha One", serif;
-  line-height: 1;
-  margin-bottom: 10px;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .welcome-subtitle {
-  font-size: 14px;
-  color: #53386e;
-  line-height: 1.7;
-  max-width: 300px;
+  font-size: 14.5px;
+  color: #432b5c;
+  line-height: 1.6;
+  max-width: 320px;
+  font-weight: 500;
 }
 
 /* ── SIGNUP CARD ────────────────────────────────────── */
 .Signup-page {
   width: 100%;
-  padding: 30px 28px;
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.55);
-  border-radius: 16px;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.09);
-  backdrop-filter: blur(14px);
+  padding: 36px 32px;
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 20px;
+  box-shadow:
+    inset 0 4px 12px rgba(255, 255, 255, 0.3),
+    0 15px 35px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: fadeInUp 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.Signup-page:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 4px 12px rgba(255, 255, 255, 0.35),
+    0 20px 45px rgba(0, 0, 0, 0.12);
 }
 
 .signup-logo {
   text-align: center;
-  font-size: 26px;
+  font-size: 28px;
   color: #6b3f92;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 2px 8px rgba(107, 63, 146, 0.2));
+  animation: bounceSlow 4s infinite ease-in-out;
 }
 
 .Signup-page h2 {
   text-align: center;
   font-size: 26px;
-  color: #6b3f92;
-  margin-bottom: 20px;
+  color: #4e3d6d;
+  margin-bottom: 24px;
   font-family: "Rozha One", serif;
   letter-spacing: 1px;
 }
@@ -91,43 +138,54 @@ body {
 
 .input-box input {
   width: 100%;
-  padding: 13px 46px 13px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255,255,255,0.75);
-  background: rgba(255,255,255,0.88);
-  color: #4f3c6f;
-  font-size: 14px;
+  padding: 13px 48px 13px 18px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.5);
+  color: #3b2b54;
+  font-size: 14.5px;
   outline: none;
-  transition: all 0.25s ease;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.01);
 }
 
 .input-box input:focus {
   border-color: #9b63af;
-  box-shadow: 0 0 0 3px rgba(155,99,175,0.15);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 3px rgba(155, 99, 175, 0.15);
 }
 
 .input-box input::placeholder {
-  color: #9b7fb1;
-  font-size: 13px;
+  color: rgba(107, 63, 146, 0.55);
+  font-size: 13.5px;
 }
 
 .input-box i {
   position: absolute;
-  right: 14px;
+  right: 18px;
   top: 50%;
   transform: translateY(-50%);
-  color: #7f6b92;
+  color: rgba(127, 107, 146, 0.7);
   font-size: 16px;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: color 0.3s, transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.input-box i:hover { color: #6b3f92; }
+.input-box input:focus+i {
+  color: #6b3f92;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.input-box i:hover {
+  color: #6b3f92;
+  transform: translateY(-50%) scale(1.1);
+}
 
 /* ── PASSWORD STRENGTH ──────────────────────────────── */
 .pw-strength-wrap {
   height: 5px;
-  background: rgba(0,0,0,0.08);
+  background: rgba(0, 0, 0, 0.08);
   border-radius: 4px;
   margin: -8px 0 4px;
   overflow: hidden;
@@ -141,9 +199,9 @@ body {
 }
 
 .pw-strength-label {
-  font-size: 11px;
-  font-weight: 600;
-  margin-bottom: 10px;
+  font-size: 11.5px;
+  font-weight: 700;
+  margin-bottom: 12px;
   min-height: 16px;
 }
 
@@ -151,7 +209,7 @@ body {
 .options {
   display: flex;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .remember-label {
@@ -159,16 +217,28 @@ body {
   align-items: center;
   gap: 8px;
   color: #5e3f7d;
-  font-size: 13px;
+  font-size: 13.5px;
   cursor: pointer;
+  font-weight: 500;
 }
 
-.remember-label input { width: 15px; height: 15px; cursor: pointer; }
+.remember-label input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #6b3f92;
+}
 
 .terms-link {
   color: #6b3f92;
   font-weight: 700;
   text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.2s;
+}
+
+.terms-link:hover {
+  color: #522d73;
 }
 
 /* ── SUBMIT BUTTON ──────────────────────────────────── */
@@ -176,88 +246,127 @@ body {
   width: 100%;
   padding: 14px;
   border: none;
-  border-radius: 10px;
+  border-radius: 12px;
   background: #9b63af;
   color: #fff;
-  font-size: 15px;
+  font-size: 15.5px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   letter-spacing: 0.5px;
-  box-shadow: 0 10px 24px rgba(155,99,175,0.22);
+  box-shadow: 0 8px 24px rgba(155, 99, 175, 0.22);
 }
 
 .signup-submit-btn:hover:not(:disabled) {
   background: #884f9b;
   transform: translateY(-2px);
-  box-shadow: 0 14px 30px rgba(155,99,175,0.3);
+  box-shadow: 0 12px 30px rgba(155, 99, 175, 0.35);
 }
 
-.signup-submit-btn:disabled { opacity: 0.65; cursor: default; }
+.signup-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
 
-.btn-icon { font-size: 13px; }
+.signup-submit-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.btn-icon {
+  font-size: 13px;
+  transition: transform 0.2s;
+}
+
+.signup-submit-btn:hover .btn-icon {
+  transform: translateX(4px);
+}
 
 /* ── DIVIDER ────────────────────────────────────────── */
 .divider {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin: 16px 0 12px;
-  color: rgba(80,56,106,0.5);
-  font-size: 12px;
+  gap: 12px;
+  margin: 20px 0 14px;
+  color: rgba(78, 61, 109, 0.55);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .divider::before,
 .divider::after {
   content: "";
   flex: 1;
-  height: 1px;
-  background: rgba(80,56,106,0.18);
+  height: 1.5px;
+  background: rgba(78, 61, 109, 0.15);
 }
 
 /* ── SOCIAL BUTTONS ─────────────────────────────────── */
 .social-row {
   display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: 12px;
+  margin-bottom: 18px;
 }
 
 .social-btn {
   flex: 1;
-  padding: 10px;
-  border: 1px solid rgba(255,255,255,0.65);
-  background: rgba(255,255,255,0.22);
-  border-radius: 8px;
-  color: #5e3f7d;
-  font-size: 13px;
+  padding: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  color: #4e3d6d;
+  font-size: 13.5px;
   font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
+  gap: 8px;
   transition: all 0.2s;
 }
 
+.social-btn i {
+  transition: color 0.3s, transform 0.2s;
+}
+
 .social-btn:hover {
-  background: rgba(255,255,255,0.38);
-  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.social-btn:hover i.fa-google {
+  color: #ea4335;
+  transform: scale(1.1);
+}
+
+.social-btn:hover i.fa-github {
+  color: #24292e;
+  transform: scale(1.1);
 }
 
 /* ── SIGNIN LINK ────────────────────────────────────── */
 .signup-text {
   text-align: center;
-  font-size: 13px;
-  color: #5e3f7d;
+  font-size: 13.5px;
+  color: rgba(78, 61, 109, 0.85);
+  margin-top: 10px;
 }
 
 .signup-text a {
-  color: #5e3f7d;
+  color: #6b3f92;
   font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.signup-text a:hover {
+  color: #522d73;
   text-decoration: underline;
 }
 
@@ -270,81 +379,180 @@ body {
   align-items: center;
   justify-content: center;
   padding: 50px 60px;
+  position: relative;
 }
 
 .right-content {
   max-width: 480px;
   width: 100%;
   text-align: center;
+  animation: fadeIn 0.8s ease-out;
 }
 
-.brand-badge { margin-bottom: 20px; }
+.brand-badge {
+  margin-bottom: 24px;
+}
 
-.brand-logo { max-width: 90px; height: auto; }
+.brand-logo {
+  max-width: 100px;
+  height: auto;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.05));
+  transition: transform 0.3s;
+}
+
+.brand-logo:hover {
+  transform: rotate(5deg) scale(1.05);
+}
 
 .right-heading {
-  font-size: 34px;
-  color: #4f3c6f;
+  font-size: 36px;
+  color: #4e3d6d;
   font-family: "Rozha One", serif;
-  line-height: 1.15;
-  margin-bottom: 12px;
+  line-height: 1.2;
+  margin-bottom: 14px;
 }
 
 .right-sub {
   color: #6b5c7e;
-  font-size: 14px;
+  font-size: 14.5px;
   line-height: 1.7;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .features-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
   text-align: left;
 }
 
 .feat-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   background: #fff;
-  border-radius: 10px;
-  padding: 12px 16px;
+  border-radius: 14px;
+  padding: 14px 18px;
   font-size: 14px;
-  color: #4f3c6f;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  color: #4e3d6d;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.01);
   font-weight: 500;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.feat-item:hover {
+  transform: translateX(4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
 }
 
 .feat-item i {
   color: #9b63af;
-  font-size: 16px;
-  width: 20px;
+  font-size: 18px;
+  width: 24px;
   text-align: center;
 }
 
 .hero-illustration img {
   width: 100%;
-  max-width: 380px;
+  max-width: 400px;
   height: auto;
-  border-radius: 14px;
-  box-shadow: 0 12px 36px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.08);
+  transition: transform 0.5s ease;
+}
+
+.hero-illustration img:hover {
+  transform: scale(1.02);
+}
+
+/* ── ANIMATIONS ─────────────────────────────────────── */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceSlow {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 /* ── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 992px) {
-  .container { flex-direction: column; }
-  .leftsection, .Rightsection { width: 100%; min-height: auto; }
-  .leftsection { padding: 50px 26px; }
-  .Rightsection { padding: 36px 24px; }
-  .form-wrap { padding-top: 120px; }
+  .container {
+    flex-direction: column;
+  }
+
+  .leftsection,
+  .Rightsection {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .leftsection {
+    padding: 60px 24px;
+  }
+
+  .Rightsection {
+    padding: 48px 24px;
+  }
+
+  .form-wrap {
+    padding-top: 130px;
+  }
 }
 
 @media (max-width: 600px) {
-  .welcome h1 { font-size: 40px; }
-  .Signup-page { padding: 24px 18px; }
-  .right-heading { font-size: 26px; }
-  .features-list { gap: 8px; }
+  .welcome h1 {
+    font-size: 44px;
+  }
+
+  .Signup-page {
+    padding: 30px 20px;
+  }
+
+  .right-heading {
+    font-size: 28px;
+  }
+
+  .features-list {
+    gap: 10px;
+  }
 }

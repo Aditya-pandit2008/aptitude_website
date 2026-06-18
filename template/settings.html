@@ -1,326 +1,797 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Settings - Aptitude Test</title>
-    <link rel="stylesheet" href="/static/CSS/settings.css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Settings — manage account, security, preferences, and privacy." />
+  <title>Settings - Aptitude Test</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/settings.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* ── Settings page layout ─────────────────────── */
+    .main-content { padding: 36px 40px; }
+
+    .page-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 32px;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #4b4b4b;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .page-head-text .eyebrow { margin-bottom: 4px; }
+    .page-head-text h1 { font-size: 30px; font-weight: 800; color: #1a1714; }
+
+    /* Settings two-column layout */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    /* Settings sidebar nav */
+    .settings-nav {
+      background: #fff;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.04);
+      position: sticky;
+      top: 24px;
+    }
+
+    .settings-nav .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      color: #5a5248;
+      transition: all 0.22s ease;
+      margin-bottom: 4px;
+    }
+
+    .settings-nav .nav-item i {
+      width: 18px;
+      font-size: 14px;
+      color: #9a9490;
+      transition: color 0.2s;
+    }
+
+    .settings-nav .nav-item:hover {
+      background: #f8f7f5;
+      color: #1a1714;
+    }
+
+    .settings-nav .nav-item:hover i { color: #4d4742; }
+
+    .settings-nav .nav-item.active {
+      background: #eadba3;
+      color: #1a1714;
+      font-weight: 700;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    .settings-nav .nav-item.active i { color: #4d4742; }
+
+    /* Settings body / sections */
+    .settings-body { min-width: 0; }
+
+    .settings-section { display: none; }
+    .settings-section.active { display: block; }
+
+    .settings-panel {
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 6px 22px rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.04);
+      padding: 32px;
+      margin-bottom: 22px;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #f0ede5;
+    }
+
+    .section-title-icon {
+      width: 46px;
+      height: 46px;
+      background: #eadba3;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #4d4742;
+      flex-shrink: 0;
+    }
+
+    .section-title h2 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #1a1714;
+      margin-bottom: 4px;
+    }
+
+    .section-title p {
+      font-size: 13.5px;
+      color: #6d6a64;
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      color: #4d4742;
+      font-weight: 700;
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .form-input {
+      width: 100%;
+      border: 1.5px solid #d8cfb5;
+      border-radius: 10px;
+      font: inherit;
+      padding: 12px 14px;
+      background: #fff;
+      transition: all 0.25s ease;
+      outline: none;
+      font-size: 14.5px;
+      color: #1a1714;
+    }
+
+    .form-input:focus {
+      border-color: #8d6a9f;
+      box-shadow: 0 0 0 3px rgba(141,106,159,0.13);
+    }
+
+    .form-input:disabled {
+      background: #f0ede4;
+      color: #888;
+      cursor: not-allowed;
+    }
+
+    .form-group small {
+      display: block;
+      margin-top: 5px;
+      font-size: 12.5px;
+      color: #9a9490;
+    }
+
+    .pref-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    /* Password input wrap */
+    .pass-wrap {
+      position: relative;
+    }
+
+    .pass-wrap .form-input {
+      padding-right: 48px;
+    }
+
+    .eye-btn {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #9a9490;
+      font-size: 15px;
+      padding: 0;
+      transition: color 0.2s;
+    }
+
+    .eye-btn:hover { color: #4d4742; }
+
+    /* Password strength */
+    .pass-strength-bar {
+      margin-top: 10px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 6px;
+      background: #e8e6e2;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.4s ease, background 0.3s;
+    }
+
+    /* Toggle switches */
+    .toggle-group { display: grid; gap: 14px; margin-bottom: 24px; }
+
+    .toggle-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: #f8f7f5;
+      border-radius: 12px;
+      padding: 16px 18px;
+      border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .toggle-info strong {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1a1714;
+      margin-bottom: 3px;
+    }
+
+    .toggle-info span {
+      font-size: 13px;
+      color: #6d6a64;
+    }
+
+    .toggle {
+      position: relative;
+      display: inline-block;
+      width: 46px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+
+    .toggle input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #d0ccc5;
+      border-radius: 34px;
+      transition: 0.3s;
+    }
+
+    .slider:before {
+      content: '';
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle input:checked + .slider { background: #4d4742; }
+    .toggle input:checked + .slider:before { transform: translateX(22px); }
+
+    /* Buttons */
+    .btn-primary, .btn-secondary, .btn-danger {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      padding: 12px 22px;
+      font-size: 14px;
+      font-family: inherit;
+      transition: all 0.25s ease;
+    }
+
+    .btn-primary {
+      background: #4d4742;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(77,71,66,0.2);
+    }
+    .btn-primary:hover {
+      background: #2f2b28;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(77,71,66,0.28);
+    }
+
+    .btn-secondary {
+      background: #eadba3;
+      color: #2f2b28;
+    }
+    .btn-secondary:hover {
+      background: #ecdca0;
+      transform: translateY(-2px);
+    }
+
+    .btn-danger {
+      background: #b45748;
+      color: #fff;
+    }
+    .btn-danger:hover {
+      background: #9e4334;
+      transform: translateY(-2px);
+    }
+
+    /* Sub heading */
+    .sub-heading {
+      font-size: 15px;
+      font-weight: 700;
+      color: #1a1714;
+      margin: 24px 0 14px;
+    }
+
+    /* Form message */
+    .form-msg {
+      margin-top: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      min-height: 20px;
+    }
+
+    /* Danger zone */
+    .danger-zone {
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1.5px solid #f4ded9;
+    }
+
+    .danger-zone h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #b45748;
+      margin-bottom: 16px;
+    }
+
+    .danger-actions { display: grid; gap: 12px; }
+
+    .danger-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      background: #fdf6f5;
+      border: 1px solid #f4ded9;
+      border-radius: 12px;
+      padding: 16px 18px;
+    }
+
+    .danger-item strong { display: block; font-size: 14px; font-weight: 700; color: #1a1714; }
+    .danger-item p { font-size: 13px; color: #888; margin-top: 2px; }
+
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 999;
+    }
+    .sidebar-overlay.show { display: block; }
+
+    @media (max-width: 1000px) {
+      .settings-layout { grid-template-columns: 1fr; }
+      .settings-nav { position: static; display: flex; gap: 8px; flex-wrap: wrap; }
+      .settings-nav .nav-item { padding: 10px 14px; font-size: 13px; }
+    }
+
+    @media (max-width: 768px) {
+      .mobile-menu-btn { display: block; }
+      .main-content { padding: 20px; }
+      .settings-panel { padding: 20px; }
+      .pref-row { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <aside class="sidebar">
-            <a class="logo" href="/Dashboard">
-                <img src="/images/Apti-logo.png" width="230" height="90" alt="Logo" />
-            </a>
-            <ul class="menu">
-                <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-                <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-                <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-                <li data-page="/resources"><i class="fa-solid fa-magnifying-glass"></i> Resources</li>
-                <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
-                <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-                <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-            </ul>
-            <div class="bottom-menu">
-                <div class="profile" data-page="/profile">
-                    <div class="sidebar-avatar-circle" id="sidebar-avatar-circle">S</div>
-                    <span id="sidebar-username">Student</span>
-                </div>
-                <div class="bottom-item active" data-page="/settings">
-                    <i class="fa-solid fa-gear"></i> Settings
-                </div>
-            </div>
-        </aside>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="container">
 
-        <main class="main-content">
-            <div class="page-header">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
+      </a>
+      <ul class="menu">
+        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+        <li data-page="/resources"><i class="fa-solid fa-book-open"></i> Resources</li>
+        <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
+        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
+        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+      <div class="bottom-menu">
+        <div class="profile" data-page="/profile">
+          <div id="sidebar-avatar-circle" style="width:36px;height:36px;border-radius:50%;background:#eadba3;display:flex;align-items:center;justify-content:center;font-weight:800;color:#4d4742;font-size:16px;flex-shrink:0;">S</div>
+          <span id="sidebar-username">Student</span>
+        </div>
+        <div class="bottom-item active" data-page="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+
+      <!-- PAGE HEAD -->
+      <div class="page-head">
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="page-head-text">
+          <p class="eyebrow">Your account</p>
+          <h1>Settings</h1>
+        </div>
+      </div>
+
+      <!-- SETTINGS LAYOUT -->
+      <div class="settings-layout">
+
+        <!-- NAV TABS -->
+        <nav class="settings-nav">
+          <div class="nav-item active" data-section="account">
+            <i class="fas fa-user-circle"></i><span>Account</span>
+          </div>
+          <div class="nav-item" data-section="security">
+            <i class="fas fa-lock"></i><span>Security</span>
+          </div>
+          <div class="nav-item" data-section="preferences">
+            <i class="fas fa-sliders-h"></i><span>Preferences</span>
+          </div>
+          <div class="nav-item" data-section="notifications">
+            <i class="fas fa-bell"></i><span>Notifications</span>
+          </div>
+          <div class="nav-item" data-section="privacy">
+            <i class="fas fa-shield-alt"></i><span>Privacy &amp; Data</span>
+          </div>
+        </nav>
+
+        <!-- PANELS -->
+        <div class="settings-body">
+
+          <!-- ── Account ── -->
+          <section id="account-section" class="settings-section active">
+            <div class="settings-panel">
+              <div class="section-title">
+                <div class="section-title-icon"><i class="fas fa-user-circle"></i></div>
                 <div>
-                    <p class="eyebrow">Your account</p>
-                    <h1><i class="fas fa-cog"></i> Settings</h1>
+                  <h2>Account Settings</h2>
+                  <p>Manage your basic account information</p>
                 </div>
+              </div>
+              <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="acc-username" class="form-input" placeholder="Your username" />
+              </div>
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="acc-email" class="form-input" disabled />
+                <small>Email address cannot be changed</small>
+              </div>
+              <div class="form-group">
+                <label>Member Since</label>
+                <input type="text" id="acc-joined" class="form-input" disabled />
+              </div>
+              <button class="btn-primary" id="save-account">
+                <i class="fas fa-save"></i> Save Account Settings
+              </button>
+              <div id="acc-msg" class="form-msg"></div>
             </div>
+          </section>
 
-            <div class="settings-layout">
-                <!-- Settings Nav -->
-                <nav class="settings-nav">
-                    <div class="nav-item active" data-section="account">
-                        <i class="fas fa-user-circle"></i><span>Account</span>
-                    </div>
-                    <div class="nav-item" data-section="security">
-                        <i class="fas fa-lock"></i><span>Security</span>
-                    </div>
-                    <div class="nav-item" data-section="preferences">
-                        <i class="fas fa-sliders-h"></i><span>Preferences</span>
-                    </div>
-                    <div class="nav-item" data-section="notifications">
-                        <i class="fas fa-bell"></i><span>Notifications</span>
-                    </div>
-                    <div class="nav-item" data-section="privacy">
-                        <i class="fas fa-shield-alt"></i><span>Privacy & Data</span>
-                    </div>
-                </nav>
-
-                <!-- Settings Content -->
-                <div class="settings-body">
-
-                    <!-- ── Account ─────────────────────────────────────── -->
-                    <section id="account-section" class="settings-section active">
-                        <div class="section-title">
-                            <i class="fas fa-user-circle"></i>
-                            <div><h2>Account Settings</h2><p>Manage your basic account information</p></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Username</label>
-                            <input type="text" id="acc-username" class="form-input" placeholder="Your username" />
-                        </div>
-                        <div class="form-group">
-                            <label>Email Address</label>
-                            <input type="email" id="acc-email" class="form-input" disabled />
-                            <small>Email address cannot be changed</small>
-                        </div>
-                        <div class="form-group">
-                            <label>Member Since</label>
-                            <input type="text" id="acc-joined" class="form-input" disabled />
-                        </div>
-
-                        <button class="btn-primary" id="save-account">
-                            <i class="fas fa-save"></i> Save Account Settings
-                        </button>
-                        <div id="acc-msg" class="form-msg"></div>
-                    </section>
-
-                    <!-- ── Security ───────────────────────────────────── -->
-                    <section id="security-section" class="settings-section">
-                        <div class="section-title">
-                            <i class="fas fa-lock"></i>
-                            <div><h2>Security</h2><p>Change your password and manage session security</p></div>
-                        </div>
-
-                        <h3 class="sub-heading">Change Password</h3>
-                        <div class="form-group">
-                            <label>Current Password</label>
-                            <div class="pass-wrap">
-                                <input type="password" id="current-password" class="form-input" placeholder="Current password" />
-                                <button class="eye-btn" type="button" data-target="current-password"><i class="fas fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>New Password</label>
-                            <div class="pass-wrap">
-                                <input type="password" id="new-password" class="form-input" placeholder="At least 8 characters" />
-                                <button class="eye-btn" type="button" data-target="new-password"><i class="fas fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Confirm New Password</label>
-                            <div class="pass-wrap">
-                                <input type="password" id="confirm-password" class="form-input" placeholder="Confirm new password" />
-                                <button class="eye-btn" type="button" data-target="confirm-password"><i class="fas fa-eye"></i></button>
-                            </div>
-                        </div>
-                        <div id="pass-strength" class="pass-strength-bar" style="display:none;">
-                            <div class="bar-track"><div id="pass-bar" class="bar-fill"></div></div>
-                            <span id="pass-label"></span>
-                        </div>
-
-                        <button class="btn-primary" id="change-password">
-                            <i class="fas fa-key"></i> Change Password
-                        </button>
-                        <div id="sec-msg" class="form-msg"></div>
-                    </section>
-
-                    <!-- ── Preferences ────────────────────────────────── -->
-                    <section id="preferences-section" class="settings-section">
-                        <div class="section-title">
-                            <i class="fas fa-sliders-h"></i>
-                            <div><h2>Preferences</h2><p>Customize your test-taking experience</p></div>
-                        </div>
-
-                        <div class="toggle-group">
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Adaptive Difficulty</strong>
-                                    <span>Questions adjust to your skill level</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="pref-difficulty" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Enable Timer</strong>
-                                    <span>Show countdown timer during tests</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="pref-timer" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Show Explanations</strong>
-                                    <span>Display answer explanations after each test</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="pref-explanations" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Allow Hints</strong>
-                                    <span>Enable hint feature during practice sessions</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="pref-hints" checked /><span class="slider"></span></label>
-                            </div>
-                        </div>
-
-                        <div class="pref-row">
-                            <div class="form-group">
-                                <label>Default Test Duration (minutes)</label>
-                                <input type="number" id="pref-duration" min="10" max="180" value="60" class="form-input" />
-                            </div>
-                            <div class="form-group">
-                                <label>Questions Per Test</label>
-                                <select id="pref-questions" class="form-input">
-                                    <option value="10">10 Questions</option>
-                                    <option value="20" selected>20 Questions</option>
-                                    <option value="30">30 Questions</option>
-                                    <option value="50">50 Questions</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <button class="btn-primary" id="save-preferences">
-                            <i class="fas fa-save"></i> Save Preferences
-                        </button>
-                        <div id="pref-msg" class="form-msg"></div>
-                    </section>
-
-                    <!-- ── Notifications ──────────────────────────────── -->
-                    <section id="notifications-section" class="settings-section">
-                        <div class="section-title">
-                            <i class="fas fa-bell"></i>
-                            <div><h2>Notifications</h2><p>Control what notifications you receive</p></div>
-                        </div>
-
-                        <div class="toggle-group">
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Daily Challenge Reminder</strong>
-                                    <span>Get reminded about daily challenges</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="notif-daily" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Weekly Progress Summary</strong>
-                                    <span>Receive a weekly report of your performance</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="notif-weekly" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Achievement Notifications</strong>
-                                    <span>Notify when you earn XP milestones</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="notif-achievements" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Leaderboard Updates</strong>
-                                    <span>Get notified about rank changes</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="notif-leaderboard" /><span class="slider"></span></label>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Notification Frequency</label>
-                            <select id="notif-frequency" class="form-input">
-                                <option value="instantly">Instantly</option>
-                                <option value="daily" selected>Daily Digest</option>
-                                <option value="weekly">Weekly Digest</option>
-                                <option value="never">Never</option>
-                            </select>
-                        </div>
-
-                        <button class="btn-primary" id="save-notifications">
-                            <i class="fas fa-save"></i> Save Notification Settings
-                        </button>
-                        <div id="notif-msg" class="form-msg"></div>
-                    </section>
-
-                    <!-- ── Privacy ────────────────────────────────────── -->
-                    <section id="privacy-section" class="settings-section">
-                        <div class="section-title">
-                            <i class="fas fa-shield-alt"></i>
-                            <div><h2>Privacy & Data</h2><p>Control your data and account visibility</p></div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Profile Visibility</label>
-                            <select id="priv-visibility" class="form-input">
-                                <option value="public" selected>Public – Anyone can view</option>
-                                <option value="friends">Friends Only</option>
-                                <option value="private">Private – Only me</option>
-                            </select>
-                        </div>
-
-                        <div class="toggle-group">
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Show Stats in Leaderboard</strong>
-                                    <span>Display your test performance publicly</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="priv-show-stats" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Show XP Publicly</strong>
-                                    <span>Other users can see your XP and achievements</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="priv-show-xp" checked /><span class="slider"></span></label>
-                            </div>
-                            <div class="toggle-item">
-                                <div class="toggle-info">
-                                    <strong>Allow Analytics</strong>
-                                    <span>Help us improve by sharing usage analytics</span>
-                                </div>
-                                <label class="toggle"><input type="checkbox" id="priv-analytics" checked /><span class="slider"></span></label>
-                            </div>
-                        </div>
-
-                        <button class="btn-primary" id="save-privacy">
-                            <i class="fas fa-save"></i> Save Privacy Settings
-                        </button>
-                        <div id="priv-msg" class="form-msg"></div>
-
-                        <div class="danger-zone">
-                            <h3>Data Management</h3>
-                            <div class="danger-actions">
-                                <div class="danger-item">
-                                    <div>
-                                        <strong>Export My Data</strong>
-                                        <p>Download all your data as JSON</p>
-                                    </div>
-                                    <button class="btn-secondary" id="export-data">
-                                        <i class="fas fa-download"></i> Export
-                                    </button>
-                                </div>
-                                <div class="danger-item danger-red">
-                                    <div>
-                                        <strong>Delete Account</strong>
-                                        <p>Permanently remove all your data</p>
-                                    </div>
-                                    <button class="btn-danger" id="delete-account">
-                                        <i class="fas fa-trash"></i> Delete
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+          <!-- ── Security ── -->
+          <section id="security-section" class="settings-section">
+            <div class="settings-panel">
+              <div class="section-title">
+                <div class="section-title-icon"><i class="fas fa-lock"></i></div>
+                <div>
+                  <h2>Security</h2>
+                  <p>Change your password and manage session security</p>
                 </div>
+              </div>
+              <h3 class="sub-heading">Change Password</h3>
+              <div class="form-group">
+                <label>Current Password</label>
+                <div class="pass-wrap">
+                  <input type="password" id="current-password" class="form-input" placeholder="Current password" />
+                  <button class="eye-btn" type="button" data-target="current-password"><i class="fas fa-eye"></i></button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>New Password</label>
+                <div class="pass-wrap">
+                  <input type="password" id="new-password" class="form-input" placeholder="At least 8 characters" />
+                  <button class="eye-btn" type="button" data-target="new-password"><i class="fas fa-eye"></i></button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Confirm New Password</label>
+                <div class="pass-wrap">
+                  <input type="password" id="confirm-password" class="form-input" placeholder="Confirm new password" />
+                  <button class="eye-btn" type="button" data-target="confirm-password"><i class="fas fa-eye"></i></button>
+                </div>
+              </div>
+              <div id="pass-strength" class="pass-strength-bar" style="display:none;">
+                <div class="bar-track"><div id="pass-bar" class="bar-fill"></div></div>
+                <span id="pass-label" style="font-size:12.5px;font-weight:700;color:#6b5c4a;"></span>
+              </div>
+              <button class="btn-primary" id="change-password" style="margin-top:8px;">
+                <i class="fas fa-key"></i> Change Password
+              </button>
+              <div id="sec-msg" class="form-msg"></div>
             </div>
-        </main>
-    </div>
+          </section>
 
-    <div id="notification" class="notification"></div>
-    <script src="/static/JS/settings.js"></script>
+          <!-- ── Preferences ── -->
+          <section id="preferences-section" class="settings-section">
+            <div class="settings-panel">
+              <div class="section-title">
+                <div class="section-title-icon"><i class="fas fa-sliders-h"></i></div>
+                <div>
+                  <h2>Preferences</h2>
+                  <p>Customize your test-taking experience</p>
+                </div>
+              </div>
+              <div class="toggle-group">
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Adaptive Difficulty</strong>
+                    <span>Questions adjust to your skill level automatically</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="pref-difficulty" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Enable Timer</strong>
+                    <span>Show countdown timer during tests</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="pref-timer" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Show Explanations</strong>
+                    <span>Display answer explanations after each test</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="pref-explanations" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Allow Hints</strong>
+                    <span>Enable hint feature during practice sessions</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="pref-hints" checked /><span class="slider"></span></label>
+                </div>
+              </div>
+              <div class="pref-row">
+                <div class="form-group">
+                  <label>Default Test Duration (minutes)</label>
+                  <input type="number" id="pref-duration" min="10" max="180" value="60" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>Questions Per Test</label>
+                  <select id="pref-questions" class="form-input">
+                    <option value="10">10 Questions</option>
+                    <option value="20" selected>20 Questions</option>
+                    <option value="30">30 Questions</option>
+                    <option value="50">50 Questions</option>
+                  </select>
+                </div>
+              </div>
+              <button class="btn-primary" id="save-preferences">
+                <i class="fas fa-save"></i> Save Preferences
+              </button>
+              <div id="pref-msg" class="form-msg"></div>
+            </div>
+          </section>
+
+          <!-- ── Notifications ── -->
+          <section id="notifications-section" class="settings-section">
+            <div class="settings-panel">
+              <div class="section-title">
+                <div class="section-title-icon"><i class="fas fa-bell"></i></div>
+                <div>
+                  <h2>Notifications</h2>
+                  <p>Control what notifications you receive</p>
+                </div>
+              </div>
+              <div class="toggle-group">
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Daily Challenge Reminder</strong>
+                    <span>Get reminded about daily challenges</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="notif-daily" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Weekly Progress Summary</strong>
+                    <span>Receive a weekly report of your performance</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="notif-weekly" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Achievement Notifications</strong>
+                    <span>Notify when you earn XP milestones</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="notif-achievements" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Leaderboard Updates</strong>
+                    <span>Get notified about rank changes</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="notif-leaderboard" /><span class="slider"></span></label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Notification Frequency</label>
+                <select id="notif-frequency" class="form-input">
+                  <option value="instantly">Instantly</option>
+                  <option value="daily" selected>Daily Digest</option>
+                  <option value="weekly">Weekly Digest</option>
+                  <option value="never">Never</option>
+                </select>
+              </div>
+              <button class="btn-primary" id="save-notifications">
+                <i class="fas fa-save"></i> Save Notification Settings
+              </button>
+              <div id="notif-msg" class="form-msg"></div>
+            </div>
+          </section>
+
+          <!-- ── Privacy ── -->
+          <section id="privacy-section" class="settings-section">
+            <div class="settings-panel">
+              <div class="section-title">
+                <div class="section-title-icon"><i class="fas fa-shield-alt"></i></div>
+                <div>
+                  <h2>Privacy &amp; Data</h2>
+                  <p>Control your data and account visibility</p>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Profile Visibility</label>
+                <select id="priv-visibility" class="form-input">
+                  <option value="public" selected>Public – Anyone can view</option>
+                  <option value="friends">Friends Only</option>
+                  <option value="private">Private – Only me</option>
+                </select>
+              </div>
+              <div class="toggle-group">
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Show Stats in Leaderboard</strong>
+                    <span>Display your test performance publicly</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="priv-show-stats" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Show XP Publicly</strong>
+                    <span>Other users can see your XP and achievements</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="priv-show-xp" checked /><span class="slider"></span></label>
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <strong>Allow Analytics</strong>
+                    <span>Help us improve by sharing usage analytics</span>
+                  </div>
+                  <label class="toggle"><input type="checkbox" id="priv-analytics" checked /><span class="slider"></span></label>
+                </div>
+              </div>
+              <button class="btn-primary" id="save-privacy">
+                <i class="fas fa-save"></i> Save Privacy Settings
+              </button>
+              <div id="priv-msg" class="form-msg"></div>
+
+              <div class="danger-zone">
+                <h3><i class="fas fa-exclamation-triangle"></i> Data Management</h3>
+                <div class="danger-actions">
+                  <div class="danger-item">
+                    <div>
+                      <strong>Export My Data</strong>
+                      <p>Download all your data as JSON</p>
+                    </div>
+                    <button class="btn-secondary" id="export-data">
+                      <i class="fas fa-download"></i> Export
+                    </button>
+                  </div>
+                  <div class="danger-item">
+                    <div>
+                      <strong>Delete Account</strong>
+                      <p>Permanently remove all your data — this cannot be undone</p>
+                    </div>
+                    <button class="btn-danger" id="delete-account">
+                      <i class="fas fa-trash"></i> Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+        </div><!-- /settings-body -->
+      </div><!-- /settings-layout -->
+    </main>
+  </div>
+
+  <div id="notification" class="notification"></div>
+
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/settings.js"></script>
+  <script>
+    // ── Settings tab switching ──────────────────────────
+    document.querySelectorAll('.settings-nav .nav-item').forEach((item) => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.settings-nav .nav-item').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.settings-section').forEach(s => s.classList.remove('active'));
+        item.classList.add('active');
+        const target = document.getElementById(item.dataset.section + '-section');
+        if (target) target.classList.add('active');
+      });
+    });
+
+    // ── Mobile sidebar ─────────────────────────────────
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', () => {
+        sidebarEl.classList.toggle('show');
+        overlay.classList.toggle('show');
+      });
+      overlay.addEventListener('click', () => {
+        sidebarEl.classList.remove('show');
+        overlay.classList.remove('show');
+      });
+    }
+
+    // ── Sidebar navigation ──────────────────────────────
+    document.querySelectorAll('[data-page]').forEach((item) => {
+      item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+    });
+    document.querySelectorAll('[data-action="logout"]').forEach((item) => {
+      item.addEventListener('click', () => {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      });
+    });
+  </script>
 </body>
 </html>

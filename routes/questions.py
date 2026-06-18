@@ -3,22 +3,26 @@ routes/questions.py
 Question management blueprint.
 
 Endpoints:
-    GET    /api/v1/questions/               – list questions (filterable)
-    POST   /api/v1/questions/               – add a question (admin)
-    GET    /api/v1/questions/<id>           – get single question
-    PUT    /api/v1/questions/<id>           – update question (admin)
-    DELETE /api/v1/questions/<id>           – soft-delete question (admin)
-    GET    /api/v1/questions/categories     – list all categories
-    POST   /api/v1/questions/categories     – create a category (admin)
-    GET    /api/v1/questions/random         – fetch random questions for a test
+    GET    /api/v1/questions/           – list questions (filterable, paginated)
+    POST   /api/v1/questions/           – add a question (admin)
+    GET    /api/v1/questions/<id>       – get single question
+    PUT    /api/v1/questions/<id>       – update question (admin)
+    DELETE /api/v1/questions/<id>       – soft-delete question (admin)
+    GET    /api/v1/questions/categories – list all categories
+    POST   /api/v1/questions/categories – create a category (admin)
+    GET    /api/v1/questions/random     – fetch random questions for a test
 """
 
-from flask import Blueprint, request, jsonify
+import random
+
+from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import func
 
 from models import db, Question, Category
 from utils.auth_utils import admin_required
 from utils.validators import validate_question
+from utils.response import success, error, paginated
 
 questions_bp = Blueprint("questions", __name__)
 
@@ -29,27 +33,51 @@ questions_bp = Blueprint("questions", __name__)
 
 @questions_bp.route("/categories", methods=["GET"])
 def list_categories():
-    """Return all active categories with question counts."""
-    categories = Category.query.all()
-    return jsonify({"categories": [c.to_dict() for c in categories]}), 200
+    """
+    Return all categories with question counts.
+
+    Fix: previous version called self.questions.count() per row — N+1 query.
+    Now fetches all counts in a single aggregation query.
+    """
+    # Single query: count active questions per category
+    count_subq = (
+        db.session.query(
+            Question.category_id,
+            func.count(Question.id).label("q_count"),
+        )
+        .filter_by(is_active=True)
+        .group_by(Question.category_id)
+        .subquery()
+    )
+
+    rows = (
+        db.session.query(Category, count_subq.c.q_count)
+        .outerjoin(count_subq, Category.id == count_subq.c.category_id)
+        .order_by(Category.id)
+        .all()
+    )
+
+    categories = [
+        cat.to_dict(question_count=int(cnt or 0))
+        for cat, cnt in rows
+    ]
+    return success({"categories": categories}, 200)
 
 
 @questions_bp.route("/categories", methods=["POST"])
 @admin_required
 def create_category():
     """
-    Create a new category.
-    Admin only.
-
+    Create a new category. Admin only.
     Request body: {name, description?, icon?}
     """
     data = request.get_json(silent=True) or {}
     name = (data.get("name") or "").strip()
     if not name:
-        return jsonify({"error": "Category name is required."}), 422
+        return error("Category name is required.", 422)
 
     if Category.query.filter_by(name=name).first():
-        return jsonify({"error": "Category already exists."}), 409
+        return error("Category already exists.", 409)
 
     category = Category(
         name=name,
@@ -58,7 +86,7 @@ def create_category():
     )
     db.session.add(category)
     db.session.commit()
-    return jsonify({"message": "Category created.", "category": category.to_dict()}), 201
+    return success({"message": "Category created.", "category": category.to_dict(question_count=0)}, 201)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -79,31 +107,31 @@ def list_questions():
         search      (str) – substring match on question text
     """
     category_id = request.args.get("category_id", type=int)
-    difficulty   = request.args.get("difficulty")
-    search       = request.args.get("search", "")
-    page         = request.args.get("page", 1, type=int)
-    per_page     = min(request.args.get("per_page", 20, type=int), 100)
+    difficulty  = request.args.get("difficulty")
+    search      = request.args.get("search", "").strip()
+    page        = request.args.get("page", 1, type=int)
+    per_page    = min(request.args.get("per_page", 20, type=int), 100)
 
     q = Question.query.filter_by(is_active=True)
 
     if category_id:
         q = q.filter_by(category_id=category_id)
-    if difficulty:
+    if difficulty and difficulty in Question.DIFFICULTY_LEVELS:
         q = q.filter_by(difficulty=difficulty)
     if search:
         q = q.filter(Question.text.ilike(f"%{search}%"))
 
-    paginated = q.order_by(Question.id.desc()).paginate(
+    p = q.order_by(Question.id.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
 
-    return jsonify({
-        "questions": [question.to_dict() for question in paginated.items],
-        "total": paginated.total,
-        "page": paginated.page,
-        "pages": paginated.pages,
-        "per_page": per_page,
-    }), 200
+    return paginated(
+        items=[q.to_dict() for q in p.items],
+        total=p.total,
+        page=p.page,
+        pages=p.pages,
+        per_page=per_page,
+    )
 
 
 @questions_bp.route("/random", methods=["GET"])
@@ -112,26 +140,45 @@ def get_random_questions():
     """
     Fetch a random set of questions (used to start a test).
 
+    Fix: replaced ORDER BY RANDOM() (table scan + sort) with offset-based
+    sampling — O(log n) instead of O(n log n) on large tables.
+
     Query params:
         category_id (int)          – filter by category (optional)
         difficulty  (str)          – filter by difficulty (optional)
         count       (int, 1-50)    – number of questions, default 10
     """
-    from sqlalchemy.sql.expression import func as sql_func
-
     category_id = request.args.get("category_id", type=int)
-    difficulty   = request.args.get("difficulty")
-    count        = min(request.args.get("count", 10, type=int), 50)
+    difficulty  = request.args.get("difficulty")
+    count       = min(request.args.get("count", 10, type=int), 50)
 
     q = Question.query.filter_by(is_active=True)
     if category_id:
         q = q.filter_by(category_id=category_id)
-    if difficulty:
+    if difficulty and difficulty in Question.DIFFICULTY_LEVELS:
         q = q.filter_by(difficulty=difficulty)
 
-    questions = q.order_by(sql_func.random()).limit(count).all()
-    return jsonify({"questions": [question.to_dict() for question in questions],
-                    "count": len(questions)}), 200
+    total = q.count()
+    if total == 0:
+        return success({"questions": [], "count": 0}, 200)
+
+    if total <= count:
+        # Pool is smaller than requested — return all
+        questions = q.all()
+    else:
+        # Randomly sample 'count' offsets, fetch only those rows
+        offsets   = random.sample(range(total), count)
+        ids       = [q.offset(off).limit(1).with_entities(Question.id).scalar()
+                     for off in offsets]
+        ids       = [i for i in ids if i is not None]
+        questions = Question.query.filter(Question.id.in_(ids)).all()
+        # Re-shuffle since IN() ordering is not guaranteed
+        random.shuffle(questions)
+
+    return success({
+        "questions": [qs.to_dict() for qs in questions],
+        "count":     len(questions),
+    }, 200)
 
 
 @questions_bp.route("/<int:question_id>", methods=["GET"])
@@ -139,15 +186,14 @@ def get_random_questions():
 def get_question(question_id):
     """Return a single question by ID (without revealing the correct answer)."""
     question = Question.query.filter_by(id=question_id, is_active=True).first_or_404()
-    return jsonify({"question": question.to_dict()}), 200
+    return success({"question": question.to_dict()}, 200)
 
 
 @questions_bp.route("/", methods=["POST"])
 @admin_required
 def create_question():
     """
-    Add a new question.
-    Admin only.
+    Add a new question. Admin only.
 
     Request body:
         {
@@ -155,42 +201,41 @@ def create_question():
             difficulty?, explanation?, tags?
         }
     """
-    data = request.get_json(silent=True) or {}
+    data   = request.get_json(silent=True) or {}
     errors = validate_question(data)
     if errors:
-        return jsonify({"errors": errors}), 422
+        return error("Validation failed.", 422, details=errors)
 
     category = db.session.get(Category, data["category_id"])
     if not category:
-        return jsonify({"error": "Category not found."}), 404
+        return error("Category not found.", 404)
 
-    user_id = get_jwt_identity()
+    user_id  = int(get_jwt_identity())
     question = Question(
-        category_id=data["category_id"],
-        text=data["text"].strip(),
-        correct_option=data["correct_option"],
-        explanation=data.get("explanation"),
-        difficulty=data.get("difficulty", "medium"),
-        tags=",".join(data["tags"]) if isinstance(data.get("tags"), list) else data.get("tags", ""),
-        created_by=user_id,
+        category_id    = data["category_id"],
+        text           = data["text"].strip(),
+        correct_option = data["correct_option"],
+        explanation    = data.get("explanation"),
+        difficulty     = data.get("difficulty", "medium"),
+        tags           = ",".join(data["tags"]) if isinstance(data.get("tags"), list)
+                         else data.get("tags", ""),
+        created_by     = user_id,
     )
     question.options = data["options"]
 
     db.session.add(question)
     db.session.commit()
-    return jsonify({"message": "Question created.", "question": question.to_dict(include_answer=True)}), 201
+    return success({"message": "Question created.", "question": question.to_dict(include_answer=True)}, 201)
 
 
 @questions_bp.route("/<int:question_id>", methods=["PUT"])
 @admin_required
 def update_question(question_id):
-    """
-    Update an existing question (partial update supported).
-    Admin only.
-    """
+    """Update an existing question (partial update). Admin only."""
     question = db.session.get(Question, question_id)
     if not question:
-        return jsonify({"error": "Question not found."}), 404
+        return error("Question not found.", 404)
+
     data = request.get_json(silent=True) or {}
 
     if "text" in data:
@@ -203,17 +248,17 @@ def update_question(question_id):
         question.explanation = data["explanation"]
     if "difficulty" in data:
         if data["difficulty"] not in Question.DIFFICULTY_LEVELS:
-            return jsonify({"error": f"Invalid difficulty. Use: {Question.DIFFICULTY_LEVELS}"}), 422
+            return error(f"Invalid difficulty. Use: {Question.DIFFICULTY_LEVELS}", 422)
         question.difficulty = data["difficulty"]
     if "category_id" in data:
         if not db.session.get(Category, data["category_id"]):
-            return jsonify({"error": "Category not found."}), 404
+            return error("Category not found.", 404)
         question.category_id = data["category_id"]
     if "tags" in data:
         question.tags = ",".join(data["tags"]) if isinstance(data["tags"], list) else data["tags"]
 
     db.session.commit()
-    return jsonify({"message": "Question updated.", "question": question.to_dict(include_answer=True)}), 200
+    return success({"message": "Question updated.", "question": question.to_dict(include_answer=True)}, 200)
 
 
 @questions_bp.route("/<int:question_id>", methods=["DELETE"])
@@ -222,7 +267,7 @@ def delete_question(question_id):
     """Soft-delete a question by setting is_active = False. Admin only."""
     question = db.session.get(Question, question_id)
     if not question:
-        return jsonify({"error": "Question not found."}), 404
+        return error("Question not found.", 404)
     question.is_active = False
     db.session.commit()
-    return jsonify({"message": "Question deactivated."}), 200
+    return success({"message": "Question deactivated."}, 200)

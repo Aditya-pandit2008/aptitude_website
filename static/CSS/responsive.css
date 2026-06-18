@@ -1,0 +1,339 @@
+/* =========================================================================
+   responsive.css — Shared UI/UX & responsive layer
+   -------------------------------------------------------------------------
+   Non-destructive: this file ONLY adds behaviour and mobile breakpoints.
+   It reuses the existing colour palette of each page
+   (#eadba3, #4d4742, #ead690, #2d3436 …) and does NOT redefine theme,
+   branding, fonts or layout identity of the desktop experience.
+
+   Provides:
+     1. Mobile top-bar + hamburger toggle
+     2. Slide-in sidebar + dark overlay + click-outside-to-close
+     3. Page fade-in, card lift, button hover, focus-visible rings
+     4. Responsive tables, consistent card heights, reduced-motion support
+   ========================================================================= */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   1. MOBILE TOP-BAR + HAMBURGER
+   On screens < 992px every sidebar page shows a slim top bar with a
+   hamburger that opens the (now off-canvas) sidebar.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.app-topbar {
+  display: none;                 /* hidden on desktop */
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fffcf2;
+  border-bottom: 1px solid #ece5cf;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* Dark admin pages use a darker bar */
+body.admin-body .app-topbar {
+  background: #2d3436;
+  border-bottom: 1px solid #1f2426;
+}
+body.admin-body .app-topbar .app-topbar__title,
+body.admin-body .app-topbar .app-topbar__name { color: #ead690; }
+body.admin-body .app-topbar .hamburger { color: #ead690; }
+
+.app-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.app-topbar__brand img {
+  height: 34px;
+  width: auto;
+  max-width: 140px;
+  object-fit: contain;
+}
+.app-topbar__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #4d4742;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.app-topbar__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6d6a64;
+  white-space: nowrap;
+}
+
+.hamburger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #ece5cf;
+  border-radius: 10px;
+  background: #eadba3;
+  color: #4d4742;
+  font-size: 20px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .2s ease, transform .2s ease, box-shadow .2s ease;
+}
+.hamburger:hover {
+  background: #e1cd8c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.hamburger:focus-visible {
+  outline: 3px solid #8d6a9f;
+  outline-offset: 2px;
+}
+.hamburger[aria-expanded="true"] .hamburger__icon::before { content: "\f00d"; } /* fa-xmark */
+
+/* ─────────────────────────────────────────────────────────────────────────
+   2. OFF-CANVAS SIDEBAR + OVERLAY  (mobile only)
+   Desktop sidebar layout is left untouched.
+   ───────────────────────────────────────────────────────────────────────── */
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 33, 28, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1090;
+  transition: opacity .3s ease, visibility .3s ease;
+  backdrop-filter: blur(2px);
+}
+.sidebar-overlay.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Animated hamburger icon bars (only used when font-awesome is unavailable,
+   otherwise the FA icon shows). Kept subtle. */
+.hamburger__icon { line-height: 1; }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   3. GLOBAL INTERACTIONS  (page fade-in, card lift, button states, focus)
+   These apply to elements that already exist on every page.
+   ───────────────────────────────────────────────────────────────────────── */
+
+@keyframes apti-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Fade-in the main content once the page is ready */
+.js-ready .main-content,
+.js-ready .admin-main,
+.js-ready .container > section,
+.js-ready .profile-container,
+.js-ready .settings-layout {
+  animation: apti-fade-in .5s ease-out both;
+}
+
+/* Staggered card entrance (respects reduced motion) */
+.apti-reveal {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity .55s ease, transform .55s ease;
+}
+.apti-reveal.apti-reveal--in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Universal hover-lift for existing cards across all pages */
+.card,
+.task-card,
+.reward-card,
+.stat-card,
+.category-card,
+.profile-card,
+.stats-section,
+.activity-section,
+.edit-profile-section,
+.chart-card,
+.stat,
+.stat-box,
+.focus-pill {
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+}
+.card:hover,
+.task-card:hover,
+.reward-card:hover,
+.stat-card:hover,
+.category-card:hover,
+.stat:hover,
+.stat-box:hover,
+.focus-pill:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
+}
+
+/* Consistent focus-visible ring on every interactive element (a11y) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #8d6a9f;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Buttons — subtle press feedback */
+.btn-primary:active,
+.primary-btn:active,
+.primary-action:active,
+.login-btn:active,
+.btn-danger:active {
+  transform: translateY(1px);
+}
+
+/* Skip link for keyboard users */
+.apti-skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 2000;
+  background: #4d4742;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 0 0 8px 0;
+  text-decoration: none;
+  font-weight: 600;
+}
+.apti-skip-link:focus {
+  left: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   4. TABLE / FORM / GRID REFINEMENTS (non-theme)
+   ───────────────────────────────────────────────────────────────────────── */
+
+/* Tables scroll horizontally on small screens (overflow handled per-page,
+   but this guarantees it for any data-table). */
+.table-wrap,
+.data-table {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────
+   5. MOBILE BREAKPOINTS  (< 992px)
+   Convert the desktop two-column shell into a top-bar + off-canvas sidebar.
+   Works for: .container > .sidebar / .admin-container > .admin-sidebar
+   ───────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 991.98px) {
+  /* Show the top bar */
+  .app-topbar { display: flex; }
+
+  /* Body should not scroll while sidebar open */
+  body.sidebar-open { overflow: hidden; }
+
+  /* Generic sidebar becomes off-canvas */
+  .container,
+  .admin-container {
+    flex-direction: column;
+  }
+
+  .sidebar,
+  .admin-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: 280px;
+    max-width: 85vw;
+    z-index: 1100;
+    overflow-y: auto;
+    overflow-x: hidden;
+    transform: translateX(-105%);
+    transition: transform .32s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+    padding-top: 16px;
+  }
+  .sidebar.is-open,
+  .admin-sidebar.is-open,
+  .sidebar.show {
+    transform: translateX(0);
+  }
+
+  /* Make menu items full-width & bigger tap targets on touch */
+  .sidebar .menu li,
+  .sidebar .bottom-item,
+  .sidebar .profile,
+  .admin-sidebar .admin-menu-item {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+
+  /* Main content takes full width */
+  .main-content,
+  .admin-main {
+    width: 100%;
+    padding: 18px 16px 40px;
+  }
+  .admin-content { padding: 18px 16px 40px; }
+
+  /* Dashboard stat grid → 2 cols on tablet */
+  .stats { grid-template-columns: repeat(2, 1fr) !important; }
+
+  /* Progress / reward sections span full width */
+  .progress-section { width: 100% !important; max-width: none !important; }
+
+  /* Settings two-column → stacked */
+  .settings-layout { grid-template-columns: 1fr !important; }
+  .settings-nav {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+  }
+}
+
+@media (max-width: 575.98px) {
+  /* Single column for stat grids */
+  .stats,
+  .profile-stats,
+  .stats-grid,
+  .dashboard-stats { grid-template-columns: 1fr !important; }
+
+  /* Headings readable */
+  .main-content h1,
+  .page-header h1,
+  .profile-header h1 { font-size: 26px !important; }
+
+  .settings-nav { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .pref-row,
+  .form-row { grid-template-columns: 1fr !important; }
+
+  /* Tables: force horizontal scroll wrapper visible */
+  .table-wrap { overflow-x: auto; }
+
+  /* Card grids one column */
+  .charts-row,
+  .reward-cards { grid-template-columns: 1fr !important; }
+  .reward-card { width: 100% !important; }
+}
+
+/* Honour users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .apti-reveal { opacity: 1 !important; transform: none !important; }
+}

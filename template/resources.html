@@ -3,101 +3,291 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Aptitude resources, formulas, topic notes, and preparation links." />
-  <title>Resources - Aptitude Test</title>
-  <link rel="stylesheet" href="/static/CSS/test-page.css" />
-  <link rel="stylesheet" href="/static/CSS/profile.css" />
+  <meta name="description" content="Aptitude resources, formulas, topic notes, and preparation links for placement success." />
+  <title>Resources - Aptitude Test | Preparation Library</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
   <style>
-    .resource-hero {
-      align-items: center;
-      background: #fffcf2;
+    /* ── RESOURCES PAGE ─────────────────────────── */
+    .page-hero {
+      background: linear-gradient(135deg, #fffcf2 0%, #fdf6de 100%);
       border: 1px solid #ece5cf;
-      border-radius: 10px;
+      border-radius: 18px;
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
-      padding: 28px;
+      gap: 24px;
+      padding: 32px 36px;
+      margin-bottom: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.04);
     }
+
+    .page-hero-text .eyebrow {
+      margin-bottom: 6px;
+    }
+
+    .page-hero-text h1 {
+      font-size: 32px;
+      font-weight: 800;
+      color: #1a1714;
+      margin-bottom: 8px;
+    }
+
+    .page-hero-text p {
+      color: #6d6a64;
+      font-size: 14.5px;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 24px;
+      flex-shrink: 0;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 24px;
+      font-weight: 800;
+      color: #4d4742;
+    }
+
+    .hero-stat span {
+      font-size: 12px;
+      color: #888;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── FILTER PILLS ───────────────────────────── */
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+      align-items: center;
+    }
+
+    .filter-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-right: 4px;
+    }
+
+    .filter-pill {
+      background: #fff;
+      border: 1.5px solid #e0d9c8;
+      border-radius: 25px;
+      padding: 8px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b4b4b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .filter-pill:hover {
+      border-color: #4d4742;
+      color: #4d4742;
+      background: #fdfcf8;
+    }
+
+    .filter-pill.active {
+      background: #4d4742;
+      border-color: #4d4742;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(77,71,66,0.2);
+    }
+
+    /* ── RESOURCE GRID ──────────────────────────── */
     .resource-grid {
       display: grid;
-      gap: 18px;
+      gap: 22px;
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
+
     .resource-card {
       background: #fff;
       border: 1px solid #ece5cf;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      padding: 20px;
+      border-radius: 16px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+      padding: 26px;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
     }
-    .resource-card i {
+
+    .resource-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 16px 36px rgba(0,0,0,0.1);
+      border-color: #dfd099;
+    }
+
+    .resource-card-icon {
+      width: 50px;
+      height: 50px;
       background: #eadba3;
-      border-radius: 8px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
       color: #4d4742;
-      font-size: 20px;
-      margin-bottom: 14px;
-      padding: 12px;
+      margin-bottom: 18px;
+      border: 1px solid rgba(255,255,255,0.5);
+      flex-shrink: 0;
+      transition: transform 0.25s ease;
     }
+
+    .resource-card:hover .resource-card-icon {
+      transform: scale(1.08);
+    }
+
     .resource-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #1a1714;
       margin-bottom: 8px;
     }
-    .resource-card p,
-    .formula-list li {
+
+    .resource-card > p {
       color: #6d6a64;
-      font-size: 14px;
-      line-height: 1.6;
+      font-size: 13.5px;
+      line-height: 1.65;
+      flex: 1;
+      margin-bottom: 16px;
     }
-    .resource-card button,
-    .resource-card a {
-      background: #4d4742;
-      border: 0;
-      border-radius: 8px;
-      color: #fff;
-      cursor: pointer;
-      display: inline-flex;
-      font-weight: 800;
-      margin-top: 14px;
-      padding: 10px 14px;
-      text-decoration: none;
-    }
+
     .formula-list {
       display: grid;
-      gap: 9px;
+      gap: 8px;
       list-style: none;
-      margin-top: 12px;
+      margin: 10px 0 16px;
     }
+
     .formula-list li {
       background: #f8f7f5;
       border-radius: 8px;
-      padding: 10px 12px;
+      padding: 10px 14px;
+      color: #4b4b4b;
+      font-size: 13px;
+      line-height: 1.5;
+      border-left: 3px solid #eadba3;
+      font-family: 'Poppins', monospace;
     }
-    @media (max-width: 900px) {
+
+    .resource-card-footer {
+      margin-top: auto;
+      padding-top: 6px;
+    }
+
+    .resource-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #4d4742;
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 16px;
+      text-decoration: none;
+      transition: all 0.25s ease;
+    }
+
+    .resource-link:hover {
+      background: #2f2b28;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .resource-link.outline {
+      background: transparent;
+      color: #4d4742;
+      border: 1.5px solid #4d4742;
+    }
+
+    .resource-link.outline:hover {
+      background: #4d4742;
+      color: #fff;
+    }
+
+    /* Tag badge */
+    .res-tag {
+      display: inline-block;
+      background: #eadba3;
+      color: #5d4e38;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-bottom: 10px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+
+    /* Daily plan saved state */
+    .resource-link.saved {
+      background: #3f7d46;
+    }
+
+    @media (max-width: 1100px) {
       .resource-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(2, 1fr);
       }
     }
-    @media (max-width: 620px) {
+
+    @media (max-width: 680px) {
       .resource-grid {
         grid-template-columns: 1fr;
       }
-      .resource-hero {
-        align-items: flex-start;
+
+      .page-hero {
         flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+        padding: 24px;
+      }
+
+      .hero-stats {
         gap: 16px;
+      }
+
+      .page-hero-text h1 {
+        font-size: 26px;
       }
     }
   </style>
 </head>
 <body>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div class="container">
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-      <a class="logo" href="/Dashboard"><img src="/images/Apti-logo.png" width="230" height="90" alt="Logo" /></a>
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Aptitude Test Logo" />
+      </a>
       <ul class="menu">
         <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
         <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
         <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li class="active" data-page="/resources"><i class="fa-solid fa-magnifying-glass"></i> Resources</li>
+        <li class="active" data-page="/resources"><i class="fa-solid fa-book-open"></i> Resources</li>
         <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
         <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
         <li data-page="/settings"><i class="fa-solid fa-gear"></i> Settings</li>
@@ -105,67 +295,170 @@
       </ul>
     </aside>
 
-    <main class="main-content">
-      <section class="resource-hero">
-        <div>
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+
+      <!-- PAGE HERO -->
+      <div class="page-hero">
+        <div class="page-hero-text">
           <p class="eyebrow">Preparation Library</p>
           <h1>Resources</h1>
-          <p class="muted">Quick formulas, revision checklists, and practice routes for placement aptitude.</p>
+          <p>Quick formulas, revision checklists, topic tips, and curated practice routes for placement aptitude.</p>
         </div>
-        <a class="btn-primary" href="/test-page"><i class="fa-solid fa-play"></i>&nbsp; Practice Now</a>
-      </section>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <strong>6</strong>
+            <span>Guides</span>
+          </div>
+          <div class="hero-stat">
+            <strong>4+</strong>
+            <span>Topics</span>
+          </div>
+          <div class="hero-stat">
+            <strong>Free</strong>
+            <span>Access</span>
+          </div>
+        </div>
+      </div>
 
-      <section class="resource-grid">
-        <article class="resource-card">
-          <i class="fa-solid fa-calculator"></i>
+      <!-- FILTER -->
+      <div class="filter-row">
+        <span class="filter-label">Filter:</span>
+        <button class="filter-pill active" data-filter="all">All</button>
+        <button class="filter-pill" data-filter="quant">Quantitative</button>
+        <button class="filter-pill" data-filter="reasoning">Reasoning</button>
+        <button class="filter-pill" data-filter="verbal">Verbal</button>
+        <button class="filter-pill" data-filter="strategy">Strategy</button>
+      </div>
+
+      <!-- RESOURCE GRID -->
+      <section class="resource-grid" id="resource-grid">
+
+        <!-- Card 1: Quant Formula -->
+        <article class="resource-card" data-category="quant">
+          <div class="resource-card-icon"><i class="fa-solid fa-calculator"></i></div>
+          <span class="res-tag">Quantitative</span>
           <h3>Quant Formula Sheet</h3>
-          <p>Percentages, profit-loss, time-work, speed-distance, averages, ratios, and simple interest.</p>
+          <p>Percentages, profit-loss, time-work, speed-distance, averages, ratios, and simple interest — all at a glance.</p>
           <ul class="formula-list">
-            <li>Percentage change = change / original x 100</li>
-            <li>Speed = distance / time</li>
-            <li>Average = sum of values / count</li>
+            <li>Percentage change = (change ÷ original) × 100</li>
+            <li>Speed = Distance ÷ Time</li>
+            <li>Average = Sum of values ÷ Count</li>
+            <li>SI = (P × R × T) ÷ 100</li>
           </ul>
+          <div class="resource-card-footer">
+            <a class="resource-link" href="/aptitude-test">
+              <i class="fa-solid fa-play"></i> Practice Quant
+            </a>
+          </div>
         </article>
-        <article class="resource-card">
-          <i class="fa-solid fa-brain"></i>
+
+        <!-- Card 2: Reasoning -->
+        <article class="resource-card" data-category="reasoning">
+          <div class="resource-card-icon"><i class="fa-solid fa-brain"></i></div>
+          <span class="res-tag">Reasoning</span>
           <h3>Reasoning Checklist</h3>
-          <p>Use structured tables for seating, track assumptions in syllogisms, and mark fixed clues first.</p>
-          <a href="/aptitude-test">Try Reasoning</a>
+          <p>Use structured tables for seating arrangements, track assumptions in syllogisms, and mark fixed clues first before solving puzzles.</p>
+          <ul class="formula-list">
+            <li>Draw blood-relation trees step-by-step</li>
+            <li>Eliminate impossible seating first</li>
+            <li>For coding, spot the shift pattern early</li>
+          </ul>
+          <div class="resource-card-footer">
+            <a class="resource-link" href="/aptitude-test">
+              <i class="fa-solid fa-play"></i> Try Reasoning
+            </a>
+          </div>
         </article>
-        <article class="resource-card">
-          <i class="fa-solid fa-book-open"></i>
-          <h3>Verbal Practice</h3>
-          <p>Read the question before passage scans, eliminate absolute options, and watch tense agreement.</p>
-          <a href="/aptitude-test">Try Verbal</a>
+
+        <!-- Card 3: Verbal -->
+        <article class="resource-card" data-category="verbal">
+          <div class="resource-card-icon"><i class="fa-solid fa-book-open"></i></div>
+          <span class="res-tag">Verbal</span>
+          <h3>Verbal Practice Tips</h3>
+          <p>Read the question before scanning passages, eliminate absolute-option traps, and watch tense agreement in sentence correction.</p>
+          <ul class="formula-list">
+            <li>Skim → Question → Skim again (2-pass)</li>
+            <li>Avoid options with "always" or "never"</li>
+            <li>Match the tone of the passage in inference</li>
+          </ul>
+          <div class="resource-card-footer">
+            <a class="resource-link" href="/aptitude-test">
+              <i class="fa-solid fa-play"></i> Try Verbal
+            </a>
+          </div>
         </article>
-        <article class="resource-card">
-          <i class="fa-solid fa-chart-simple"></i>
+
+        <!-- Card 4: DI -->
+        <article class="resource-card" data-category="quant">
+          <div class="resource-card-icon"><i class="fa-solid fa-chart-bar"></i></div>
+          <span class="res-tag">Quantitative</span>
           <h3>Data Interpretation</h3>
-          <p>Convert chart values into one small table before solving. It prevents most calculation slips.</p>
-          <a href="/aptitude-test">Try DI</a>
+          <p>Convert chart values into one small extraction table before solving. This single habit prevents most calculation slips in DI sets.</p>
+          <ul class="formula-list">
+            <li>Extract all values first, then calculate</li>
+            <li>Estimate before computing exact values</li>
+            <li>For bar charts: check axis scale carefully</li>
+          </ul>
+          <div class="resource-card-footer">
+            <a class="resource-link" href="/aptitude-test">
+              <i class="fa-solid fa-play"></i> Try DI
+            </a>
+          </div>
         </article>
-        <article class="resource-card">
-          <i class="fa-solid fa-list-check"></i>
-          <h3>Daily Plan</h3>
-          <p>20 minutes formulas, 25 minutes practice, 10 minutes review, and 5 minutes saved questions.</p>
-          <button id="save-plan">Save Plan</button>
+
+        <!-- Card 5: Daily Plan -->
+        <article class="resource-card" data-category="strategy">
+          <div class="resource-card-icon"><i class="fa-solid fa-list-check"></i></div>
+          <span class="res-tag">Strategy</span>
+          <h3>Daily Study Plan</h3>
+          <p>An optimised 60-minute daily schedule designed to build both speed and accuracy consistently over weeks.</p>
+          <ul class="formula-list">
+            <li>0–20 min: Formula review & warm-up</li>
+            <li>20–45 min: Topic-wise timed practice</li>
+            <li>45–55 min: Review mistakes deeply</li>
+            <li>55–60 min: Save hard questions</li>
+          </ul>
+          <div class="resource-card-footer">
+            <button class="resource-link" id="save-plan">
+              <i class="fa-solid fa-bookmark"></i> Save Plan
+            </button>
+          </div>
         </article>
-        <article class="resource-card">
-          <i class="fa-solid fa-bookmark"></i>
+
+        <!-- Card 6: Revision Queue -->
+        <article class="resource-card" data-category="strategy">
+          <div class="resource-card-icon"><i class="fa-solid fa-rotate"></i></div>
+          <span class="res-tag">Strategy</span>
           <h3>Revision Queue</h3>
-          <p>Every saved question should get a short note: why it was missed and the shortcut to solve it.</p>
-          <a href="/bookmarks">Open Saved</a>
+          <p>Every saved question should get a short mental note: why it was missed and what shortcut could solve it faster next time.</p>
+          <ul class="formula-list">
+            <li>Tag difficulty: Easy / Medium / Hard</li>
+            <li>Revisit saved Qs every 3 days</li>
+            <li>Convert patterns into formula cards</li>
+          </ul>
+          <div class="resource-card-footer">
+            <a class="resource-link outline" href="/bookmarks">
+              <i class="fa-solid fa-arrow-right"></i> Open Saved
+            </a>
+          </div>
         </article>
+
       </section>
     </main>
   </div>
+
   <div id="notification" class="notification"></div>
+
+  <script src="/static/JS/responsive.js"></script>
   <script>
     (function () {
       if (!localStorage.getItem('access_token')) {
         window.location.href = '/login';
         return;
       }
+
+      // Sidebar navigation
       document.querySelectorAll('[data-page]').forEach((item) => {
         item.addEventListener('click', () => { window.location.href = item.dataset.page; });
       });
@@ -177,13 +470,54 @@
           window.location.href = '/login';
         });
       });
-      document.getElementById('save-plan').addEventListener('click', () => {
-        localStorage.setItem('apti_daily_plan_saved', 'true');
-        const box = document.getElementById('notification');
-        box.textContent = 'Daily plan saved.';
-        box.className = 'notification active success';
-        setTimeout(() => box.classList.remove('active'), 2500);
+
+      // Filter pills
+      const pills = document.querySelectorAll('.filter-pill');
+      const cards = document.querySelectorAll('.resource-card');
+
+      pills.forEach((pill) => {
+        pill.addEventListener('click', () => {
+          pills.forEach(p => p.classList.remove('active'));
+          pill.classList.add('active');
+
+          const filter = pill.dataset.filter;
+          cards.forEach((card) => {
+            if (filter === 'all' || card.dataset.category === filter) {
+              card.style.display = '';
+              requestAnimationFrame(() => {
+                card.style.opacity = '1';
+                card.style.transform = '';
+              });
+            } else {
+              card.style.opacity = '0';
+              card.style.transform = 'translateY(10px)';
+              setTimeout(() => { card.style.display = 'none'; }, 200);
+            }
+          });
+        });
       });
+
+      // Save plan button
+      const savePlanBtn = document.getElementById('save-plan');
+      const savedPlan = localStorage.getItem('apti_daily_plan_saved');
+      if (savedPlan) {
+        savePlanBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+        savePlanBtn.classList.add('saved');
+      }
+
+      savePlanBtn.addEventListener('click', () => {
+        localStorage.setItem('apti_daily_plan_saved', 'true');
+        savePlanBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved!';
+        savePlanBtn.classList.add('saved');
+        showNotification('Daily plan saved to your device!', 'success');
+      });
+
+      function showNotification(msg, type = '') {
+        const box = document.getElementById('notification');
+        box.textContent = msg;
+        box.className = 'notification active ' + type;
+        setTimeout(() => box.classList.remove('active'), 2800);
+      }
     })();
   </script>
 </body>

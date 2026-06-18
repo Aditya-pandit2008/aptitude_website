@@ -11,10 +11,12 @@ Models:
     Bookmark        – saved questions per user
     LeaderboardEntry– aggregated score / rank snapshot
     DailyChallenge  – one question featured per day
+    TokenBlocklist  – revoked JWT tokens (logout / security)
 """
 
 from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Index
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
@@ -38,15 +40,15 @@ class User(db.Model):
 
     __tablename__ = "users"
 
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False, index=True)
-    email = db.Column(db.String(120), unique=True, nullable=False, index=True)
+    id            = db.Column(db.Integer, primary_key=True)
+    username      = db.Column(db.String(80),  unique=True, nullable=False, index=True)
+    email         = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
-    role = db.Column(db.String(20), default="student")   # student | admin
+    role          = db.Column(db.String(20),  default="student")   # student | admin
 
     # Gamification
-    total_xp = db.Column(db.Integer, default=0)
-    daily_streak = db.Column(db.Integer, default=0)
+    total_xp         = db.Column(db.Integer, default=0)
+    daily_streak     = db.Column(db.Integer, default=0)
     last_active_date = db.Column(db.Date, nullable=True)
 
     # Timestamps
@@ -54,9 +56,12 @@ class User(db.Model):
     updated_at = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
     # Relationships
-    test_attempts = db.relationship("TestAttempt", back_populates="user", cascade="all, delete-orphan", lazy="dynamic")
-    bookmarks = db.relationship("Bookmark", back_populates="user", cascade="all, delete-orphan", lazy="dynamic")
-    leaderboard_entry = db.relationship("LeaderboardEntry", back_populates="user", cascade="all, delete-orphan", uselist=False)
+    test_attempts    = db.relationship("TestAttempt",     back_populates="user",
+                                       cascade="all, delete-orphan", lazy="dynamic")
+    bookmarks        = db.relationship("Bookmark",        back_populates="user",
+                                       cascade="all, delete-orphan", lazy="dynamic")
+    leaderboard_entry = db.relationship("LeaderboardEntry", back_populates="user",
+                                        cascade="all, delete-orphan", uselist=False)
 
     # ── Password helpers ──────────────────────────────────────────────────────
 
@@ -71,20 +76,41 @@ class User(db.Model):
     def to_dict(self, include_sensitive=False) -> dict:
         """Serialize user to JSON-safe dict."""
         data = {
-            "id": self.id,
-            "username": self.username,
-            "email": self.email if include_sensitive else None,
-            "role": self.role,
-            "total_xp": self.total_xp,
+            "id":           self.id,
+            "username":     self.username,
+            "role":         self.role,
+            "total_xp":     self.total_xp,
             "daily_streak": self.daily_streak,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "created_at":   self.created_at.isoformat() if self.created_at else None,
         }
-        if not include_sensitive:
-            data.pop("email")
+        if include_sensitive:
+            data["email"] = self.email
         return data
 
     def __repr__(self):
         return f"<User {self.username}>"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# TokenBlocklist  (JWT logout / revocation)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TokenBlocklist(db.Model):
+    """
+    Stores revoked JWT token IDs (jti) to support logout and token revocation.
+    The JWTManager token_in_blocklist_loader callback queries this table.
+    Old entries can be pruned by a periodic job once they're past token expiry.
+    """
+
+    __tablename__ = "token_blocklist"
+
+    id         = db.Column(db.Integer, primary_key=True)
+    jti        = db.Column(db.String(36), nullable=False, unique=True, index=True)
+    token_type = db.Column(db.String(10), nullable=False, default="access")  # access|refresh
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    def __repr__(self):
+        return f"<TokenBlocklist {self.jti}>"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -96,21 +122,28 @@ class Category(db.Model):
 
     __tablename__ = "categories"
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
+    id          = db.Column(db.Integer, primary_key=True)
+    name        = db.Column(db.String(100), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
-    icon = db.Column(db.String(50), nullable=True)   # emoji or icon name
+    icon        = db.Column(db.String(50), nullable=True)   # emoji or icon name
 
     # Relationships
     questions = db.relationship("Question", back_populates="category", lazy="dynamic")
 
-    def to_dict(self) -> dict:
+    def to_dict(self, question_count: int | None = None) -> dict:
+        """
+        Serialize category.
+        Pass pre-computed question_count to avoid N+1 queries
+        when serializing many categories at once.
+        """
         return {
-            "id": self.id,
-            "name": self.name,
-            "description": self.description,
-            "icon": self.icon,
-            "question_count": self.questions.count(),
+            "id":             self.id,
+            "name":           self.name,
+            "description":    self.description,
+            "icon":           self.icon,
+            # Use provided count if available, otherwise fall back to a live count
+            "question_count": question_count if question_count is not None
+                              else self.questions.filter_by(is_active=True).count(),
         }
 
     def __repr__(self):
@@ -124,35 +157,42 @@ class Category(db.Model):
 class Question(db.Model):
     """
     An aptitude / interview question.
-    Options are stored as a JSON-serialised list; correct_option is 0-based index.
+    Options are stored as a pipe-separated string; correct_option is 0-based index.
     """
 
     __tablename__ = "questions"
 
+    # Composite index covering the most common filter path:
+    # is_active=True, category_id=X, difficulty=Y
+    __table_args__ = (
+        Index("ix_questions_active_cat_diff",
+              "is_active", "category_id", "difficulty"),
+    )
+
     DIFFICULTY_LEVELS = ("easy", "medium", "hard")
 
-    id = db.Column(db.Integer, primary_key=True)
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
-    text = db.Column(db.Text, nullable=False)
+    id              = db.Column(db.Integer, primary_key=True)
+    category_id     = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=False)
+    text            = db.Column(db.Text, nullable=False)
 
-    # MCQ support – store options as pipe-separated string for SQLite compatibility
+    # MCQ support – pipe-separated for SQLite compatibility
     # Format: "Option A|Option B|Option C|Option D"
-    options_raw = db.Column(db.Text, nullable=True)
-    correct_option = db.Column(db.Integer, nullable=False)   # 0-based index
+    options_raw     = db.Column(db.Text, nullable=True)
+    correct_option  = db.Column(db.Integer, nullable=False)   # 0-based index
 
-    explanation = db.Column(db.Text, nullable=True)
-    difficulty = db.Column(db.String(10), default="medium")
-    tags = db.Column(db.String(255), nullable=True)          # comma-separated tags
-    is_active = db.Column(db.Boolean, default=True)
+    explanation     = db.Column(db.Text, nullable=True)
+    difficulty      = db.Column(db.String(10), default="medium")
+    tags            = db.Column(db.String(255), nullable=True)   # comma-separated
+    is_active       = db.Column(db.Boolean, default=True)
 
-    created_by = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
-    created_at = db.Column(db.DateTime(timezone=True), default=utcnow)
-    updated_at = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+    created_by  = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    created_at  = db.Column(db.DateTime(timezone=True), default=utcnow)
+    updated_at  = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
     # Relationships
-    category = db.relationship("Category", back_populates="questions")
-    bookmarks = db.relationship("Bookmark", back_populates="question", lazy="dynamic")
-    test_answers = db.relationship("TestAnswer", back_populates="question", lazy="dynamic")
+    category     = db.relationship("Category", back_populates="questions")
+    bookmarks    = db.relationship("Bookmark",    back_populates="question", lazy="dynamic")
+    test_answers = db.relationship("TestAnswer",  back_populates="question", lazy="dynamic")
 
     # ── Property helpers ──────────────────────────────────────────────────────
 
@@ -176,16 +216,16 @@ class Question(db.Model):
 
     def to_dict(self, include_answer=False) -> dict:
         data = {
-            "id": self.id,
-            "category_id": self.category_id,
+            "id":            self.id,
+            "category_id":   self.category_id,
             "category_name": self.category.name if self.category else None,
-            "text": self.text,
-            "options": self.options,
-            "difficulty": self.difficulty,
-            "tags": self.tag_list,
-            "explanation": self.explanation,
-            "is_active": self.is_active,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "text":          self.text,
+            "options":       self.options,
+            "difficulty":    self.difficulty,
+            "tags":          self.tag_list,
+            "explanation":   self.explanation,
+            "is_active":     self.is_active,
+            "created_at":    self.created_at.isoformat() if self.created_at else None,
         }
         if include_answer:
             data["correct_option"] = self.correct_option
@@ -204,38 +244,43 @@ class TestAttempt(db.Model):
 
     __tablename__ = "test_attempts"
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=True)
+    # Composite index for paginated history queries: user_id + date desc
+    __table_args__ = (
+        Index("ix_test_attempts_user_date", "user_id", "completed_at"),
+    )
 
-    total_questions = db.Column(db.Integer, default=0)
-    correct_answers = db.Column(db.Integer, default=0)
-    score = db.Column(db.Float, default=0.0)          # raw score (XP)
-    accuracy = db.Column(db.Float, default=0.0)       # percentage 0-100
-    time_taken = db.Column(db.Integer, default=0)     # seconds
-    xp_earned = db.Column(db.Integer, default=0)
+    id               = db.Column(db.Integer, primary_key=True)
+    user_id          = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    category_id      = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=True)
+
+    total_questions  = db.Column(db.Integer, default=0)
+    correct_answers  = db.Column(db.Integer, default=0)
+    score            = db.Column(db.Float,   default=0.0)    # raw score (XP)
+    accuracy         = db.Column(db.Float,   default=0.0)    # percentage 0-100
+    time_taken       = db.Column(db.Integer, default=0)      # seconds
+    xp_earned        = db.Column(db.Integer, default=0)
 
     completed_at = db.Column(db.DateTime(timezone=True), default=utcnow)
 
     # Relationships
-    user = db.relationship("User", back_populates="test_attempts")
+    user     = db.relationship("User",     back_populates="test_attempts")
     category = db.relationship("Category")
-    answers = db.relationship("TestAnswer", back_populates="attempt",
-                              cascade="all, delete-orphan", lazy="dynamic")
+    answers  = db.relationship("TestAnswer", back_populates="attempt",
+                               cascade="all, delete-orphan", lazy="dynamic")
 
     def to_dict(self) -> dict:
         return {
-            "id": self.id,
-            "user_id": self.user_id,
-            "category_id": self.category_id,
-            "category_name": self.category.name if self.category else "Mixed",
-            "total_questions": self.total_questions,
-            "correct_answers": self.correct_answers,
-            "score": self.score,
-            "accuracy": round(self.accuracy, 2),
-            "time_taken": self.time_taken,
-            "xp_earned": self.xp_earned,
-            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "id":               self.id,
+            "user_id":          self.user_id,
+            "category_id":      self.category_id,
+            "category_name":    self.category.name if self.category else "Mixed",
+            "total_questions":  self.total_questions,
+            "correct_answers":  self.correct_answers,
+            "score":            self.score,
+            "accuracy":         round(self.accuracy, 2),
+            "time_taken":       self.time_taken,
+            "xp_earned":        self.xp_earned,
+            "completed_at":     self.completed_at.isoformat() if self.completed_at else None,
         }
 
     def __repr__(self):
@@ -251,26 +296,31 @@ class TestAnswer(db.Model):
 
     __tablename__ = "test_answers"
 
-    id = db.Column(db.Integer, primary_key=True)
-    attempt_id = db.Column(db.Integer, db.ForeignKey("test_attempts.id"), nullable=False)
-    question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
-    selected_option = db.Column(db.Integer, nullable=True)  # None = skipped
-    is_correct = db.Column(db.Boolean, default=False)
-    time_spent = db.Column(db.Integer, default=0)            # seconds on this question
+    # Composite index for bulk lookups during evaluation and answer retrieval
+    __table_args__ = (
+        Index("ix_test_answers_attempt_question", "attempt_id", "question_id"),
+    )
+
+    id              = db.Column(db.Integer, primary_key=True)
+    attempt_id      = db.Column(db.Integer, db.ForeignKey("test_attempts.id"), nullable=False)
+    question_id     = db.Column(db.Integer, db.ForeignKey("questions.id"),     nullable=False)
+    selected_option = db.Column(db.Integer, nullable=True)   # None = skipped
+    is_correct      = db.Column(db.Boolean, default=False)
+    time_spent      = db.Column(db.Integer, default=0)        # seconds on this Q
 
     # Relationships
-    attempt = db.relationship("TestAttempt", back_populates="answers")
-    question = db.relationship("Question", back_populates="test_answers")
+    attempt  = db.relationship("TestAttempt", back_populates="answers")
+    question = db.relationship("Question",    back_populates="test_answers")
 
     def to_dict(self) -> dict:
         question = self.question
         return {
-            "question_id": self.question_id,
+            "question_id":     self.question_id,
             "selected_option": self.selected_option,
-            "correct_option": question.correct_option,
-            "is_correct": self.is_correct,
-            "time_spent": self.time_spent,
-            "question": question.to_dict(include_answer=True) if question else None,
+            "correct_option":  question.correct_option if question else None,
+            "is_correct":      self.is_correct,
+            "time_spent":      self.time_spent,
+            "question":        question.to_dict(include_answer=True) if question else None,
         }
 
 
@@ -286,21 +336,21 @@ class Bookmark(db.Model):
         db.UniqueConstraint("user_id", "question_id", name="uq_user_question_bookmark"),
     )
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    id          = db.Column(db.Integer, primary_key=True)
+    user_id     = db.Column(db.Integer, db.ForeignKey("users.id"),     nullable=False)
     question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
-    note = db.Column(db.Text, nullable=True)           # optional personal note
-    created_at = db.Column(db.DateTime(timezone=True), default=utcnow)
+    note        = db.Column(db.Text, nullable=True)
+    created_at  = db.Column(db.DateTime(timezone=True), default=utcnow)
 
     # Relationships
-    user = db.relationship("User", back_populates="bookmarks")
+    user     = db.relationship("User",     back_populates="bookmarks")
     question = db.relationship("Question", back_populates="bookmarks")
 
     def to_dict(self) -> dict:
         return {
-            "id": self.id,
-            "question": self.question.to_dict(),
-            "note": self.note,
+            "id":         self.id,
+            "question":   self.question.to_dict(),
+            "note":       self.note,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -317,26 +367,26 @@ class LeaderboardEntry(db.Model):
 
     __tablename__ = "leaderboard"
 
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False)
-    total_score = db.Column(db.Float, default=0.0)
-    tests_taken = db.Column(db.Integer, default=0)
-    avg_accuracy = db.Column(db.Float, default=0.0)
-    rank = db.Column(db.Integer, nullable=True)
-    updated_at = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow)
+    id           = db.Column(db.Integer, primary_key=True)
+    user_id      = db.Column(db.Integer, db.ForeignKey("users.id"), unique=True, nullable=False)
+    total_score  = db.Column(db.Float,   default=0.0)
+    tests_taken  = db.Column(db.Integer, default=0)
+    avg_accuracy = db.Column(db.Float,   default=0.0)
+    rank         = db.Column(db.Integer, nullable=True)
+    updated_at   = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow)
 
     # Relationships
     user = db.relationship("User", back_populates="leaderboard_entry")
 
     def to_dict(self) -> dict:
         return {
-            "rank": self.rank,
-            "user_id": self.user_id,
-            "username": self.user.username if self.user else None,
-            "total_score": round(self.total_score, 2),
-            "tests_taken": self.tests_taken,
+            "rank":         self.rank,
+            "user_id":      self.user_id,
+            "username":     self.user.username if self.user else None,
+            "total_score":  round(self.total_score, 2),
+            "tests_taken":  self.tests_taken,
             "avg_accuracy": round(self.avg_accuracy, 2),
-            "total_xp": self.user.total_xp if self.user else 0,
+            "total_xp":     self.user.total_xp if self.user else 0,
         }
 
 
@@ -349,17 +399,17 @@ class DailyChallenge(db.Model):
 
     __tablename__ = "daily_challenges"
 
-    id = db.Column(db.Integer, primary_key=True)
-    question_id = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
+    id             = db.Column(db.Integer, primary_key=True)
+    question_id    = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False)
     challenge_date = db.Column(db.Date, unique=True, nullable=False)
-    bonus_xp = db.Column(db.Integer, default=50)
+    bonus_xp       = db.Column(db.Integer, default=50)
 
     question = db.relationship("Question")
 
     def to_dict(self) -> dict:
         return {
-            "id": self.id,
+            "id":             self.id,
             "challenge_date": self.challenge_date.isoformat(),
-            "bonus_xp": self.bonus_xp,
-            "question": self.question.to_dict() if self.question else None,
+            "bonus_xp":       self.bonus_xp,
+            "question":       self.question.to_dict() if self.question else None,
         }

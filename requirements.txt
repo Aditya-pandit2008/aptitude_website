@@ -2,10 +2,18 @@ flask>=3.0,<4.0
 flask-sqlalchemy>=3.1,<4.0
 flask-jwt-extended>=4.6,<5.0
 flask-cors>=4.0,<5.0
+flask-limiter>=3.5,<4.0          # rate limiting
+flask-migrate>=4.0,<5.0          # DB migrations via Alembic
 werkzeug>=3.0,<4.0
 python-dotenv>=1.0,<2.0
 gunicorn>=21.0,<23.0
-groq>=0.9.0             # Official Groq SDK — fixes Cloudflare 403/1010 error
-psycopg2-binary>=2.9,<3.0   # Postgres driver — required in production (Vercel/Neon/Supabase)
+groq>=0.9.0                      # Official Groq SDK
+cachetools>=5.3,<6.0             # TTLCache for AI response caching
+psycopg2-binary>=2.9,<3.0        # Postgres driver (production)
+
+# Testing
+pytest>=8.0,<9.0
+pytest-flask>=1.3,<2.0
+
 # Optional: switch to MySQL in production
 # pymysql>=1.1,<2.0

@@ -1,133 +1,407 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Your personal Aptitude Test Dashboard - track progress, manage tasks, and prepare for placements." />
-    <meta name="theme-color" content="#d8d7d3" />
-    <title>Dashboard - Aptitude Test | Your Learning Hub</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Your personal Aptitude Test Dashboard — track progress, manage tasks, and prepare for placements." />
+  <meta name="theme-color" content="#d8d7d3" />
+  <title>Dashboard - Aptitude Test | Your Learning Hub</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* ── DASHBOARD SPECIFIC ───────────────────────── */
 
-    <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Rye&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  </head>
-  <body>
-    <div class="container">
-      <aside class="sidebar">
-        <a class="logo" href="/Dashboard">
-          <img src="/images/Apti-logo.png" width="230" height="90" alt="Logo" />
-        </a>
+    /* Mobile menu button */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #4b4b4b;
+      cursor: pointer;
+      padding: 4px;
+      transition: color 0.2s;
+    }
 
-        <ul class="menu">
-          <li class="active" data-page="/Dashboard">
-            <i class="fa-solid fa-house"></i>
-            Dashboard
-          </li>
-          <li data-page="/test-page">
-            <i class="fa-solid fa-bullseye"></i>
-            Set Tasks
-          </li>
-          <li data-page="/aptitude-test">
-            <i class="fa-regular fa-calendar"></i>
-            Aptitude Tests
-          </li>
-          <li data-page="/resources">
-            <i class="fa-solid fa-magnifying-glass"></i>
-            Resources
-          </li>
-          <li data-page="/bookmarks">
-            <i class="fa-regular fa-bookmark"></i>
-            Saved Questions
-          </li>
-          <li data-page="/profile">
-            <i class="fa-solid fa-user"></i>
-            Profile
-          </li>
-          <li data-action="logout">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            Logout
-          </li>
-        </ul>
+    .mobile-menu-btn:hover { color: #1a1714; }
 
-        <div class="bottom-menu">
-          <div class="profile" data-page="/profile">
-            <img src="https://i.pravatar.cc/50" alt="" id="sidebar-avatar" />
-            <span id="profile-name">Student</span>
-          </div>
-          <div class="bottom-item" data-page="/test-page">
-            <i class="fa-solid fa-book-open"></i>
-            Practice Now
-          </div>
-          <div class="bottom-item" data-page="/settings">
-            <i class="fa-solid fa-gear"></i>
-            Settings
-          </div>
+    /* Greeting sub */
+    .greeting-sub {
+      color: #6d6a64;
+      font-size: 14px;
+      margin-top: 4px;
+      font-weight: 400;
+    }
+
+    /* XP / streak banner */
+    .streak-banner {
+      background: linear-gradient(135deg, #eadba3 0%, #f0e6b4 100%);
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,0.5);
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+
+    .streak-banner .streak-info {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .streak-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #3b3128;
+    }
+
+    .streak-item i {
+      font-size: 18px;
+    }
+
+    .streak-item i.fa-fire { color: #e06b2a; }
+    .streak-item i.fa-award { color: #b8860b; }
+
+    .streak-cta a {
+      font-size: 13px;
+      font-weight: 700;
+      color: #4d4742;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      transition: color 0.2s;
+    }
+
+    .streak-cta a:hover { color: #2f2b28; }
+
+    /* Progress bar container */
+    .progress-bar-wrap {
+      width: 100%;
+      height: 8px;
+      background: #e8e6e2;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0 4px;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #4d4742 0%, #7a6e62 100%);
+      border-radius: 10px;
+      transition: width 0.8s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    .progress-pct {
+      font-size: 12px;
+      color: #6b5c4a;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    /* Attempt card (recent tests) */
+    .attempt-card {
+      background: #eadba3;
+      padding: 20px 22px;
+      border-radius: 14px;
+      flex: 1;
+      min-width: 200px;
+      max-width: 260px;
+      border: 1px solid rgba(255,255,255,0.45);
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      cursor: default;
+    }
+
+    .attempt-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.09);
+    }
+
+    .attempt-card .attempt-label {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6b5c4a;
+      margin-bottom: 4px;
+    }
+
+    .attempt-card .attempt-score {
+      font-size: 26px;
+      font-weight: 800;
+      color: #1a1714;
+      line-height: 1.2;
+    }
+
+    .attempt-card .attempt-meta {
+      font-size: 12.5px;
+      color: #7a6e62;
+      margin-top: 4px;
+    }
+
+    .attempt-mini-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 8px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+
+    .attempt-mini-fill {
+      height: 100%;
+      background: #4d4742;
+      border-radius: 8px;
+    }
+
+    /* Section dividers */
+    .section-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #999;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .mobile-menu-btn { display: block; }
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.35);
+        z-index: 999;
+      }
+      .sidebar-overlay.show { display: block; }
+    }
+
+    @media (max-width: 480px) {
+      .streak-banner {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="container">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Aptitude Test Logo" />
+      </a>
+
+      <ul class="menu">
+        <li class="active" data-page="/Dashboard">
+          <i class="fa-solid fa-house"></i> Dashboard
+        </li>
+        <li data-page="/test-page">
+          <i class="fa-solid fa-bullseye"></i> Set Tasks
+        </li>
+        <li data-page="/aptitude-test">
+          <i class="fa-regular fa-calendar"></i> Aptitude Tests
+        </li>
+        <li data-page="/resources">
+          <i class="fa-solid fa-book-open"></i> Resources
+        </li>
+        <li data-page="/bookmarks">
+          <i class="fa-regular fa-bookmark"></i> Saved Questions
+        </li>
+        <li data-page="/profile">
+          <i class="fa-solid fa-user"></i> Profile
+        </li>
+        <li data-action="logout">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </li>
+      </ul>
+
+      <div class="bottom-menu">
+        <div class="profile" data-page="/profile">
+          <img src="https://i.pravatar.cc/50" alt="Avatar" id="sidebar-avatar" />
+          <span id="profile-name">Student</span>
         </div>
-      </aside>
+        <div class="bottom-item" data-page="/test-page">
+          <i class="fa-solid fa-book-open"></i> Practice Now
+        </div>
+        <div class="bottom-item" data-page="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </div>
+      </div>
+    </aside>
 
-      <main class="main-content">
-        <div class="dashboard-head">
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+
+      <!-- HEADER -->
+      <div class="dashboard-head">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
           <div>
-            <p class="eyebrow">Welcome back</p>
+            <p class="eyebrow">Welcome back 👋</p>
             <h1 id="dashboard-title">Dashboard</h1>
+            <p class="greeting-sub" id="greeting-sub">Here's your learning summary for today.</p>
           </div>
-          <a class="primary-action" href="/test-page">
-            <i class="fa-solid fa-play"></i>
-            Start Test
-          </a>
         </div>
+        <a class="primary-action" href="/test-page">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Start Test
+        </a>
+      </div>
 
-        <div class="stats" style="grid-template-columns: repeat(5, 1fr);">
-          <div class="card">
+      <!-- STREAK BANNER -->
+      <div class="streak-banner" id="streak-banner" style="display:none;">
+        <div class="streak-info">
+          <div class="streak-item">
+            <i class="fa-solid fa-fire"></i>
+            <span id="streak-text">0 day streak</span>
+          </div>
+          <div class="streak-item">
+            <i class="fa-solid fa-award"></i>
+            <span id="xp-text">0 XP total</span>
+          </div>
+        </div>
+        <div class="streak-cta">
+          <a href="/test-page">Take today's test →</a>
+        </div>
+      </div>
+
+      <!-- STAT CARDS -->
+      <div class="stats" id="stat-cards" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 32px;">
+        <div class="card">
+          <div class="card-icon-wrap"><i class="fa-solid fa-list-check"></i></div>
+          <div class="card-info">
             <h2 id="stat-tests">0</h2>
-            <p>tests completed</p>
-          </div>
-          <div class="card">
-            <h2 id="stat-questions">0</h2>
-            <p>questions solved</p>
-          </div>
-          <div class="card">
-            <h2 id="stat-accuracy">0%</h2>
-            <p>average accuracy</p>
-          </div>
-          <div class="card">
-            <h2 id="stat-xp">0</h2>
-            <p>total XP earned</p>
-          </div>
-          <div class="card">
-            <h2 id="stat-streak">0</h2>
-            <p>🔥 day streak</p>
+            <p>Tests Completed</p>
           </div>
         </div>
-
-        <section class="progress-section">
-          <div class="section-header">
-            <h2>Topic Progress</h2>
-            <a class="section-title" href="/test-page">Practice</a>
+        <div class="card">
+          <div class="card-icon-wrap"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="card-info">
+            <h2 id="stat-questions">0</h2>
+            <p>Questions Solved</p>
           </div>
-          <div id="topic-progress" class="empty-state">Complete a test to see your topic progress.</div>
-        </section>
-
-        <section class="reward-section">
-          <div class="section-header">
-            <h3>Recent Test Activity</h3>
-            <a class="section-title" href="/test-page">New test</a>
+        </div>
+        <div class="card">
+          <div class="card-icon-wrap"><i class="fa-solid fa-percent"></i></div>
+          <div class="card-info">
+            <h2 id="stat-accuracy">0%</h2>
+            <p>Avg Accuracy</p>
           </div>
-          <div id="recent-attempts" class="reward-cards">
-            <div class="empty-state">No test attempts yet.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon-wrap"><i class="fa-solid fa-award"></i></div>
+          <div class="card-info">
+            <h2 id="stat-xp">0</h2>
+            <p>Total XP Earned</p>
           </div>
-        </section>
+        </div>
+        <div class="card">
+          <div class="card-icon-wrap"><i class="fa-solid fa-fire"></i></div>
+          <div class="card-info">
+            <h2 id="stat-streak">0</h2>
+            <p>Day Streak</p>
+          </div>
+        </div>
+      </div>
 
-        <section class="reward-section recommendations">
+      <!-- TOPIC PROGRESS -->
+      <section class="progress-section">
+        <div class="section-header">
+          <h2>Topic Progress</h2>
+          <a href="/test-page">Practice →</a>
+        </div>
+        <div id="topic-progress" class="empty-state">
+          <i class="fa-solid fa-chart-line" style="font-size:28px;color:#ccc;display:block;margin-bottom:12px;"></i>
+          Complete a test to see your topic progress.
+        </div>
+      </section>
+
+      <!-- RECENT TEST ACTIVITY -->
+      <section class="reward-section">
+        <div class="section-header">
+          <h3>Recent Test Activity</h3>
+          <a href="/test-page">New Test →</a>
+        </div>
+        <div id="recent-attempts" class="reward-cards">
+          <div class="empty-state">
+            <i class="fa-regular fa-clock" style="font-size:28px;color:#ccc;display:block;margin-bottom:12px;"></i>
+            No test attempts yet. Start your first test!
+          </div>
+        </div>
+      </section>
+
+      <!-- RECOMMENDED FOCUS -->
+      <section class="reward-section recommendations">
+        <div class="section-header">
           <h3>Recommended Focus</h3>
-          <div id="recommendations" class="focus-list">
-            <div class="empty-state">Your recommendations will appear after your first test.</div>
-          </div>
-        </section>
-      </main>
-    </div>
+          <a href="/resources">View Resources →</a>
+        </div>
+        <div id="recommendations" class="focus-list">
+          <div class="empty-state">Your recommendations will appear after your first test.</div>
+        </div>
+      </section>
 
-    <script src="/static/JS/script.js"></script>
-    <script src="/static/JS/dashboard.js"></script>
-  </body>
+    </main>
+  </div>
+
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/script.js"></script>
+  <script src="/static/JS/dashboard.js"></script>
+  <script>
+    // Mobile sidebar
+    const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+    const sidebarEl = document.getElementById('sidebar');
+    const overlayEl = document.getElementById('sidebar-overlay');
+
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', () => {
+        sidebarEl.classList.toggle('show');
+        overlayEl.classList.toggle('show');
+      });
+      overlayEl.addEventListener('click', () => {
+        sidebarEl.classList.remove('show');
+        overlayEl.classList.remove('show');
+      });
+    }
+
+    // Show streak banner if data available
+    function updateStreakBanner(xp, streak) {
+      const banner = document.getElementById('streak-banner');
+      if (xp > 0 || streak > 0) {
+        banner.style.display = 'flex';
+        document.getElementById('streak-text').textContent = streak + ' day streak 🔥';
+        document.getElementById('xp-text').textContent = xp + ' XP total ⭐';
+      }
+    }
+
+    // Wait for dashboard.js to populate, then show banner
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const xpEl = document.getElementById('stat-xp');
+        const streakEl = document.getElementById('stat-streak');
+        if (xpEl && streakEl) {
+          updateStreakBanner(
+            parseInt(xpEl.textContent) || 0,
+            parseInt(streakEl.textContent) || 0
+          );
+        }
+      }, 1200);
+    });
+  </script>
+</body>
 </html>
