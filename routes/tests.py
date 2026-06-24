@@ -109,8 +109,6 @@ def get_attempt_answers(attempt_id):
         "summary": attempt.to_dict(),
         "answers": [a.to_dict() for a in answers],
     }, 200)
-
-
 @tests_bp.route("/export/csv", methods=["GET"])
 @jwt_required()
 def export_csv():

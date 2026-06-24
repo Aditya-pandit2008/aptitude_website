@@ -42,7 +42,6 @@ class Config:
     if _raw_db_url.startswith("postgres://"):
         _raw_db_url = _raw_db_url.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_DATABASE_URI = _raw_db_url
-    print("DEBUG DB URI:", SQLALCHEMY_DATABASE_URI)
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS  = {
         "pool_pre_ping": True,    # reconnect on stale connections
@@ -67,7 +66,8 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_ECHO = True    # set True to log SQL queries during dev
+    SQLALCHEMY_ECHO = False    # set True to log SQL queries during dev
+    RATELIMIT_ENABLED = False  # disable rate limiting in development
 
 
 class TestingConfig(Config):

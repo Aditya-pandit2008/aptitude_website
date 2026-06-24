@@ -1,0 +1,296 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Resume Analyzer - Aptitude AI</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    .analyzer-box {
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.04);
+      padding: 30px;
+      margin-bottom: 28px;
+    }
+    
+    .ats-score-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+      flex-wrap: wrap;
+      margin: 20px 0 30px;
+      padding: 24px;
+      background: #f8f7f5;
+      border-radius: 14px;
+      border: 1.5px solid #d8cfb5;
+    }
+    
+    .ats-dial {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #eadba3 0%, #f0e6b4 100%);
+      border: 4px solid #4d4742;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+    }
+    
+    .ats-dial h2 {
+      font-size: 34px;
+      font-weight: 800;
+      color: #1a1714;
+      line-height: 1;
+    }
+    
+    .ats-dial span {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #6d6a64;
+    }
+    
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 10px 0 20px;
+    }
+    
+    .skill-tag {
+      background: #eadba3;
+      color: #1a1714;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+    
+    .skill-tag.missing {
+      background: #f8e8e5;
+      color: #b45748;
+      border-color: #f5c2c2;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="container">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
+      </a>
+      <ul class="menu">
+        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
+        <li data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
+        <li data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
+        <li class="active" data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
+        <li data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
+        <li data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
+        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
+        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+      <div class="bottom-menu">
+        <div class="profile" data-page="/profile">
+          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
+          <span id="sidebar-username">Student</span>
+        </div>
+        <div class="bottom-item" data-page="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </div>
+      </div>
+    </aside>
+    
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+      
+      <!-- HEADER -->
+      <div class="dashboard-head">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <p class="eyebrow">AI Tools</p>
+            <h1>Resume Analyzer</h1>
+          </div>
+        </div>
+      </div>
+      
+      <!-- INPUT VIEW -->
+      <div class="analyzer-box" id="input-view">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:12px;">ATS Screening Optimization</h2>
+        <p class="muted" style="margin-bottom:24px;">Analyze your resume compatibility against target job roles. Copy and paste your details below.</p>
+        
+        <div class="form-group" style="margin-bottom:18px;">
+          <label for="resume-input" style="font-weight:700;font-size:12.5px;color:#4d4742;text-transform:uppercase;">Resume Text</label>
+          <textarea id="resume-input" rows="10" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:12px;font:inherit;outline:none;" placeholder="Paste the text content of your resume (Education, Projects, Skills, Experience)..."></textarea>
+        </div>
+        
+        <div class="form-group" style="margin-bottom:24px;">
+          <label for="jd-input" style="font-weight:700;font-size:12.5px;color:#4d4742;text-transform:uppercase;">Target Job Description (Optional)</label>
+          <textarea id="jd-input" rows="4" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:12px;font:inherit;outline:none;" placeholder="Paste the job description of your target job to perform keyword gap analysis..."></textarea>
+        </div>
+        
+        <button id="analyze-btn" class="btn-primary" style="width:100%;justify-content:center;padding:14px;">
+          <i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)
+        </button>
+      </div>
+      
+      <!-- RESULTS VIEW -->
+      <div class="analyzer-box hidden" id="results-view">
+        <div class="ats-score-wrapper">
+          <div class="ats-dial">
+            <h2 id="ats-score-val">0</h2>
+            <span>ATS MATCH</span>
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <h3 style="font-size:18px;font-weight:700;color:#1a1714;margin-bottom:6px;">Screening Verdict</h3>
+            <p id="ats-verdict" style="font-size:14px;line-height:1.6;color:#555;">Resume analysis completed successfully.</p>
+          </div>
+        </div>
+        
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:15px;font-weight:700;color:#1a1714;margin-bottom:12px;"><i class="fa-solid fa-list-check" style="color:#6b5c4a;"></i> Recommended Improvements</h3>
+          <ul id="improvements-list" style="padding-left:20px;font-size:14px;color:#444;line-height:1.8;">
+            <!-- suggestions -->
+          </ul>
+        </div>
+        
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:15px;font-weight:700;color:#1a1714;margin-bottom:8px;"><i class="fa-solid fa-brain" style="color:#3f7d46;"></i> Detected Skills</h3>
+          <div class="skills-grid" id="detected-skills">
+            <!-- tags -->
+          </div>
+        </div>
+        
+        <div style="margin-bottom:24px;">
+          <h3 style="font-size:15px;font-weight:700;color:#1a1714;margin-bottom:8px;"><i class="fa-solid fa-triangle-exclamation" style="color:#b45748;"></i> Skill Gaps Identified</h3>
+          <div class="skills-grid" id="missing-skills">
+            <!-- tags -->
+          </div>
+        </div>
+        
+        <button onclick="window.location.reload()" class="btn-secondary" style="width:100%;justify-content:center;padding:12px;">
+          <i class="fa-solid fa-arrow-left"></i> Analyze Another Resume
+        </button>
+      </div>
+      
+    </main>
+  </div>
+  
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/script.js"></script>
+  <script>
+    (function() {
+      const token = localStorage.getItem('access_token');
+      if (!token) { window.location.href = '/login'; return; }
+      
+      // Load sidebar username
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user?.username) {
+          document.getElementById('sidebar-username').textContent = user.username;
+        }
+      } catch(e) {}
+      
+      document.querySelectorAll('[data-page]').forEach(item => {
+        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+      });
+      document.querySelectorAll('[data-action="logout"]').forEach(item => {
+        item.addEventListener('click', () => {
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+      });
+      
+      const analyzeBtn = document.getElementById('analyze-btn');
+      analyzeBtn.addEventListener('click', async () => {
+        const resumeText = document.getElementById('resume-input').value.trim();
+        const jdText = document.getElementById('jd-input').value.trim();
+        
+        if (!resumeText) {
+          alert("Please paste your resume text to begin.");
+          return;
+        }
+        
+        analyzeBtn.disabled = true;
+        analyzeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Extracting & Scoring Resume...';
+        
+        try {
+          const response = await fetch('/api/v1/resume/analyze', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              resume_text: resumeText,
+              job_description: jdText
+            })
+          });
+          const data = await response.json();
+          if (data.success) {
+            const payload = data.data || data;
+            const a = payload.analysis;
+            
+            document.getElementById('input-view').classList.add('hidden');
+            document.getElementById('results-view').classList.remove('hidden');
+            
+            document.getElementById('ats-score-val').textContent = a.ats_score;
+            document.getElementById('ats-verdict').textContent = a.feedback;
+            
+            // Populate improvements
+            const impList = document.getElementById('improvements-list');
+            impList.innerHTML = a.improvements.map(imp => `<li>${imp}</li>`).join("");
+            if (a.improvements.length === 0) {
+              impList.innerHTML = "<li>No specific formatting errors detected. Good job!</li>";
+            }
+            
+            // Populate detected skills
+            const detGrid = document.getElementById('detected-skills');
+            detGrid.innerHTML = a.skills_detected.map(s => `<span class="skill-tag">${s}</span>`).join("");
+            if (a.skills_detected.length === 0) {
+              detGrid.innerHTML = "<span class='muted'>No explicit technical skills extracted.</span>";
+            }
+            
+            // Populate gaps
+            const gapGrid = document.getElementById('missing-skills');
+            gapGrid.innerHTML = a.skills_gap.map(s => `<span class="skill-tag missing">${s}</span>`).join("");
+            if (a.skills_gap.length === 0) {
+              gapGrid.innerHTML = "<span class='muted' style='color:#3f7d46;'>Perfect fit! No major skill gaps found.</span>";
+            }
+          } else {
+            alert(data.error || "Analysis failed.");
+            analyzeBtn.disabled = false;
+            analyzeBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)';
+          }
+        } catch(e) {
+          alert("Network connection error.");
+          analyzeBtn.disabled = false;
+          analyzeBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

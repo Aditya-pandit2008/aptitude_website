@@ -20,6 +20,7 @@ Provides:
 import json
 import re
 import time
+import uuid
 
 from flask import current_app
 from groq import Groq, APIStatusError, APIConnectionError, RateLimitError
@@ -28,6 +29,45 @@ from cachetools import TTLCache
 # Caching instances
 _explain_cache = None
 _study_plan_cache = None
+
+# ── Adaptive Difficulty Engine ────────────────────────────────────────────────
+from collections import deque, defaultdict
+from .translation_utils import _maybe_translate_input, _translate_output
+
+# Store last 10 results per user (True for correct, False for incorrect)
+_DIFFICULTY_HISTORY: defaultdict[str, deque] = defaultdict(lambda: deque(maxlen=10))
+
+def _adjust_difficulty(user_id: str, base_level: str | None = None) -> str:
+    """Return an adjusted difficulty based on recent performance.
+    - base_level: optional explicit difficulty override.
+    - If base_level is provided, use it as a starting point.
+    - Otherwise infer from history: ↑ if >=8/10 correct, ↓ if <=4/10 correct.
+    """
+    # Normalise levels order
+    levels = ["easy", "medium", "hard"]
+    # Determine current level
+    if base_level and base_level in levels:
+        cur = base_level
+    else:
+        # Default to medium when no history
+        cur = "medium"
+        hist = list(_DIFFICULTY_HISTORY[user_id])
+        if hist:
+            correct = sum(hist)
+            if correct >= 8:
+                # try to go harder
+                cur = levels[min(levels.index(cur) + 1, 2)]
+            elif correct <= 4:
+                # go easier
+                cur = levels[max(levels.index(cur) - 1, 0)]
+    # Update history with a placeholder (will be updated after answer)
+    # Caller should record result via record_user_result()
+    return cur
+
+def _record_user_result(user_id: str, correct: bool) -> None:
+    """Append a correctness flag to the user's difficulty history."""
+    _DIFFICULTY_HISTORY[user_id].append(correct)
+
 
 def _get_explain_cache():
     global _explain_cache
@@ -211,8 +251,8 @@ Keep the explanation concise and student-friendly."""
     return result
 
 
-def generate_similar_questions(question_text: str, category: str,
-                                difficulty: str, count: int = 3) -> list[dict]:
+# Deprecated simple generate_similar_questions; use adaptive version below
+def generate_similar_questions_deprecated(question_text: str, category: str, difficulty: str, count: int = 3) -> list[dict]:
     """
     Generate 'count' MCQ questions similar to the provided one.
     """
@@ -250,15 +290,58 @@ Return ONLY a valid JSON array (no markdown, no extra text) in this exact format
         return []
 
 
-def generate_aptitude_questions(category: str, difficulty: str,
-                                 count: int = 10) -> list[dict]:
+def generate_similar_questions(question_text: str, category: str,
+                                 difficulty: str, count: int = 3, user_id: str | None = None, language: str = "en") -> list[dict]:
+    """Generate 'count' MCQ questions similar to the provided one.
+    Supports adaptive difficulty and multilingual I/O.
+    """
+    # Translate inputs to English for the model
+    kwargs, orig_lang = _maybe_translate_input(question_text=question_text, category=category, difficulty=difficulty, language=language)
+    clean_text = _clean_input(kwargs["question_text"], max_chars=1000)
+    clean_cat = _clean_input(kwargs["category"], max_chars=100)
+    clean_diff = _clean_input(kwargs["difficulty"], max_chars=20)
+
+    # Adaptive difficulty based on user history
+    if user_id:
+        clean_diff = _adjust_difficulty(user_id, clean_diff)
+
+    count = min(count, 5)
+    context = _difficulty_context(clean_diff)
+
+    prompt = f"""Generate {count} multiple-choice aptitude questions similar to the one below.
+    Category: {clean_cat} | Difficulty: {clean_diff} ({context})
+    
+    Reference question: {clean_text}
+    
+    Return ONLY a valid JSON array (no markdown, no extra text) in this exact format:
+    [
+      {{
+        "text": "question text here",
+        "options": ["Option A", "Option B", "Option C", "Option D"],
+        "correct_option": 0,
+        "explanation": "brief explanation"
+      }}
+    ]"""
+
+    raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=1200))
+    try:
+        questions = json.loads(raw)
+        if not isinstance(questions, list):
+            raise ValueError("Expected a JSON array")
+        # Translate outputs back to original language
+        return _translate_output(questions[:count], orig_lang)
+    except (json.JSONDecodeError, ValueError) as exc:
+        current_app.logger.warning("Groq returned malformed JSON: %s", exc)
+        return []
+
+def generate_aptitude_questions(category: str, difficulty: str, count: int = 10) -> list[dict]:
     """
     Generate fresh aptitude MCQs for a selected category and difficulty.
     """
     clean_cat = _clean_input(category or "Mixed Aptitude", max_chars=100)
     clean_diff = _clean_input(difficulty or "medium", max_chars=20).lower()
 
-    count      = min(max(int(count or 10), 1), 15)
+    count      = min(max(int(count or 10), 1), 30)
     context    = _difficulty_context(clean_diff)
 
     prompt = f"""Generate {count} placement aptitude multiple-choice questions for a student preparing for campus placements.
@@ -448,10 +531,9 @@ Return ONLY a valid JSON object with the keys "is_correct" (boolean), "score" (n
         }
 
 
-def evaluate_coding_challenge(question_text: str, submitted_code: str, test_cases: list) -> dict:
-    """Evaluate a coding challenge submission using Groq."""
-    test_cases_str = json.dumps(test_cases)
-    prompt = f"""You are an expert code reviewer and interviewer. Evaluate the student's submitted code for the following coding challenge.
+def review_coding_challenge(question_text: str, submitted_code: str, language: str) -> dict:
+    """Review code for complexity and quality."""
+    prompt = f"""You are an expert code reviewer. Evaluate the following {language} code for a coding challenge.
 
 Problem Description:
 {question_text}
@@ -459,29 +541,274 @@ Problem Description:
 Submitted Code:
 {submitted_code}
 
-Expected Test Cases:
-{test_cases_str}
+Provide:
+1. "feedback": What is good, any issues, and an explanation of the time and space complexity of the code.
+2. "optimization_tips": Any suggestions to make the code faster or more idiomatic.
 
-Evaluate the code correctness, style, and complexity. Provide:
-1. "is_correct": boolean (true if the code appears correct and passes the logical constraints and test cases)
-2. "score": float from 0.0 to 1.0 (representing overall code quality and correctness)
-3. "feedback": a concise explanation of what is good, any issues, and optimized time/space complexity suggestion.
-
-Return ONLY a valid JSON object with the keys "is_correct" (boolean), "score" (number), and "feedback" (string). No markdown, no extra text.
+Return ONLY a valid JSON object with the keys "feedback" (string) and "optimization_tips" (string). No markdown fences.
 """
     try:
         raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=800, temperature=0.2))
         res = json.loads(raw)
         return {
-            "is_correct": bool(res.get("is_correct", False)),
-            "score": float(res.get("score", 0.0)),
+            "feedback": str(res.get("feedback", "No feedback provided.")),
+            "optimization_tips": str(res.get("optimization_tips", ""))
+        }
+    except Exception as exc:
+        current_app.logger.warning("Error reviewing coding challenge via Groq: %s", exc)
+        return {
+            "feedback": "AI evaluation failed due to a system error.",
+            "optimization_tips": ""
+        }
+
+
+def generate_coding_challenge(category: str, difficulty: str, exclude_titles: list[str] = None) -> dict | None:
+    clean_cat = _clean_input(category, max_chars=100)
+    clean_diff = _clean_input(difficulty, max_chars=20).lower()
+    import uuid
+    # Generate a unique seed to vary the AI prompt and avoid duplicate generation
+    seed = uuid.uuid4().hex
+    prompt = f"""Generate a new coding challenge for a student preparing for software engineering interviews.
+# Unique seed: {seed}
+
+Topic: {clean_cat}
+Difficulty Level: {clean_diff}
+
+Rules:
+- The challenge MUST be strictly relevant to the specified Topic ({clean_cat}).
+  - If the topic is "Math", the coding problem MUST be mathematical in nature (e.g., prime numbers, GCD/LCM, Sieve of Eratosthenes, modular arithmetic, Fibonacci, combinatorics, counting primes, or numeric operations). Do NOT generate general array/sorting/graph problems unless they are secondary to a core mathematical task.
+  - If the topic is "Strings", the problem MUST focus on string processing, pattern matching, substring manipulation, character frequency, or similar string-based tasks.
+  - If the topic is "Data Structures", the problem MUST focus on utilizing, designing, or manipulating specific data structures (Stacks, Queues, Linked Lists, Trees, Graphs, Hash Tables, etc.).
+  - If the topic is "Algorithms", the problem MUST test algorithmic patterns (e.g., Binary Search, Dynamic Programming, Greedy, Backtracking, Two Pointers).
+- The problem must be clear, complete, and test algorithmic thinking.
+- Provide 3 hidden test cases and 2 sample test cases.
+- Test cases must be a list of dictionaries with "input" (string representation of inputs) and "expected_output" (string representation).
+- Do not make the test case input format overly complicated. E.g. array of ints can be "1,2,3"
+- Provide LeetCode-style pre-coded starter stubs for 5 languages in "template_code" (a JSON object, NOT a string).
+  Each stub must be a complete class/function skeleton — body should be empty or contain just a return placeholder.
+  Languages required: python, java, cpp, javascript, c.
+  Use the actual problem's function name and appropriate types (not generic placeholders like Object or auto).
+
+CRITICAL INSTRUCTION: Return EXACTLY ONE valid JSON object and nothing else. Do NOT include markdown, conversational text, or extra JSON blocks. Output must start with {{ and end with }} and be parseable by json.loads.
+
+Format:
+{{
+  "title": "Two Sum",
+  "text": "Full problem description...",
+  "template_code": {{
+    "python": "class Solution:\\n    def twoSum(self, nums: List[int], target: int) -> List[int]:\\n        pass",
+    "java": "class Solution {{\\n    public int[] twoSum(int[] nums, int target) {{\\n        \\n    }}\\n}}",
+    "cpp": "class Solution {{\\npublic:\\n    vector<int> twoSum(vector<int>& nums, int target) {{\\n        \\n    }}\\n}};",
+    "javascript": "/**\\n * @param {{number[]}} nums\\n * @param {{number}} target\\n * @return {{number[]}}\\n */\\nvar twoSum = function(nums, target) {{\\n    \\n}};",
+    "c": "/**\\n * Note: The returned array must be malloced, assume caller calls free().\\n */\\nint* twoSum(int* nums, int numsSize, int target, int* returnSize) {{\\n    \\n}}"
+  }},
+  "sample_test_cases": [{{"input": "1", "expected_output": "1"}}],
+  "test_cases": [{{"input": "2", "expected_output": "2"}}]
+}}
+"""
+    if exclude_titles:
+        # Avoid passing hundreds of titles to avoid token bloat; just pass the last 50
+        filtered_excludes = [t for t in exclude_titles if t]
+        if filtered_excludes:
+            exclude_str = ", ".join(f'"{t}"' for t in filtered_excludes[-50:])
+            prompt += f"\n- CRITICAL DUPLICATE PREVENTION: Do NOT generate any coding challenges with the following titles: {exclude_str}. Design a completely different and unique problem statement."
+
+    raw = _chat([{"role": "user", "content": prompt}], max_tokens=2000, temperature=0.7)
+
+    # strict=False lets json.loads accept literal newlines/tabs inside strings,
+    # which Groq sometimes emits for multi-line problem descriptions.
+    def _try_parse(s: str):
+        try:
+            return json.loads(s, strict=False)
+        except json.JSONDecodeError:
+            return None
+
+    # Extract the outermost {...} block and parse it
+    start_idx = raw.find('{')
+    end_idx   = raw.rfind('}')
+    if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
+        candidate = raw[start_idx:end_idx + 1]
+        parsed = _try_parse(candidate)
+        if parsed and "title" in parsed and "template_code" in parsed:
+            return parsed
+
+    # Last resort: parse the whole raw string
+    parsed = _try_parse(raw)
+    if parsed and isinstance(parsed, dict) and "title" in parsed:
+        return parsed
+
+        # New fallback: use regex to find potential JSON objects and try each
+    import re as _re
+    for m in _re.finditer(r"\{.*?\}", raw, _re.DOTALL):
+        cand = m.group(0)
+        # Attempt to close truncated JSON if missing closing brace
+        if cand.count('{') > cand.count('}'):
+            cand = cand.rstrip() + '}'
+        parsed = _try_parse(cand)
+        if parsed and isinstance(parsed, dict) and "title" in parsed:
+            return parsed
+
+    # Additional salvage: truncate at common non-JSON markers and close brace
+    trunc = raw.split('Result:')[0].strip()
+    if not trunc.endswith('}'):
+        trunc = trunc + '}'
+    parsed = _try_parse(trunc)
+    if parsed and isinstance(parsed, dict) and "title" in parsed:
+        return parsed
+
+    current_app.logger.warning(
+        "Groq coding challenge parse error: no valid JSON found. Raw snippet: %s", raw[:300]
+    )
+    return None
+
+
+def generate_mock_interview_questions(role: str, interview_type: str, difficulty: str) -> list[str]:
+    """Generate 5 interview questions for mock interviews using Groq."""
+    clean_role = _clean_input(role, max_chars=80)
+    clean_type = _clean_input(interview_type, max_chars=20)
+    clean_diff = _clean_input(difficulty, max_chars=20)
+    
+    prompt = f"""You are an expert technical recruiter conducting a {clean_type} mock interview for a {clean_role} position.
+Generate exactly 5 relevant interview questions of {clean_diff} difficulty.
+Return ONLY a valid JSON array of strings (no markdown, no extra conversational text) containing precisely the 5 questions.
+Format:
+[
+  "Question 1 text...",
+  "Question 2 text...",
+  "Question 3 text...",
+  "Question 4 text...",
+  "Question 5 text..."
+]"""
+
+    try:
+        raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=1000, temperature=0.7))
+        questions = json.loads(raw)
+        if isinstance(questions, list) and len(questions) > 0:
+            return [str(q).strip() for q in questions]
+    except Exception as exc:
+        current_app.logger.warning("Error generating interview questions: %s", exc)
+    
+    # Fallback questions
+    if clean_type.lower() == "hr":
+        return [
+            f"Tell me about yourself and your interest in the {clean_role} role.",
+            "What are your greatest strengths and how do they apply to this job?",
+            "Describe a time you faced a difficult challenge in a project and how you overcame it.",
+            "Where do you see yourself in five years?",
+            "Why should we hire you over other candidates?"
+        ]
+    else:
+        return [
+            f"What is the difference between OOP and procedural programming, and how does it relate to {clean_role}?",
+            "Explain the time complexity of QuickSort versus MergeSort.",
+            "What is a deadlock and how can it be prevented in an operating system?",
+            "How do indexes work in databases, and what are their pros and cons?",
+            "Describe a system architecture design pattern you've used recently."
+        ]
+
+
+def evaluate_mock_interview(role: str, interview_type: str, questions: list[str], answers: list[str]) -> dict:
+    """Evaluate candidate responses to mock interview questions."""
+    qa_list = []
+    for q, a in zip(questions, answers):
+        qa_list.append(f"Question: {q}\nAnswer: {a}\n")
+    qa_pairs_str = "\n".join(qa_list)
+
+    prompt = f"""You are an expert interviewer. Evaluate the candidate's answers for a {interview_type} mock interview for the role of {role}.
+
+Questions and Answers:
+{qa_pairs_str}
+
+Provide:
+1. "score": An integer score from 0 to 100 representing overall performance.
+2. "feedback": Comprehensive constructive feedback containing:
+   - Strengths in their answers
+   - Weaknesses and gaps in understanding
+   - Actionable recommendations and model answer advice for poorly answered questions.
+
+Return ONLY a valid JSON object with keys "score" (integer) and "feedback" (string). Do not include markdown code blocks around the JSON."""
+
+    try:
+        raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=1200, temperature=0.3))
+        res = json.loads(raw)
+        return {
+            "score": min(max(int(res.get("score", 0)), 0), 100),
             "feedback": str(res.get("feedback", "No feedback provided."))
         }
     except Exception as exc:
-        current_app.logger.warning("Error evaluating coding challenge via Groq: %s", exc)
+        current_app.logger.warning("Error evaluating mock interview: %s", exc)
         return {
-            "is_correct": False,
-            "score": 0.0,
-            "feedback": "AI evaluation failed due to a system error."
+            "score": 50,
+            "feedback": "AI evaluation failed due to a system error. Standard feedback: Please make sure your answers are detailed, provide code examples where applicable, and address the specific question being asked."
         }
 
+
+def analyze_resume_ats(resume_text: str, job_description: str) -> dict:
+    """Analyze a resume text against a target job description for ATS suitability."""
+    clean_resume = resume_text[:4000] # Cap length to avoid token limit issues
+    clean_jd = (job_description or "Software Engineering / General IT Placement")[:2000]
+
+    prompt = f"""You are an advanced Applicant Tracking System (ATS) optimizer and expert placement consultant.
+Analyze the candidate's resume text against the target job description to determine keyword matching, formatting quality, and structural gaps.
+
+Resume Text:
+{clean_resume}
+
+Target Job Description:
+{clean_jd}
+
+Provide:
+1. "ats_score": An integer from 0 to 100 representing the match score.
+2. "feedback": A concise paragraph summarizing overall layout, impact, and content strength.
+3. "improvements": A list of 3-5 specific bullet points for improvement.
+4. "skills_detected": A list of technical and soft skills identified.
+5. "skills_gap": A list of key missing skills or qualifications that are highly relevant.
+
+Return ONLY a valid JSON object with the exact keys: "ats_score" (integer), "feedback" (string), "improvements" (array of strings), "skills_detected" (array of strings), and "skills_gap" (array of strings). Do not wrap in markdown or explain the JSON."""
+
+    try:
+        raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=1200, temperature=0.2))
+        res = json.loads(raw)
+        return {
+            "ats_score": min(max(int(res.get("ats_score", 0)), 0), 100),
+            "feedback": str(res.get("feedback", "Could not complete layout summary.")),
+            "improvements": list(res.get("improvements", [])),
+            "skills_detected": list(res.get("skills_detected", [])),
+            "skills_gap": list(res.get("skills_gap", []))
+        }
+    except Exception as exc:
+        current_app.logger.warning("Error analyzing resume: %s", exc)
+        return {
+            "ats_score": 0,
+            "feedback": "ATS resume parsing failed due to a system error. Please try again.",
+            "improvements": ["Try copy-pasting your resume text cleanly.", "Ensure your contact info is easy to identify."],
+            "skills_detected": [],
+            "skills_gap": []
+        }
+
+
+def solve_user_doubt(context: str, question: str, doubt: str) -> str:
+    """Solve an aptitude or programming doubt step-by-step."""
+    prompt = f"""You are an elite campus placement AI Doubt Solver. Provide a clear, step-by-step, pedagogical explanation to resolve the student's doubt.
+
+Context / Description:
+{context}
+
+Question or Code details:
+{question}
+
+Student's Doubt:
+{doubt}
+
+Ensure you:
+1. Explain the underlying concept.
+2. Work through the calculation or code logic step-by-step.
+3. Keep it clear, concise, and professional.
+
+Return your response in clean, professional markdown format."""
+
+    try:
+        return _chat([{"role": "user", "content": prompt}], max_tokens=1000, temperature=0.4)
+    except Exception as exc:
+        current_app.logger.warning("Error solving user doubt: %s", exc)
+        return "I encountered an error trying to process your doubt. Please try rephrasing or check your network connection."

@@ -215,11 +215,23 @@
         <li data-page="/aptitude-test">
           <i class="fa-regular fa-calendar"></i> Aptitude Tests
         </li>
-        <li data-page="/resources">
-          <i class="fa-solid fa-book-open"></i> Resources
+        <li data-page="/coding-challenges">
+          <i class="fa-solid fa-code"></i> Coding Challenges
         </li>
-        <li data-page="/bookmarks">
-          <i class="fa-regular fa-bookmark"></i> Saved Questions
+        <li data-page="/mock-interview">
+          <i class="fa-solid fa-microphone"></i> Mock Interview
+        </li>
+        <li data-page="/company-hub">
+          <i class="fa-solid fa-building"></i> Company Hub
+        </li>
+        <li data-page="/resume-analyzer">
+          <i class="fa-solid fa-file-pdf"></i> Resume Analyzer
+        </li>
+        <li data-page="/doubt-solver">
+          <i class="fa-solid fa-circle-question"></i> Doubt Solver
+        </li>
+        <li data-page="/leaderboard">
+          <i class="fa-solid fa-trophy"></i> Leaderboard
         </li>
         <li data-page="/profile">
           <i class="fa-solid fa-user"></i> Profile
@@ -279,6 +291,36 @@
           <a href="/test-page">Take today's test →</a>
         </div>
       </div>
+ 
+      <!-- PLACEMENT READINESS DASHBOARD -->
+      <section class="progress-section" style="background: linear-gradient(135deg, #fffdf7 0%, #fff 100%); border: 1.5px solid #d8cfb5; margin-bottom: 32px;">
+        <h2 style="font-size:20px;font-weight:800;color:#1a1714;margin-bottom:4px;"><i class="fa-solid fa-graduation-cap"></i> Placement Readiness Dashboard</h2>
+        <p class="muted" style="margin-bottom:20px;">Your aggregate scoring metrics benchmarked for campus placements.</p>
+        
+        <div style="display: flex; align-items: center; gap: 30px; flex-wrap: wrap; justify-content: space-around;">
+          <!-- Overall Dial -->
+          <div style="text-align: center; background: #eadba3; border-radius: 50%; width: 140px; height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 4px solid #4d4742; box-shadow: 0 4px 14px rgba(0,0,0,0.06);">
+            <h3 id="readiness-overall" style="font-size: 38px; font-weight: 800; color: #1a1714; line-height: 1;">0%</h3>
+            <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #5f584e;">Readiness</span>
+          </div>
+          
+          <!-- Individual Scores -->
+          <div style="flex: 1; min-width: 250px; display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
+            <div style="background: #f8f7f5; border: 1px solid #e8e6e2; border-radius: 12px; padding: 14px; text-align: center;">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6d6a64;">Aptitude Score</span>
+              <h4 id="readiness-aptitude" style="font-size: 26px; font-weight: 800; color: #1a1714; margin-top: 4px;">0%</h4>
+            </div>
+            <div style="background: #f8f7f5; border: 1px solid #e8e6e2; border-radius: 12px; padding: 14px; text-align: center;">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6d6a64;">Coding Score</span>
+              <h4 id="readiness-coding" style="font-size: 26px; font-weight: 800; color: #1a1714; margin-top: 4px;">0%</h4>
+            </div>
+            <div style="background: #f8f7f5; border: 1px solid #e8e6e2; border-radius: 12px; padding: 14px; text-align: center;">
+              <span style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: #6d6a64;">Interview Score</span>
+              <h4 id="readiness-interview" style="font-size: 26px; font-weight: 800; color: #1a1714; margin-top: 4px;">0%</h4>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- STAT CARDS -->
       <div class="stats" id="stat-cards" style="grid-template-columns: repeat(5, 1fr); margin-bottom: 32px;">

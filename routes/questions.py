@@ -151,7 +151,6 @@ def get_random_questions():
     category_id = request.args.get("category_id", type=int)
     difficulty  = request.args.get("difficulty")
     count       = min(request.args.get("count", 10, type=int), 50)
-
     if difficulty == "adaptive":
         from models import User
         user_id = get_jwt_identity()
@@ -286,8 +285,6 @@ def delete_question(question_id):
     question.is_active = False
     db.session.commit()
     return success({"message": "Question deactivated."}, 200)
-
-
 @questions_bp.route("/<int:question_id>/flag", methods=["POST"])
 @jwt_required()
 def flag_question(question_id):

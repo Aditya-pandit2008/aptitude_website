@@ -67,6 +67,8 @@ class User(db.Model):
     leaderboard_entry = db.relationship("LeaderboardEntry", back_populates="user",
                                         cascade="all, delete-orphan", uselist=False)
     badges           = db.relationship("UserBadge", cascade="all, delete-orphan", lazy="dynamic")
+    mock_interviews  = db.relationship("MockInterview", back_populates="user", cascade="all, delete-orphan", lazy="dynamic")
+    resume_analyses  = db.relationship("ResumeAnalysis", back_populates="user", cascade="all, delete-orphan", lazy="dynamic")
 
     # ── Password helpers ──────────────────────────────────────────────────────
 
@@ -200,6 +202,10 @@ class Question(db.Model):
     tags            = db.Column(db.String(255), nullable=True)   # comma-separated
     is_active       = db.Column(db.Boolean, default=True)
 
+    explanation     = db.Column(db.Text, nullable=True)
+    difficulty      = db.Column(db.String(10), default="medium")
+    tags            = db.Column(db.String(255), nullable=True)   # comma-separated
+    is_active       = db.Column(db.Boolean, default=True)
     created_by  = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
     created_at  = db.Column(db.DateTime(timezone=True), default=utcnow)
     updated_at  = db.Column(db.DateTime(timezone=True), default=utcnow, onupdate=utcnow)
@@ -269,6 +275,7 @@ class TestAttempt(db.Model):
         Index("ix_test_attempts_user_date", "user_id", "completed_at"),
     )
 
+
     id               = db.Column(db.Integer, primary_key=True)
     user_id          = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     category_id      = db.Column(db.Integer, db.ForeignKey("categories.id"), nullable=True)
@@ -329,13 +336,11 @@ class TestAnswer(db.Model):
     attempt_id      = db.Column(db.Integer, db.ForeignKey("test_attempts.id"), nullable=False)
     question_id     = db.Column(db.Integer, db.ForeignKey("questions.id"),     nullable=False)
     selected_option = db.Column(db.Integer, nullable=True)   # None = skipped
-
     # Expanded question types answers
     submitted_code  = db.Column(db.Text, nullable=True)
     submitted_text  = db.Column(db.Text, nullable=True)
     ai_feedback     = db.Column(db.Text, nullable=True)
     language        = db.Column(db.String(20), nullable=True)
-
     is_correct      = db.Column(db.Boolean, default=False)
     time_spent      = db.Column(db.Integer, default=0)        # seconds on this Q
 
@@ -453,6 +458,139 @@ class DailyChallenge(db.Model):
 # ─────────────────────────────────────────────────────────────────────────────
 # CodeChallenge
 # ─────────────────────────────────────────────────────────────────────────────
+# Language stub derivation
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _derive_language_stubs(python_template: str) -> dict:
+    """
+    Given a Python function template like:
+        def twoSum(nums: List[int], target: int) -> List[int]:
+            pass
+
+    Return a dict of starter-code stubs for all supported languages,
+    matching the LeetCode-style pre-coded context shown in the editor.
+    """
+    import re
+
+    # Extract function name and parameters from Python signature
+    m = re.search(r"def\s+(\w+)\s*\(([^)]*)\)", python_template)
+    if not m:
+        # Fallback: can't parse — return python only
+        return {"python": python_template}
+
+    fn_name   = m.group(1)
+    raw_params = m.group(2).strip()
+
+    # Strip type annotations to get bare param names
+    # e.g. "self, nums: List[int], target: int"  →  ["nums", "target"]
+    params_raw = [p.strip() for p in raw_params.split(",") if p.strip()]
+    params_clean = []
+    for p in params_raw:
+        name = p.split(":")[0].strip()   # drop type annotation
+        if name and name != "self":
+            params_clean.append(name)
+
+    params_str = ", ".join(params_clean)
+
+    # ── Python ──────────────────────────────────────────────────────────────
+    python = python_template if python_template.strip() else (
+        f"class Solution:\n    def {fn_name}(self, {params_str}):\n        pass\n"
+    )
+
+    # ── Java ────────────────────────────────────────────────────────────────
+    # Use generic Object types; user fills them in
+    java_params = ", ".join(f"Object {p}" for p in params_clean)
+    java = (
+        f"class Solution {{\n"
+        f"    public Object {fn_name}({java_params}) {{\n"
+        f"        \n"
+        f"    }}\n"
+        f"}}"
+    )
+
+    # ── C++ ─────────────────────────────────────────────────────────────────
+    cpp_params = ", ".join(f"auto {p}" for p in params_clean)
+    cpp = (
+        f"class Solution {{\n"
+        f"public:\n"
+        f"    auto {fn_name}({cpp_params}) {{\n"
+        f"        \n"
+        f"    }}\n"
+        f"}};"
+    )
+
+    # ── JavaScript ──────────────────────────────────────────────────────────
+    js = (
+        f"/**\n"
+        + "".join(f" * @param {{{p}}} {p}\n" for p in params_clean)
+        + f" * @return {{*}}\n"
+        f" */\n"
+        f"var {fn_name} = function({params_str}) {{\n"
+        f"    \n"
+        f"}};"
+    )
+
+    # ── C ───────────────────────────────────────────────────────────────────
+    c_params = ", ".join(f"int {p}" for p in params_clean) if params_clean else "void"
+    c = (
+        f"/**\n"
+        f" * Note: The returned array must be malloced, assume caller calls free().\n"
+        f" */\n"
+        f"int* {fn_name}({c_params}, int* returnSize) {{\n"
+        f"    \n"
+        f"}}"
+    )
+
+    # ── TypeScript ──────────────────────────────────────────────────────────
+    ts_params = ", ".join(f"{p}: any" for p in params_clean)
+    typescript = (
+        f"function {fn_name}({ts_params}): any {{\n"
+        f"    \n"
+        f"}};"
+    )
+
+    # ── Go ──────────────────────────────────────────────────────────────────
+    go_params = ", ".join(f"{p} interface{{}}" for p in params_clean)
+    go = (
+        f"func {fn_name}({go_params}) interface{{}} {{\n"
+        f"    \n"
+        f"}}"
+    )
+
+    # ── Kotlin ──────────────────────────────────────────────────────────────
+    kt_params = ", ".join(f"{p}: Any" for p in params_clean)
+    kotlin = (
+        f"class Solution {{\n"
+        f"    fun {fn_name}({kt_params}): Any {{\n"
+        f"        \n"
+        f"    }}\n"
+        f"}}"
+    )
+
+    # ── Rust ────────────────────────────────────────────────────────────────
+    rs_params = ", ".join(f"{p}: i32" for p in params_clean)
+    rust = (
+        f"impl Solution {{\n"
+        f"    pub fn {fn_name}({rs_params}) -> i32 {{\n"
+        f"        \n"
+        f"    }}\n"
+        f"}}"
+    )
+
+    return {
+        "python":     python,
+        "java":       java,
+        "cpp":        cpp,
+        "javascript": js,
+        "c":          c,
+        "typescript": typescript,
+        "go":         go,
+        "kotlin":     kotlin,
+        "rust":       rust,
+    }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 
 class CodeChallenge(db.Model):
     """Coding challenge details."""
@@ -461,6 +599,7 @@ class CodeChallenge(db.Model):
 
     id                 = db.Column(db.Integer, primary_key=True)
     question_id        = db.Column(db.Integer, db.ForeignKey("questions.id"), nullable=False, unique=True)
+    title              = db.Column(db.String(255), nullable=True)
     template_code      = db.Column(db.Text, nullable=True)
     test_cases_raw     = db.Column(db.Text, nullable=True)
     sample_test_cases  = db.Column(db.Text, nullable=True)
@@ -501,9 +640,77 @@ class CodeChallenge(db.Model):
         return {
             "id":                 self.id,
             "question_id":        self.question_id,
-            "template_code":      self.template_code,
+            "title":              self.title,
+            "template_code":      self._template_code_dict(),
             "test_cases":         self.test_cases,
             "sample_test_cases":  self.sample_cases,
+        }
+
+    def _template_code_dict(self) -> dict:
+        """
+        Return template_code as a dict keyed by language.
+        - If stored value is already a JSON object, return it as-is.
+        - If stored value is a plain Python string (legacy), derive stubs
+          for all supported languages on the fly.
+        """
+        import json, re
+
+        raw = self.template_code or ""
+
+        # Try to parse as JSON dict first (new format)
+        try:
+            parsed = json.loads(raw)
+            if isinstance(parsed, dict):
+                return parsed
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+        # Legacy: raw is a Python function string like "def solve(x):\n    pass"
+        return _derive_language_stubs(raw)
+
+# ─────────────────────────────────────────────────────────────────────────────
+# CodingAttempt
+# ─────────────────────────────────────────────────────────────────────────────
+
+class CodingAttempt(db.Model):
+    """A coding challenge execution/submission attempt."""
+
+    __tablename__ = "coding_attempts"
+
+    id             = db.Column(db.Integer, primary_key=True)
+    user_id        = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    challenge_id   = db.Column(db.Integer, db.ForeignKey("code_challenges.id"), nullable=False)
+    
+    language       = db.Column(db.String(50), nullable=False)
+    code           = db.Column(db.Text, nullable=False)
+    status         = db.Column(db.String(20), default="failed") # passed | failed | pending
+    passed_cases   = db.Column(db.Integer, default=0)
+    total_cases    = db.Column(db.Integer, default=0)
+    
+    ai_feedback    = db.Column(db.Text, nullable=True)
+    score          = db.Column(db.Float, default=0.0)
+    xp_earned      = db.Column(db.Integer, default=0)
+    
+    created_at     = db.Column(db.DateTime(timezone=True), default=utcnow)
+
+    # Relationships
+    user           = db.relationship("User", backref=db.backref("coding_attempts", lazy="dynamic", cascade="all, delete-orphan"))
+    challenge      = db.relationship("CodeChallenge", backref=db.backref("attempts", lazy="dynamic", cascade="all, delete-orphan"))
+
+    def to_dict(self) -> dict:
+        return {
+            "id":             self.id,
+            "user_id":        self.user_id,
+            "challenge_id":   self.challenge_id,
+            "language":       self.language,
+            "code":           self.code,
+            "status":         self.status,
+            "passed_cases":   self.passed_cases,
+            "total_cases":    self.total_cases,
+            "ai_feedback":    self.ai_feedback,
+            "score":          self.score,
+            "xp_earned":      self.xp_earned,
+            "created_at":     self.created_at.isoformat() if self.created_at else None,
         }
 
 
@@ -565,3 +772,160 @@ class UserBadge(db.Model):
 
     def __repr__(self):
         return f"<UserBadge user={self.user_id} badge={self.badge_id}>"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# MockInterview & ResumeAnalysis
+# ─────────────────────────────────────────────────────────────────────────────
+
+class MockInterview(db.Model):
+    """Stores candidate's technical or HR mock interview session data."""
+
+    __tablename__ = "mock_interviews"
+
+    id             = db.Column(db.Integer, primary_key=True)
+    user_id        = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    role           = db.Column(db.String(100), nullable=False)
+    interview_type = db.Column(db.String(50), nullable=False)   # technical | hr
+    difficulty     = db.Column(db.String(20), default="medium")
+    status         = db.Column(db.String(20), default="pending")   # pending | completed
+    
+    # Store questions and answers as JSON strings
+    questions_raw  = db.Column(db.Text, nullable=True)             # JSON array of questions
+    answers_raw    = db.Column(db.Text, nullable=True)             # JSON array of responses
+    
+    score          = db.Column(db.Integer, default=0)              # 0-100 score
+    feedback       = db.Column(db.Text, nullable=True)
+    
+    created_at     = db.Column(db.DateTime(timezone=True), default=utcnow)
+
+    # Relationships
+    user           = db.relationship("User", back_populates="mock_interviews")
+
+    @property
+    def questions(self) -> list:
+        import json
+        if not self.questions_raw:
+            return []
+        try:
+            return json.loads(self.questions_raw)
+        except Exception:
+            return []
+
+    @questions.setter
+    def questions(self, val: list):
+        import json
+        self.questions_raw = json.dumps(val)
+
+    @property
+    def answers(self) -> list:
+        import json
+        if not self.answers_raw:
+            return []
+        try:
+            return json.loads(self.answers_raw)
+        except Exception:
+            return []
+
+    @answers.setter
+    def answers(self, val: list):
+        import json
+        self.answers_raw = json.dumps(val)
+
+    def to_dict(self) -> dict:
+        return {
+            "id":             self.id,
+            "user_id":        self.user_id,
+            "role":           self.role,
+            "interview_type": self.interview_type,
+            "difficulty":     self.difficulty,
+            "status":         self.status,
+            "questions":      self.questions,
+            "answers":        self.answers,
+            "score":          self.score,
+            "feedback":       self.feedback,
+            "created_at":     self.created_at.isoformat() if self.created_at else None,
+        }
+
+
+class ResumeAnalysis(db.Model):
+    """Stores ATS score and details of analysed resumes."""
+
+    __tablename__ = "resume_analyses"
+
+    id              = db.Column(db.Integer, primary_key=True)
+    user_id         = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    resume_text     = db.Column(db.Text, nullable=False)
+    job_description = db.Column(db.Text, nullable=True)
+    
+    ats_score       = db.Column(db.Integer, default=0)
+    feedback        = db.Column(db.Text, nullable=True)
+    
+    # Store list data as comma/newline separated or JSON arrays
+    improvements_raw     = db.Column(db.Text, nullable=True)  # JSON array
+    skills_detected_raw  = db.Column(db.Text, nullable=True)  # JSON array
+    skills_gap_raw       = db.Column(db.Text, nullable=True)  # JSON array
+    
+    created_at      = db.Column(db.DateTime(timezone=True), default=utcnow)
+
+    # Relationships
+    user            = db.relationship("User", back_populates="resume_analyses")
+
+    @property
+    def improvements(self) -> list:
+        import json
+        if not self.improvements_raw:
+            return []
+        try:
+            return json.loads(self.improvements_raw)
+        except Exception:
+            return []
+
+    @improvements.setter
+    def improvements(self, val: list):
+        import json
+        self.improvements_raw = json.dumps(val)
+
+    @property
+    def skills_detected(self) -> list:
+        import json
+        if not self.skills_detected_raw:
+            return []
+        try:
+            return json.loads(self.skills_detected_raw)
+        except Exception:
+            return []
+
+    @skills_detected.setter
+    def skills_detected(self, val: list):
+        import json
+        self.skills_detected_raw = json.dumps(val)
+
+    @property
+    def skills_gap(self) -> list:
+        import json
+        if not self.skills_gap_raw:
+            return []
+        try:
+            return json.loads(self.skills_gap_raw)
+        except Exception:
+            return []
+
+    @skills_gap.setter
+    def skills_gap(self, val: list):
+        import json
+        self.skills_gap_raw = json.dumps(val)
+
+    def to_dict(self) -> dict:
+        return {
+            "id":              self.id,
+            "user_id":         self.user_id,
+            "resume_text":     self.resume_text,
+            "job_description": self.job_description,
+            "ats_score":       self.ats_score,
+            "feedback":        self.feedback,
+            "improvements":    self.improvements,
+            "skills_detected": self.skills_detected,
+            "skills_gap":      self.skills_gap,
+            "created_at":      self.created_at.isoformat() if self.created_at else None,
+        }

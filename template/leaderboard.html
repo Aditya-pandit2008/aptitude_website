@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaderboard - Aptitude AI</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    .leaderboard-box {
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.04);
+      padding: 30px;
+      margin-bottom: 28px;
+    }
+    
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      border-bottom: 1.5px solid #e8e6e2;
+      padding-bottom: 10px;
+    }
+    
+    .tab-btn {
+      background: none;
+      border: none;
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #6d6a64;
+      padding: 6px 16px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+    
+    .tab-btn.active {
+      background: #eadba3;
+      color: #1a1714;
+    }
+    
+    .my-rank-banner {
+      background: linear-gradient(135deg, #eadba3 0%, #f0e6b4 100%);
+      border: 1px solid rgba(255,255,255,0.5);
+      border-radius: 14px;
+      padding: 16px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.05);
+    }
+    
+    .rank-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    
+    .rank-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11px;
+      color: #6d6a64;
+      border-bottom: 1.5px solid #e8e6e2;
+    }
+    
+    .rank-table td {
+      padding: 16px;
+      border-bottom: 1px solid #e8e6e2;
+    }
+    
+    .rank-row-1 { background: #fffdf5; }
+    .rank-row-2 { background: #fffffb; }
+    
+    .rank-num {
+      font-weight: 800;
+      width: 40px;
+      font-size: 16px;
+    }
+    
+    .rank-trophy {
+      font-size: 18px;
+    }
+    .rank-trophy.gold { color: #ffd700; }
+    .rank-trophy.silver { color: #c0c0c0; }
+    .rank-trophy.bronze { color: #cd7f32; }
+    
+    .user-col {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+    }
+    
+    .user-col img {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+    
+    .xp-badge {
+      font-weight: 800;
+      color: #b8860b;
+    }
+  </style>
+</head>
+<body>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="container">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
+      </a>
+      <ul class="menu">
+        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
+        <li data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
+        <li data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
+        <li data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
+        <li data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
+        <li class="active" data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
+        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
+        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+      <div class="bottom-menu">
+        <div class="profile" data-page="/profile">
+          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
+          <span id="sidebar-username">Student</span>
+        </div>
+        <div class="bottom-item" data-page="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </div>
+      </div>
+    </aside>
+    
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+      
+      <!-- HEADER -->
+      <div class="dashboard-head">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <p class="eyebrow">Aptifly Ranks</p>
+            <h1>Leaderboard</h1>
+          </div>
+        </div>
+      </div>
+      
+      <!-- MY RANK BANNER -->
+      <div class="my-rank-banner" id="my-rank-banner">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div style="font-size:26px;"><i class="fa-solid fa-trophy" style="color:#b8860b;"></i></div>
+          <div>
+            <h3 style="font-size:15px;font-weight:700;color:#1a1714;" id="my-rank-title">Your rank details loading...</h3>
+            <p class="muted" style="margin-top:2px;" id="my-rank-sub">Solve test tasks to secure your position.</p>
+          </div>
+        </div>
+        <div style="font-weight:800;font-size:20px;color:#1a1714;" id="my-rank-val">#--</div>
+      </div>
+      
+      <!-- LEADERBOARD BOX -->
+      <div class="leaderboard-box">
+        <div class="filter-tabs">
+          <button class="tab-btn active" id="tab-all-time" data-timeframe="all_time">All Time</button>
+          <button class="tab-btn" id="tab-weekly" data-timeframe="weekly">Weekly</button>
+          <button class="tab-btn" id="tab-monthly" data-timeframe="monthly">Monthly</button>
+        </div>
+        
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th style="width: 80px;">Rank</th>
+              <th>Candidate</th>
+              <th>Tests Taken</th>
+              <th>Avg Accuracy</th>
+              <th style="text-align: right;">Total XP</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-rows">
+            <!-- rows -->
+          </tbody>
+        </table>
+      </div>
+      
+    </main>
+  </div>
+  
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/script.js"></script>
+  <script>
+    let activeTimeframe = "all_time";
+    
+    (function() {
+      const token = localStorage.getItem('access_token');
+      if (!token) { window.location.href = '/login'; return; }
+      
+      // Load user profile details
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user?.username) {
+          document.getElementById('sidebar-username').textContent = user.username;
+        }
+      } catch(e) {}
+      
+      document.querySelectorAll('[data-page]').forEach(item => {
+        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+      });
+      document.querySelectorAll('[data-action="logout"]').forEach(item => {
+        item.addEventListener('click', () => {
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+      });
+      
+      loadLeaderboard();
+      
+      // Hook filter buttons
+      document.querySelectorAll('.filter-tabs .tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeTimeframe = btn.dataset.timeframe;
+          loadLeaderboard();
+        });
+      });
+      
+      async function loadLeaderboard() {
+        const rowsContainer = document.getElementById('leaderboard-rows');
+        rowsContainer.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">Retrieving candidate rankings...</td></tr>';
+        
+        try {
+          // Fetch leaderboard
+          const lbRes = await fetch(`/api/v1/leaderboard/?timeframe=${activeTimeframe}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const lbData = await lbRes.json();
+          
+          // Fetch user's rank
+          const meRes = await fetch(`/api/v1/leaderboard/me?timeframe=${activeTimeframe}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const meData = await meRes.json();
+          
+          if (lbData.leaderboard) {
+            renderLeaderboard(lbData.leaderboard);
+          }
+          
+          if (meData.entry) {
+            const entry = meData.entry;
+            document.getElementById('my-rank-title').textContent = `Ranked #${entry.rank} - Keep practicing!`;
+            document.getElementById('my-rank-sub').textContent = `Total XP in this period: ${entry.total_score} XP`;
+            document.getElementById('my-rank-val').textContent = `#${entry.rank}`;
+          } else {
+            document.getElementById('my-rank-title').textContent = `Not ranked yet in this period`;
+            document.getElementById('my-rank-sub').textContent = `Complete a test to appear on the board.`;
+            document.getElementById('my-rank-val').textContent = `#--`;
+          }
+        } catch(e) {
+          rowsContainer.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;color:#b45748;">Network connection error.</td></tr>';
+        }
+      }
+      
+      function renderLeaderboard(entries) {
+        const rowsContainer = document.getElementById('leaderboard-rows');
+        if (entries.length === 0) {
+          rowsContainer.innerHTML = '<tr><td colspan="5" class="muted" style="text-align:center;">No attempts recorded in this period.</td></tr>';
+          return;
+        }
+        
+        rowsContainer.innerHTML = entries.map((entry, idx) => {
+          let rankLabel = entry.rank;
+          if (entry.rank === 1) rankLabel = '<span class="rank-trophy gold"><i class="fa-solid fa-trophy"></i></span>';
+          else if (entry.rank === 2) rankLabel = '<span class="rank-trophy silver"><i class="fa-solid fa-trophy"></i></span>';
+          else if (entry.rank === 3) rankLabel = '<span class="rank-trophy bronze"><i class="fa-solid fa-trophy"></i></span>';
+          
+          const rowClass = entry.rank <= 3 ? `rank-row-${entry.rank}` : '';
+          
+          return `
+            <tr class="${rowClass}">
+              <td class="rank-num">${rankLabel}</td>
+              <td>
+                <div class="user-col">
+                  <img src="https://i.pravatar.cc/50?u=${entry.username}" alt="${entry.username}" />
+                  <span>${escapeHtml(entry.username)}</span>
+                </div>
+              </td>
+              <td>${entry.tests_taken} tests</td>
+              <td>${Math.round(entry.avg_accuracy)}%</td>
+              <td class="xp-badge" style="text-align: right;">${entry.total_score} XP</td>
+            </tr>
+          `;
+        }).join("");
+      }
+      
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+    })();
+  </script>
+</body>
+</html>

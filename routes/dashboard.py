@@ -71,6 +71,26 @@ def get_dashboard():
     total_correct   = int(agg.total_correct or 0)
     avg_accuracy    = round(float(agg.avg_accuracy or 0), 2)
 
+    # ── Placement Readiness Scores ─────────────────────────────────────────────
+    from models import CodingAttempt, MockInterview
+    
+    # Coding Score
+    coding_attempts = CodingAttempt.query.filter_by(user_id=user_id).all()
+    if coding_attempts:
+        coding_score = round(sum(att.score for att in coding_attempts) / len(coding_attempts) * 100, 1)
+    else:
+        coding_score = 0.0
+        
+    # Interview Score
+    interview_attempts = MockInterview.query.filter_by(user_id=user_id, status="completed").all()
+    if interview_attempts:
+        interview_score = round(sum(att.score for att in interview_attempts) / len(interview_attempts), 1)
+    else:
+        interview_score = 0.0
+        
+    # Overall Readiness
+    overall_readiness = round((avg_accuracy * 0.4) + (coding_score * 0.3) + (interview_score * 0.3), 1)
+
     # ── Category breakdown (cached) ────────────────────────────────────────────
     category_breakdown = _get_category_breakdown_cached(user_id)
 
@@ -98,6 +118,12 @@ def get_dashboard():
             "total_questions_solved":  total_questions,
             "total_correct":           total_correct,
             "accuracy_percentage":     avg_accuracy,
+        },
+        "readiness": {
+            "aptitude_score":     avg_accuracy,
+            "coding_score":       coding_score,
+            "interview_score":    interview_score,
+            "overall_percentage": overall_readiness,
         },
         "category_breakdown": category_breakdown,
         "weak_topics":        recommendations["weak_topics"],

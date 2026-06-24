@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Mock Interview - Aptitude AI</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    /* Mock Interview specific styles */
+    .interview-box {
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.04);
+      padding: 30px;
+      margin-bottom: 28px;
+    }
+    
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    
+    .role-option {
+      background: #f8f7f5;
+      border: 1.5px solid #d8cfb5;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+    
+    .role-option:hover, .role-option.selected {
+      background: #eadba3;
+      border-color: #4d4742;
+      transform: translateY(-2px);
+    }
+    
+    .interview-chat {
+      background: #f8f7f5;
+      border-radius: 12px;
+      padding: 20px;
+      min-height: 250px;
+      max-height: 450px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+      border: 1.5px solid #d8cfb5;
+    }
+    
+    .chat-bubble {
+      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-bubble.ai {
+      align-items: flex-start;
+    }
+    
+    .chat-bubble.user {
+      align-items: flex-end;
+    }
+    
+    .bubble-content {
+      max-width: 75%;
+      padding: 12px 18px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .chat-bubble.ai .bubble-content {
+      background: #eadba3;
+      color: #1a1714;
+      border-bottom-left-radius: 2px;
+    }
+    
+    .chat-bubble.user .bubble-content {
+      background: #4d4742;
+      color: #ffffff;
+      border-bottom-right-radius: 2px;
+    }
+    
+    .timer-ring {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #eadba3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #1a1714;
+      border: 3px solid #4d4742;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+    }
+    
+    .score-dial {
+      width: 140px;
+      height: 140px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #eadba3 0%, #f0e6b4 100%);
+      border: 5px solid #4d4742;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+    
+    .score-dial h2 {
+      font-size: 38px;
+      font-weight: 800;
+      color: #1a1714;
+      line-height: 1;
+    }
+    
+    .score-dial span {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6d6a64;
+    }
+    
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="container">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
+      </a>
+      <ul class="menu">
+        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
+        <li class="active" data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
+        <li data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
+        <li data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
+        <li data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
+        <li data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
+        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
+        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+      <div class="bottom-menu">
+        <div class="profile" data-page="/profile">
+          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
+          <span id="sidebar-username">Student</span>
+        </div>
+        <div class="bottom-item" data-page="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </div>
+      </div>
+    </aside>
+    
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+      
+      <!-- HEADER -->
+      <div class="dashboard-head">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <p class="eyebrow">AI Tools</p>
+            <h1>Mock Interview</h1>
+          </div>
+        </div>
+      </div>
+      
+      <!-- START BOX -->
+      <div class="interview-box" id="setup-view">
+        <h2 style="font-size:22px;font-weight:700;margin-bottom:12px;">Configure Mock Interview</h2>
+        <p class="muted">Select your round type, role, and difficulty to generate customized questions using Groq AI.</p>
+        
+        <div style="margin-top:20px;">
+          <label style="font-weight:700;font-size:13px;text-transform:uppercase;color:#4d4742;">Round Type</label>
+          <div style="display:flex;gap:12px;margin:8px 0 20px;">
+            <button class="btn-primary" id="btn-type-tech" style="flex:1;">Technical Interview</button>
+            <button class="btn-secondary" id="btn-type-hr" style="flex:1;">HR / Behavioural</button>
+          </div>
+        </div>
+        
+        <div>
+          <label style="font-weight:700;font-size:13px;text-transform:uppercase;color:#4d4742;">Target Role</label>
+          <div class="role-grid">
+            <div class="role-option selected" data-role="Software Engineer">Software Engineer</div>
+            <div class="role-option" data-role="Frontend Engineer">Frontend Engineer</div>
+            <div class="role-option" data-role="Backend Developer">Backend Developer</div>
+            <div class="role-option" data-role="Data Analyst">Data Analyst</div>
+            <div class="role-option" data-role="System Architect">System Architect</div>
+          </div>
+        </div>
+        
+        <div style="margin-top:20px;">
+          <label style="font-weight:700;font-size:13px;text-transform:uppercase;color:#4d4742;">Difficulty</label>
+          <div style="display:flex;gap:12px;margin:8px 0 24px;">
+            <button class="role-option selected" id="btn-diff-easy" data-diff="easy" style="flex:1;">Easy</button>
+            <button class="role-option" id="btn-diff-med" data-diff="medium" style="flex:1;">Medium</button>
+            <button class="role-option" id="btn-diff-hard" data-diff="hard" style="flex:1;">Hard</button>
+          </div>
+        </div>
+        
+        <button id="start-interview-btn" class="btn-primary" style="width:100%;justify-content:center;padding:15px;">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> Generate and Start Interview
+        </button>
+      </div>
+      
+      <!-- INTERVIEW IN PROGRESS VIEW -->
+      <div class="interview-box hidden" id="interview-view">
+        <div style="display:flex;justify-content:between;align-items:center;margin-bottom:20px;justify-content:space-between;">
+          <div>
+            <h3 id="current-question-title" style="font-weight:800;font-size:18px;">Question 1 of 5</h3>
+            <span id="interview-badge" style="background:#eadba3;color:#1a1714;font-size:11px;font-weight:700;padding:4px 8px;border-radius:4px;text-transform:uppercase;margin-top:6px;display:inline-block;">Technical Round</span>
+          </div>
+          <div class="timer-ring" id="timer-display">120</div>
+        </div>
+        
+        <div class="interview-chat" id="interview-chat-container">
+          <!-- Dynamically populated bubble -->
+        </div>
+        
+        <div class="form-group" style="margin-bottom:16px;">
+          <label for="answer-input" style="font-weight:700;font-size:13px;color:#4d4742;">Your Answer</label>
+          <textarea id="answer-input" rows="5" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:12px;font:inherit;outline:none;" placeholder="Type your response here... Try to provide a detailed answer."></textarea>
+          <div style="text-align:right;font-size:12px;color:#6d6a64;margin-top:4px;" id="word-count">0 characters</div>
+        </div>
+        
+        <div style="display:flex;gap:12px;">
+          <button id="skip-q-btn" class="btn-secondary" style="flex:1;justify-content:center;">Skip Question</button>
+          <button id="submit-q-btn" class="btn-primary" style="flex:2;justify-content:center;">
+            <i class="fa-solid fa-arrow-right"></i> Submit Answer
+          </button>
+        </div>
+      </div>
+      
+      <!-- EVALUATION / REPORT VIEW -->
+      <div class="interview-box hidden" id="report-view">
+        <div class="score-dial">
+          <h2 id="final-score">0</h2>
+          <span>Overall Score</span>
+        </div>
+        
+        <h2 style="font-size:22px;font-weight:800;text-align:center;color:#1a1714;margin-bottom:8px;">Evaluation Finished!</h2>
+        <p class="muted" style="text-align:center;margin-bottom:24px;" id="xp-grant-text">You earned +50 XP ⭐</p>
+        
+        <hr style="border:none;border-top:1px solid rgba(0,0,0,0.08);margin-bottom:24px;" />
+        
+        <h3 style="font-size:16px;font-weight:700;color:#1a1714;margin-bottom:8px;"><i class="fa-solid fa-robot"></i> AI Feedback & Suggestions</h3>
+        <div id="feedback-report-content" style="line-height:1.7;font-size:14px;color:#444;background:#f8f7f5;padding:20px;border-radius:10px;border:1.5px solid #d8cfb5;">
+          <!-- Markdown analysis report -->
+        </div>
+        
+        <button onclick="window.location.reload()" class="btn-primary" style="width:100%;justify-content:center;margin-top:24px;padding:14px;">
+          <i class="fa-solid fa-rotate-right"></i> Take Another Mock Interview
+        </button>
+      </div>
+      
+    </main>
+  </div>
+  
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/script.js"></script>
+  <script>
+    (function() {
+      const token = localStorage.getItem('access_token');
+      if (!token) { window.location.href = '/login'; return; }
+      
+      // Load user profile details
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user?.username) {
+          document.getElementById('sidebar-username').textContent = user.username;
+          const sidebarImg = document.getElementById('sidebar-avatar');
+          if (sidebarImg) sidebarImg.alt = user.username;
+        }
+      } catch(e) {}
+      
+      document.querySelectorAll('[data-page]').forEach(item => {
+        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+      });
+      document.querySelectorAll('[data-action="logout"]').forEach(item => {
+        item.addEventListener('click', () => {
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+      });
+      
+      // Setup parameters
+      let selectedType = "technical";
+      let selectedRole = "Software Engineer";
+      let selectedDiff = "easy";
+      
+      const btnTech = document.getElementById('btn-type-tech');
+      const btnHR = document.getElementById('btn-type-hr');
+      
+      btnTech.addEventListener('click', () => {
+        selectedType = "technical";
+        btnTech.className = "btn-primary";
+        btnHR.className = "btn-secondary";
+        document.getElementById('interview-badge').textContent = "Technical Round";
+      });
+      
+      btnHR.addEventListener('click', () => {
+        selectedType = "hr";
+        btnTech.className = "btn-secondary";
+        btnHR.className = "btn-primary";
+        document.getElementById('interview-badge').textContent = "HR Behavioural Round";
+      });
+      
+      document.querySelectorAll('.role-grid .role-option').forEach(el => {
+        el.addEventListener('click', () => {
+          document.querySelectorAll('.role-grid .role-option').forEach(item => item.classList.remove('selected'));
+          el.classList.add('selected');
+          selectedRole = el.dataset.role;
+        });
+      });
+      
+      const btnDiffEasy = document.getElementById('btn-diff-easy');
+      const btnDiffMed = document.getElementById('btn-diff-med');
+      const btnDiffHard = document.getElementById('btn-diff-hard');
+      
+      document.querySelectorAll('#btn-diff-easy, #btn-diff-med, #btn-diff-hard').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('#btn-diff-easy, #btn-diff-med, #btn-diff-hard').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedDiff = btn.dataset.diff;
+        });
+      });
+      
+      // Interview session state variables
+      let currentInterviewId = null;
+      let currentQuestionIdx = 0;
+      let totalQuestionsCount = 5;
+      let timerVal = 120;
+      let timerInterval = null;
+      
+      // Handle Start Interview click
+      const startBtn = document.getElementById('start-interview-btn');
+      startBtn.addEventListener('click', async () => {
+        startBtn.disabled = true;
+        startBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing Questions...';
+        
+        try {
+          const response = await fetch('/api/v1/interview/start', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              role: selectedRole,
+              interview_type: selectedType,
+              difficulty: selectedDiff
+            })
+          });
+          const data = await response.json();
+          if (data.success) {
+            const payload = data.data || data;
+            currentInterviewId = payload.interview_id;
+            currentQuestionIdx = 0;
+            totalQuestionsCount = payload.total_questions;
+            
+            document.getElementById('setup-view').classList.add('hidden');
+            document.getElementById('interview-view').classList.remove('hidden');
+            
+            showQuestion(payload.first_question);
+          } else {
+            alert(data.error || "Failed to generate interview. Check GROQ API configuration.");
+            startBtn.disabled = false;
+            startBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate and Start Interview';
+          }
+        } catch(e) {
+          alert("Network connection error.");
+          startBtn.disabled = false;
+          startBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate and Start Interview';
+        }
+      });
+      
+      function showQuestion(qText) {
+        document.getElementById('current-question-title').textContent = `Question ${currentQuestionIdx + 1} of ${totalQuestionsCount}`;
+        
+        const chatContainer = document.getElementById('interview-chat-container');
+        chatContainer.innerHTML += `
+          <div class="chat-bubble ai">
+            <div class="bubble-content"><strong>Interviewer:</strong> ${qText}</div>
+          </div>
+        `;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Reset answer text and timer
+        document.getElementById('answer-input').value = "";
+        document.getElementById('word-count').textContent = "0 characters";
+        startTimer();
+      }
+      
+      function startTimer() {
+        clearInterval(timerInterval);
+        timerVal = 120;
+        const timerDisplay = document.getElementById('timer-display');
+        timerDisplay.textContent = timerVal;
+        timerDisplay.style.borderColor = "#4d4742";
+        
+        timerInterval = setInterval(() => {
+          timerVal--;
+          timerDisplay.textContent = timerVal;
+          if (timerVal <= 20) {
+            timerDisplay.style.borderColor = "#b45748"; // Red alert
+          }
+          if (timerVal <= 0) {
+            clearInterval(timerInterval);
+            submitAnswer(true); // Auto-submit when timer runs out
+          }
+        }, 1000);
+      }
+      
+      const submitBtn = document.getElementById('submit-q-btn');
+      submitBtn.addEventListener('click', () => submitAnswer(false));
+      
+      const skipBtn = document.getElementById('skip-q-btn');
+      skipBtn.addEventListener('click', () => {
+        document.getElementById('answer-input').value = "[Skipped Question]";
+        submitAnswer(false);
+      });
+      
+      async function submitAnswer(autoSkip = false) {
+        clearInterval(timerInterval);
+        const answerVal = document.getElementById('answer-input').value.trim();
+        
+        if (!autoSkip && !answerVal && answerVal !== "[Skipped Question]") {
+          alert("Please type an answer or click Skip.");
+          startTimer();
+          return;
+        }
+        
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Submitting...';
+        
+        // Show user's response in chat log
+        const chatContainer = document.getElementById('interview-chat-container');
+        chatContainer.innerHTML += `
+          <div class="chat-bubble user">
+            <div class="bubble-content"><strong>You:</strong> ${answerVal || "[No response]"}</div>
+          </div>
+        `;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        try {
+          const response = await fetch('/api/v1/interview/submit-answer', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              interview_id: currentInterviewId,
+              question_index: currentQuestionIdx,
+              answer: answerVal || "[No response]"
+            })
+          });
+          const data = await response.json();
+          if (data.success) {
+            const payload = data.data || data;
+            if (payload.completed) {
+              // Show report
+              document.getElementById('interview-view').classList.add('hidden');
+              document.getElementById('report-view').classList.remove('hidden');
+              document.getElementById('final-score').textContent = payload.score;
+              document.getElementById('xp-grant-text').textContent = `You earned +${payload.xp_earned} XP ⭐`;
+              document.getElementById('feedback-report-content').innerHTML = payload.feedback.replace(/\n/g, '<br>');
+            } else {
+              currentQuestionIdx = payload.next_question_index;
+              showQuestion(payload.next_question);
+            }
+          } else {
+            alert(data.error || "Submission failed.");
+            startTimer();
+          }
+        } catch(e) {
+          alert("Failed to submit answer due to network error.");
+          startTimer();
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-arrow-right"></i> Submit Answer';
+        }
+      }
+      
+      const answerInput = document.getElementById('answer-input');
+      answerInput.addEventListener('input', () => {
+        document.getElementById('word-count').textContent = `${answerInput.value.length} characters`;
+      });
+    })();
+  </script>
+</body>
+</html>

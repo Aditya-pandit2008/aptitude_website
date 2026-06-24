@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coding Editor - Aptitude AI</title>
+    <link rel="stylesheet" href="/static/CSS/test-page.css">
+    <link rel="stylesheet" href="/static/CSS/coding.css">
+    <link rel="stylesheet" href="/static/CSS/responsive.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Monaco Editor Loader -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.41.0/min/vs/loader.min.js"></script>
+</head>
+
+<body class="editor-body">
+    <div class="editor-container">
+
+        <!-- LEFT PANEL: Problem Statement -->
+        <div class="problem-panel">
+            <div class="panel-header">
+                <a href="/coding-challenges" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to list</a>
+                <h2 id="problem-title">Loading...</h2>
+                <div class="badges">
+                    <span id="problem-difficulty" class="difficulty-badge medium">Medium</span>
+                    <span id="problem-topic" class="topic-badge">Topic</span>
+                </div>
+            </div>
+            <div class="problem-content" id="problem-content">
+                <p>Loading description...</p>
+            </div>
+            <div class="examples" id="problem-examples">
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: Editor & Console -->
+        <div class="workspace-panel">
+            <!-- Editor Header -->
+            <div class="editor-header">
+                <div class="lang-selector">
+                    <select id="language-select">
+                        <option value="python" selected>Python 3</option>
+                        <option value="java">Java</option>
+                        <option value="cpp">C++</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="go">go</option>
+                        <option value="ruby">ruby</option>
+                        <option value="csharp">csharp</option>
+                        <option value="rust">Rust</option>
+                        <option value="kotlin" >kotlin</option>
+                        <option value="php">php</option>
+                        <option value="swift">swift</option>
+                        <option value="scala">scala</option>
+                        <option value="typescript">typescript</option>
+                    </select>
+                </div>
+                <div class="editor-actions">
+                    <button class="secondary-btn btn-small" id="run-btn"><i class="fa-solid fa-play"></i> Run
+                        Code</button>
+                    <button class="primary-btn btn-small" id="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i>
+                        Submit</button>
+                </div>
+            </div>
+
+            <!-- Monaco Editor Container -->
+            <div id="monaco-editor" class="monaco-container"></div>
+
+            <!-- Console / Output Panel -->
+            <div class="console-panel">
+                <div class="console-header">
+                    <span><i class="fa-solid fa-terminal"></i> Console Output</span>
+                </div>
+                <div class="console-content" id="console-output">
+                    <span style="color: #888">Run your code to see output here...</span>
+                </div>
+            </div>
+
+            <!-- Result / AI Feedback Panel (Hidden by default) -->
+            <div class="result-panel hidden" id="feedback-panel">
+                <h3><i class="fa-solid fa-robot"></i> AI Code Review</h3>
+                <div id="ai-feedback-content"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/JS/script.js"></script>
+    <script src="/static/JS/coding.js"></script>
+</body>
+
+</html>

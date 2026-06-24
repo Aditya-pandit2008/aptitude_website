@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Doubt Solver - Aptitude AI</title>
+  <link rel="stylesheet" href="/static/CSS/Dashboard.css" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <style>
+    .doubt-box {
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.04);
+      border-radius: 18px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.04);
+      padding: 30px;
+      margin-bottom: 28px;
+    }
+    
+    .chat-history {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .chat-card {
+      background: #f8f7f5;
+      border: 1.5px solid #d8cfb5;
+      border-radius: 14px;
+      padding: 20px;
+      transition: all 0.2s;
+    }
+    
+    .chat-card.solution-ready {
+      border-left: 5px solid #4d4742;
+    }
+    
+    .doubt-context-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6d6a64;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+      display: block;
+    }
+    
+    .solution-markdown {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #3b3128;
+      margin-top: 14px;
+    }
+    
+    .solution-markdown p {
+      margin-bottom: 12px;
+    }
+    
+    .solution-markdown code {
+      background: #eadba3;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 13px;
+    }
+    
+    .solution-markdown pre {
+      background: #282522;
+      color: #ffffff;
+      padding: 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 12px 0;
+    }
+    
+    .solution-markdown pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <a class="apti-skip-link" href="#main-content">Skip to main content</a>
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+  <div class="container">
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <a class="logo" href="/Dashboard">
+        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
+      </a>
+      <ul class="menu">
+        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
+        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
+        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
+        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
+        <li data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
+        <li data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
+        <li data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
+        <li class="active" data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
+        <li data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
+        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
+        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+      </ul>
+      <div class="bottom-menu">
+        <div class="profile" data-page="/profile">
+          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
+          <span id="sidebar-username">Student</span>
+        </div>
+        <div class="bottom-item" data-page="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </div>
+      </div>
+    </aside>
+    
+    <!-- MAIN -->
+    <main class="main-content" id="main-content" tabindex="-1">
+      
+      <!-- HEADER -->
+      <div class="dashboard-head">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div>
+            <p class="eyebrow">AI Tutor</p>
+            <h1>Doubt Solver</h1>
+          </div>
+        </div>
+      </div>
+      
+      <!-- SUBMIT DUBT FORM -->
+      <div class="doubt-box">
+        <h2 style="font-size:20px;font-weight:700;margin-bottom:12px;">Get Step-by-Step Solutions</h2>
+        <p class="muted" style="margin-bottom:20px;">Ask any question about programming logic, aptitude calculations, test topics, or syntax bugs.</p>
+        
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="doubt-context" style="font-weight:700;font-size:12px;color:#4d4742;text-transform:uppercase;">Topic / Context</label>
+          <input type="text" id="doubt-context" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:10px;font:inherit;outline:none;" placeholder="e.g. Binary Trees, Time and Work, TCS NQT, Arrays..." />
+        </div>
+        
+        <div class="form-group" style="margin-bottom:14px;">
+          <label for="doubt-question" style="font-weight:700;font-size:12px;color:#4d4742;text-transform:uppercase;">Question Description / Code Snippet (Optional)</label>
+          <textarea id="doubt-question" rows="4" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:10px;font:inherit;outline:none;font-family:monospace;" placeholder="Paste the problem statement or code snippet here..."></textarea>
+        </div>
+        
+        <div class="form-group" style="margin-bottom:20px;">
+          <label for="doubt-text" style="font-weight:700;font-size:12px;color:#4d4742;text-transform:uppercase;">What is your specific doubt?</label>
+          <textarea id="doubt-text" rows="3" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:10px;font:inherit;outline:none;" placeholder="Explain what you are struggling with or need explained..."></textarea>
+        </div>
+        
+        <button id="solve-btn" class="btn-primary" style="width:100%;justify-content:center;padding:14px;">
+          <i class="fa-solid fa-lightbulb"></i> Explain Step-by-Step
+        </button>
+      </div>
+      
+      <!-- RESOLUTIONS DISPLAY -->
+      <div id="solutions-section-container" class="chat-history">
+        <!-- Explains will show up here -->
+      </div>
+      
+    </main>
+  </div>
+  
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/script.js"></script>
+  <script>
+    (function() {
+      const token = localStorage.getItem('access_token');
+      if (!token) { window.location.href = '/login'; return; }
+      
+      // Load user profile details
+      try {
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user?.username) {
+          document.getElementById('sidebar-username').textContent = user.username;
+        }
+      } catch(e) {}
+      
+      document.querySelectorAll('[data-page]').forEach(item => {
+        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+      });
+      document.querySelectorAll('[data-action="logout"]').forEach(item => {
+        item.addEventListener('click', () => {
+          localStorage.clear();
+          window.location.href = '/login';
+        });
+      });
+      
+      const solveBtn = document.getElementById('solve-btn');
+      solveBtn.addEventListener('click', async () => {
+        const ctx = document.getElementById('doubt-context').value.trim();
+        const q = document.getElementById('doubt-question').value.trim();
+        const doubt = document.getElementById('doubt-text').value.trim();
+        
+        if (!doubt) {
+          alert("Please type your doubt so the AI tutor can assist you.");
+          return;
+        }
+        
+        solveBtn.disabled = true;
+        solveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Formulating Explanation...';
+        
+        try {
+          const res = await fetch('/api/v1/doubt/solve', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              context: ctx || "General Query",
+              question: q,
+              doubt: doubt
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            const payload = data.data || data;
+            
+            // Render solution
+            const container = document.getElementById('solutions-section-container');
+            const card = document.createElement('div');
+            card.className = "chat-card solution-ready";
+            
+            // Basic markdown replacement for UI rendering
+            const rawMarkdown = payload.solution;
+            const formattedHtml = parseSimpleMarkdown(rawMarkdown);
+            
+            card.innerHTML = `
+              <span class="doubt-context-label">${ctx || 'General Query'}</span>
+              <h3 style="font-size:15px;font-weight:700;color:#1a1714;">Doubt: "${doubt}"</h3>
+              ${q ? `<p style="font-size:13px;color:#6d6a64;background:#fff;padding:8px 12px;border:1px solid #d8cfb5;border-radius:6px;margin:8px 0;white-space:pre-wrap;font-family:monospace;">${escapeHtml(q)}</p>` : ''}
+              <hr style="border:none;border-top:1px solid rgba(0,0,0,0.06);margin:12px 0;" />
+              <div class="solution-markdown">
+                ${formattedHtml}
+              </div>
+            `;
+            
+            // Insert at the top of history
+            container.insertBefore(card, container.firstChild);
+            
+            // Reset input doubt field
+            document.getElementById('doubt-text').value = "";
+          } else {
+            alert(data.error || "Failed to solve doubt.");
+          }
+        } catch(e) {
+          alert("Network error.");
+        } finally {
+          solveBtn.disabled = false;
+          solveBtn.innerHTML = '<i class="fa-solid fa-lightbulb"></i> Explain Step-by-Step';
+        }
+      });
+      
+      function parseSimpleMarkdown(md) {
+        let html = md;
+        
+        // Code blocks: ```language ... ```
+        html = html.replace(/```(?:[a-zA-Z0-9]+)?\n([\s\S]*?)\n```/g, '<pre><code>$1</code></pre>');
+        
+        // Inline code: `code`
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        
+        // Bold: **text**
+        html = html.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+        
+        // Lines split into paragraphs
+        html = html.split('\n\n').map(p => {
+          if (p.trim().startsWith('<pre>') || p.trim().startsWith('</pre>')) {
+            return p;
+          }
+          return `<p>${p.replace(/\n/g, '<br>')}</p>`;
+        }).join('');
+        
+        return html;
+      }
+      
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+    })();
+  </script>
+</body>
+</html>

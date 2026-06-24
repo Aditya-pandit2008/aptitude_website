@@ -147,6 +147,11 @@ def _register_blueprints(app: Flask):
     from routes.ai          import ai_bp
     from routes.admin       import admin_bp
     from routes.profile     import profile_bp
+    from routes.coding      import coding_bp
+    from routes.interview   import interview_bp
+    from routes.resume      import resume_bp
+    from routes.company     import company_bp
+    from routes.doubt       import doubt_bp
 
     prefix = "/api/v1"
     app.register_blueprint(auth_bp,        url_prefix=f"{prefix}/auth")
@@ -158,6 +163,11 @@ def _register_blueprints(app: Flask):
     app.register_blueprint(ai_bp,          url_prefix=f"{prefix}/ai")
     app.register_blueprint(admin_bp,       url_prefix=f"{prefix}/admin")
     app.register_blueprint(profile_bp,     url_prefix=f"{prefix}/profile")
+    app.register_blueprint(coding_bp,      url_prefix=f"{prefix}/coding")
+    app.register_blueprint(interview_bp,   url_prefix=f"{prefix}/interview")
+    app.register_blueprint(resume_bp,      url_prefix=f"{prefix}/resume")
+    app.register_blueprint(company_bp,     url_prefix=f"{prefix}/company")
+    app.register_blueprint(doubt_bp,       url_prefix=f"{prefix}/doubt")
 
 
 def _seed_categories(app: Flask):

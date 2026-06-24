@@ -17,6 +17,9 @@ dependencies = [
     "cachetools>=5.3,<6.0",
     "psycopg2-binary>=2.9,<3.0"
 ]
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3d5ac181eca212edd8f12240c4cfc73d9e01bc17
 [tool.vercel]
 entrypoint = "backend.app:app"

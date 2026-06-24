@@ -175,7 +175,6 @@ def generate_aptitude_questions():
     category_id = data.get("category_id")
     difficulty  = _sanitize(data.get("difficulty") or "medium", 10).lower()
     count       = min(max(int(data.get("count", 5)), 1), 10)
-
     user_id = get_jwt_identity()
     if difficulty == "adaptive" and user_id:
         from models import User

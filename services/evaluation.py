@@ -85,7 +85,6 @@ def evaluate_test(user: User, answers_payload: list[dict], time_taken: int = 0,
             ai_feedback = res["feedback"]
         else:
             is_correct = False
-
         if is_correct:
             correct_count += 1
 
@@ -163,7 +162,6 @@ def _update_user_progress(user: User, xp_earned: int, accuracy: float, cfg):
 
     user.last_active_date = today
     user.total_xp        += xp_earned
-
     # Adaptive skill level update
     learning_rate = user.learning_rate or 0.1
     current_skill = user.current_skill_level or 0.5
@@ -200,4 +198,3 @@ def check_and_grant_badges(user: User, attempt: TestAttempt = None):
         if eligible:
             ub = UserBadge(user_id=user.id, badge_id=badge.id)
             db.session.add(ub)
-
