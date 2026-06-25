@@ -14,24 +14,32 @@ from services.leaderboard import record_score, get_top_scores
 
 coding_bp = Blueprint("coding", __name__)
 
-PISTON_API_URL = "https://emkc.org/api/v2/piston/execute"
+# ── Execution backend: Judge0 CE (free, no auth required) ─────────────────────
+# Public instance: https://ce.judge0.com  (50 req/day free, no key needed)
+# Docs: https://ce.judge0.com/
+JUDGE0_API_URL    = "https://ce.judge0.com/submissions/?base64_encoded=false&wait=true"
+JUDGE0_TOKEN_URL  = "https://ce.judge0.com/submissions"
 
-# Map frontend language names to Piston API languages & versions
-PISTON_LANGUAGES = {
-    "python": {"language": "python", "version": "3.10.0"},
-    "java": {"language": "java", "version": "15.0.2"},
-    "cpp": {"language": "cpp", "version": "10.2.0"},
-    "javascript": {"language": "javascript", "version": "16.3.0"},
-    "ruby": {"language": "ruby", "version": "3.2.0"},
-    "go": {"language": "go", "version": "1.20.0"},
-    "csharp": {"language": "csharp", "version": "10.0.0"},
-    "rust": {"language": "rust", "version": "1.68.0"},
-    "kotlin": {"language": "kotlin", "version": "1.8.0"},
-    "php": {"language": "php", "version": "8.2.0"},
-    "swift": {"language": "swift", "version": "5.8.0"},
-    "scala": {"language": "scala", "version": "3.2.2"},
-    "typescript": {"language": "typescript", "version": "5.0.0"}
+# Judge0 language IDs  →  https://ce.judge0.com/languages
+JUDGE0_LANGUAGES = {
+    "python":     71,   # Python 3.8.1
+    "java":       62,   # Java (OpenJDK 13)
+    "cpp":        54,   # C++ (GCC 9.2.0)
+    "javascript": 63,   # JavaScript (Node.js 12)
+    "ruby":       72,   # Ruby 2.7.0
+    "go":         60,   # Go 1.13.5
+    "csharp":     51,   # C# (Mono 6.6)
+    "rust":       73,   # Rust 1.40.0
+    "kotlin":     78,   # Kotlin 1.3.70
+    "php":        68,   # PHP 7.4.1
+    "swift":      83,   # Swift 5.2.3
+    "scala":      81,   # Scala 2.13.2
+    "typescript": 74,   # TypeScript 3.7.4
+    "c":          50,   # C (GCC 9.2.0)
 }
+
+# Keep for backward-compat (referenced elsewhere in the file)
+PISTON_LANGUAGES = {k: {"language": k, "version": "*"} for k in JUDGE0_LANGUAGES}
 XP_BY_DIFFICULTY = {"easy": 30, "medium": 50, "hard": 80}
 
 
@@ -185,31 +193,41 @@ def generate_challenge():
 @jwt_required()
 @limiter.limit("30 per hour")
 def execute_code():
-    """Execute arbitrary code against the Piston sandbox API."""
+    """Execute code via Judge0 CE (free, no API key required)."""
     data      = request.get_json(silent=True) or {}
     language  = data.get("language")
     user_code = data.get("code")
 
-    if not language or language not in PISTON_LANGUAGES:
+    if not language or language not in JUDGE0_LANGUAGES:
         return error("Invalid or unsupported language.", 400)
     if not user_code:
         return error("Code is required.", 400)
 
     payload = {
-        "language": PISTON_LANGUAGES[language]["language"],
-        "version":  PISTON_LANGUAGES[language]["version"],
-        "files":    [{"content": user_code}],
+        "source_code": user_code,
+        "language_id": JUDGE0_LANGUAGES[language],
+        "stdin":       "",
     }
 
     try:
-        res = requests.post(PISTON_API_URL, json=payload, timeout=10)
+        res = requests.post(
+            JUDGE0_API_URL,
+            json=payload,
+            headers={"Content-Type": "application/json"},
+            timeout=15,
+        )
         res.raise_for_status()
-        run_data  = res.json().get("run", {})
-        stdout    = run_data.get("stdout", "")
-        stderr    = run_data.get("stderr", "")
-        exit_code = run_data.get("code", 0)
+        result         = res.json()
+        stdout         = result.get("stdout") or ""
+        stderr         = result.get("stderr") or ""
+        compile_output = result.get("compile_output") or ""
+        exit_code      = result.get("exit_code") or 0
+        output         = stdout + stderr + compile_output
 
-        return success({"output": stdout + stderr, "exit_code": exit_code}, 200)
+        return success({"output": output, "exit_code": exit_code}, 200)
+
+    except requests.exceptions.RequestException as exc:
+        return error(f"Failed to execute code: {str(exc)}", 502)
 
     except requests.exceptions.RequestException as exc:
         return error(f"Failed to execute code: {str(exc)}", 502)
