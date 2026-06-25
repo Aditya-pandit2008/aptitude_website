@@ -482,38 +482,8 @@ def submit_challenge(challenge_id):
 
         hint_number = existing + 1
 
-        hint_prompts = {
-            1: f"Give a very brief conceptual hint (1-2 sentences, no code) for this coding problem:\n\n{question.text}\n\nPoint toward the right approach without revealing the solution.",
-            2: f"Give a more specific hint with the key algorithm or data structure to use (still no full code) for:\n\n{question.text}\n\nThis is hint 2 of 3, be a bit more direct.",
-            3: f"Give a detailed hint with pseudocode or a concrete example for:\n\n{question.text}\n\nThis is the final hint (3 of 3), you can show a partial implementation or step-by-step approach.",
-        }
-
-        try:
-            client = groq_sdk.Groq(api_key=os.environ.get("GROQ_API_KEY"))
-            response = client.chat.completions.create(
-                model="llama3-8b-8192",
-                messages=[
-                    {"role": "system", "content": "You are a helpful coding tutor. Give concise, educational hints."},
-                    {"role": "user", "content": hint_prompts[hint_number]}
-                ],
-                max_tokens=300,
-                temperature=0.5,
-            )
-            hint_text = response.choices[0].message.content.strip()
-        except Exception as exc:
-            return error(f"Failed to generate hint: {str(exc)}", 502)
-
-        db.session.execute(
-            text("""
-                INSERT INTO coding_hints (user_id, challenge_id, hint_number, hint_text)
-                VALUES (:u, :c, :n, :t)
-            """),
-            {"u": user_id, "c": challenge_id, "n": hint_number, "t": hint_text}
-        )
-        db.session.commit()
-
-        return success({
-            "hint": hint_text,
-            "hint_number": hint_number,
-            "hints_remaining": MAX_HINTS - hint_number,
-        }, 200)
+hint_prompts = {
+        1: "Give a very brief conceptual hint (1-2 sentences, no code) for this coding problem:\n\n" + question.text + "\n\nPoint toward the right approach without revealing the solution.",
+        2: "Give a more specific hint with the key algorithm or data structure to use (still no full code) for:\n\n" + question.text + "\n\nThis is hint 2 of 3, be a bit more direct.",
+        3: "Give a detailed hint with pseudocode or a concrete example for:\n\n" + question.text + "\n\nThis is the final hint (3 of 3), you can show a partial implementation or step-by-step approach.",
+    }
