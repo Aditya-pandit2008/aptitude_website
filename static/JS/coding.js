@@ -6,10 +6,7 @@ let templateCodeByLanguage = {};
 let currentLanguage;
 
 // ── Language stub generator ──────────────────────────────────────────────────
-// Given a Python function template string, derive LeetCode-style stubs for all
-// supported languages. Used when template_code is a plain string (legacy data).
 function deriveLanguageStubs(pythonTemplate) {
-    // Extract function name and param names from Python signature
     const m = pythonTemplate.match(/def\s+(\w+)\s*\(([^)]*)\)/);
     if (!m) return { python: pythonTemplate };
 
@@ -20,64 +17,62 @@ function deriveLanguageStubs(pythonTemplate) {
         .filter(p => p && p !== "self");
     const paramStr = params.join(", ");
 
-    // Python — keep as-is
     const python = pythonTemplate;
 
-    // Java
     const javaParams = params.map(p => `int[] ${p}`).join(", ");
-    const java =
-        `class Solution {\n    public int[] ${fnName}(${javaParams}) {\n        \n    }\n}`;
+    const java = `class Solution {\n    public int[] ${fnName}(${javaParams}) {\n        \n    }\n}`;
 
-    // C++
     const cppParams = params.map(p => `auto& ${p}`).join(", ");
-    const cpp =
-        `class Solution {\npublic:\n    auto ${fnName}(${cppParams}) {\n        \n    }\n};`;
+    const cpp = `class Solution {\npublic:\n    auto ${fnName}(${cppParams}) {\n        \n    }\n};`;
 
-    // JavaScript
     const jsDoc = params.map(p => ` * @param {*} ${p}`).join("\n");
-    const javascript =
-        `/**\n${jsDoc}\n * @return {*}\n */\nvar ${fnName} = function(${paramStr}) {\n    \n};`;
+    const javascript = `/**\n${jsDoc}\n * @return {*}\n */\nvar ${fnName} = function(${paramStr}) {\n    \n};`;
 
-    // C
     const cParams = params.map(p => `int* ${p}`).join(", ");
-    const c =
-        `/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* ${fnName}(${cParams}, int* returnSize) {\n    \n}`;
+    const c = `/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* ${fnName}(${cParams}, int* returnSize) {\n    \n}`;
 
-    // TypeScript
     const tsParams = params.map(p => `${p}: any`).join(", ");
     const typescript = `function ${fnName}(${tsParams}): any {\n    \n};`;
 
-    // Go
     const goParams = params.map(p => `${p} interface{}`).join(", ");
     const go = `func ${fnName}(${goParams}) interface{} {\n    \n}`;
 
-    // Kotlin
     const ktParams = params.map(p => `${p}: Any`).join(", ");
     const kotlin = `class Solution {\n    fun ${fnName}(${ktParams}): Any {\n        \n    }\n}`;
 
-    // Rust
     const rsParams = params.map(p => `${p}: i32`).join(", ");
     const rust = `impl Solution {\n    pub fn ${fnName}(${rsParams}) -> i32 {\n        \n    }\n}`;
 
-    // Ruby
     const ruby = `def ${fnName}(${paramStr})\n    \nend`;
 
-    // C#
-    const csharp =
-        `public class Solution {\n    public object ${fnName}(${params.map(p => `object ${p}`).join(", ")}) {\n        \n    }\n}`;
+    const csharp = `public class Solution {\n    public object ${fnName}(${params.map(p => `object ${p}`).join(", ")}) {\n        \n    }\n}`;
 
-    // PHP
     const php = `class Solution {\n    function ${fnName}(${params.map(p => `$${p}`).join(", ")}) {\n        \n    }\n}`;
 
-    // Swift
     const swift = `class Solution {\n    func ${fnName}(${params.map(p => `_ ${p}: Any`).join(", ")}) -> Any {\n        \n    }\n}`;
 
-    // Scala
     const scala = `object Solution {\n    def ${fnName}(${params.map(p => `${p}: Any`).join(", ")}): Any = {\n        \n    }\n}`;
 
-    return { python, java, cpp, javascript, c, typescript, go, kotlin, rust,
-             ruby, csharp, php, swift, scala };
+    return { python, java, cpp, javascript, c, typescript, go, kotlin, rust, ruby, csharp, php, swift, scala };
 }
+
+// ── Monaco language ID map ───────────────────────────────────────────────────
+const monacoLangMap = {
+    "python":     "python",
+    "java":       "java",
+    "cpp":        "cpp",
+    "javascript": "javascript",
+    "typescript": "typescript",
+    "go":         "go",
+    "kotlin":     "kotlin",
+    "rust":       "rust",
+    "ruby":       "ruby",
+    "csharp":     "csharp",
+    "php":        "php",
+    "swift":      "swift",
+    "scala":      "scala",
+    "c":          "c",
+};
 
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -123,7 +118,6 @@ function renderChallenge(challenge, question) {
     const topic = tags.find(t => t !== 'groq-ai' && t !== 'coding') || question.category_name;
     document.getElementById("problem-topic").innerText = topic;
 
-    // Replace newlines with <br> or markdown-like parsing
     const textHtml = question.text.replace(/\n/g, "<br>");
     document.getElementById("problem-content").innerHTML = `<p>${textHtml}</p>`;
 
@@ -142,14 +136,12 @@ function renderChallenge(challenge, question) {
     examplesContainer.innerHTML = examplesHtml;
 }
 
-// templateCodeData is expected to be an object keyed by language id, e.g.
-// { python: "...", javascript: "...", java: "...", cpp: "..." }
 function initMonaco(templateCodeData) {
-    // templateCodeData can be:
-    //   (a) a dict/object keyed by language  → new format from backend
-    //   (b) a plain Python string             → legacy format, derive stubs on the fly
+    // Build templateCodeByLanguage: derive stubs from Python base, then overlay backend templates
     if (templateCodeData && typeof templateCodeData === "object" && !Array.isArray(templateCodeData)) {
-        templateCodeByLanguage = templateCodeData;
+        const pythonBase = templateCodeData.python || templateCodeData.Python || "";
+        const derived = pythonBase ? deriveLanguageStubs(pythonBase) : {};
+        templateCodeByLanguage = { ...derived, ...templateCodeData };
     } else if (typeof templateCodeData === "string" && templateCodeData.trim()) {
         templateCodeByLanguage = deriveLanguageStubs(templateCodeData);
     } else {
@@ -159,13 +151,10 @@ function initMonaco(templateCodeData) {
     const select = document.getElementById("language-select");
     currentLanguage = (select && select.value) || Object.keys(templateCodeByLanguage)[0] || "python";
 
-    // Keep the dropdown in sync with whatever language we actually start on
     if (select && select.value !== currentLanguage) {
         select.value = currentLanguage;
     }
 
-    // Disable the dropdown until Monaco is fully loaded,
-    // so users can't trigger changeLanguage() while editor is undefined
     if (select) select.disabled = true;
 
     require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.41.0/min/vs' } });
@@ -173,14 +162,14 @@ function initMonaco(templateCodeData) {
         const startingCode = templateCodeByLanguage[currentLanguage] || "// Write your code here\n";
         editor = monaco.editor.create(document.getElementById('monaco-editor'), {
             value: startingCode,
-            language: currentLanguage,
+            language: monacoLangMap[currentLanguage] || currentLanguage,
             theme: 'vs-dark',
             automaticLayout: true,
             fontSize: 14,
             minimap: { enabled: false }
         });
 
-        if (select) select.disabled = false; // ready now
+        if (select) select.disabled = false;
     });
 }
 
@@ -197,11 +186,9 @@ function changeLanguage() {
 
     const newTemplate = templateCodeByLanguage[newLanguage];
 
-    // No template available for this language — keep the user's code as-is,
-    // just switch the syntax highlighter so it's not silently wrong either.
     if (newTemplate === undefined) {
         console.warn(`No template_code found for language "${newLanguage}". Keeping current code.`);
-        monaco.editor.setModelLanguage(editor.getModel(), newLanguage);
+        monaco.editor.setModelLanguage(editor.getModel(), monacoLangMap[newLanguage] || newLanguage);
         currentLanguage = newLanguage;
         return;
     }
@@ -215,13 +202,13 @@ function changeLanguage() {
             "Switching languages will replace your current code with the starter template for the new language. Continue?"
         );
         if (!confirmed) {
-            select.value = currentLanguage; // revert dropdown
+            select.value = currentLanguage;
             return;
         }
     }
 
     editor.setValue(newTemplate);
-    monaco.editor.setModelLanguage(editor.getModel(), newLanguage);
+    monaco.editor.setModelLanguage(editor.getModel(), monacoLangMap[newLanguage] || newLanguage);
     currentLanguage = newLanguage;
 }
 
@@ -302,7 +289,6 @@ async function submitCode() {
             const statusColor = status === 'passed' ? '#3f7d46' : (status === 'partial' ? '#856404' : '#b45748');
             const statusIcon  = status === 'passed' ? '✅' : (status === 'partial' ? '⚠️' : '❌');
 
-            // Build test results table
             let testTable = "";
             if (test_results && test_results.length > 0) {
                 testTable = `
