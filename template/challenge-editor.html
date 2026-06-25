@@ -55,6 +55,14 @@
                     </select>
                 </div>
                 <div class="editor-actions">
+                    <button class="secondary-btn btn-small" id="run-btn"><i class="fa-solid fa-play"></i> Run Code</button>
+                    <button class="primary-btn btn-small" id="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Submit</button>
+                    <!-- ADD THIS: -->
+                    <button class="secondary-btn btn-small" id="hint-btn" onclick="getHint()">
+                        <i class="fa-solid fa-lightbulb"></i> Get Hint
+                    </button>
+                </div>
+                <div class="editor-actions">
                     <button class="secondary-btn btn-small" id="run-btn"><i class="fa-solid fa-play"></i> Run
                         Code</button>
                     <button class="primary-btn btn-small" id="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i>
@@ -74,7 +82,13 @@
                     <span style="color: #888">Run your code to see output here...</span>
                 </div>
             </div>
-
+            <!-- Hint Panel (hidden by default) -->
+            <div class="result-panel hidden" id="hint-panel">
+                <div style="font-size:13px;font-weight:700;color:#856404;margin-bottom:8px;">
+                    <i class="fa-solid fa-lightbulb"></i> <span id="hint-counter">Hint 1 of 3</span>
+                </div>
+                <div id="hint-content" style="font-size:14px;color:#444;line-height:1.6;"></div>
+            </div>
             <!-- Result / AI Feedback Panel (Hidden by default) -->
             <div class="result-panel hidden" id="feedback-panel">
                 <h3><i class="fa-solid fa-robot"></i> AI Code Review</h3>

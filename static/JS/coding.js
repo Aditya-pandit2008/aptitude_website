@@ -343,3 +343,44 @@ async function submitCode() {
         submitBtn.disabled = false;
     }
 }
+async function getHint() {
+    const hintBtn = document.getElementById("hint-btn");
+    const hintPanel = document.getElementById("hint-panel");
+    const hintContent = document.getElementById("hint-content");
+    const hintCounter = document.getElementById("hint-counter");
+
+    hintBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Getting hint...';
+    hintBtn.disabled = true;
+
+    try {
+        const token = localStorage.getItem("access_token");
+        const res = await fetch(`/api/v1/coding/${currentChallengeId}/hint`, {
+            method: "POST",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            const d = data.data || data;
+            hintPanel.classList.remove("hidden");
+            hintContent.innerHTML = d.hint.replace(/\n/g, "<br>");
+            hintCounter.innerText = `Hint ${d.hint_number} of 3`;
+
+            if (d.hints_remaining === 0) {
+                hintBtn.innerHTML = '<i class="fa-solid fa-lightbulb"></i> No hints remaining';
+                hintBtn.disabled = true;
+            } else {
+                hintBtn.innerHTML = `<i class="fa-solid fa-lightbulb"></i> Next Hint (${d.hints_remaining} left)`;
+                hintBtn.disabled = false;
+            }
+        } else {
+            alert(data.error || data.message || "No hints remaining.");
+            hintBtn.innerHTML = '<i class="fa-solid fa-lightbulb"></i> Get Hint';
+            hintBtn.disabled = true;
+        }
+    } catch (err) {
+        alert("Network error getting hint.");
+        hintBtn.innerHTML = '<i class="fa-solid fa-lightbulb"></i> Get Hint';
+        hintBtn.disabled = false;
+    }
+}
