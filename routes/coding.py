@@ -458,32 +458,63 @@ def submit_challenge(challenge_id):
         "test_results": eval_result.get("results", []),
         "attempt":      attempt.to_dict(),
     }, 201)
-    @coding_bp.route("/<int:challenge_id>/hint", methods=["POST"])
-    @jwt_required()
-    @limiter.limit("20 per hour")
-    def get_hint(challenge_id):
-        """Return the next progressive hint for a coding challenge (max 3)."""
-        import groq as groq_sdk
-        from sqlalchemy import text
 
-        MAX_HINTS = 3
-        user_id = int(get_jwt_identity())
 
-        challenge = CodeChallenge.query.filter_by(id=challenge_id).first_or_404()
-        question  = challenge.question
+@coding_bp.route("/<int:challenge_id>/hint", methods=["POST"])
+@jwt_required()
+@limiter.limit("20 per hour")
+def get_hint(challenge_id):
+    """Return the next progressive hint for a coding challenge (max 3)."""
+    import groq as groq_sdk
+    from sqlalchemy import text
 
-        existing = db.session.execute(
-            text("SELECT COUNT(*) FROM coding_hints WHERE user_id=:u AND challenge_id=:c"),
-            {"u": user_id, "c": challenge_id}
-        ).scalar()
+    MAX_HINTS = 3
+    user_id = int(get_jwt_identity())
 
-        if existing >= MAX_HINTS:
-            return error(f"You've used all {MAX_HINTS} hints for this challenge.", 400)
+    challenge = CodeChallenge.query.filter_by(id=challenge_id).first_or_404()
+    question  = challenge.question
 
-        hint_number = existing + 1
+    existing = db.session.execute(
+        text("SELECT COUNT(*) FROM coding_hints WHERE user_id=:u AND challenge_id=:c"),
+        {"u": user_id, "c": challenge_id}
+    ).scalar()
 
-hint_prompts = {
+    if existing >= MAX_HINTS:
+        return error(f"You've used all {MAX_HINTS} hints for this challenge.", 400)
+
+    hint_number = existing + 1
+
+    hint_prompts = {
         1: "Give a very brief conceptual hint (1-2 sentences, no code) for this coding problem:\n\n" + question.text + "\n\nPoint toward the right approach without revealing the solution.",
         2: "Give a more specific hint with the key algorithm or data structure to use (still no full code) for:\n\n" + question.text + "\n\nThis is hint 2 of 3, be a bit more direct.",
         3: "Give a detailed hint with pseudocode or a concrete example for:\n\n" + question.text + "\n\nThis is the final hint (3 of 3), you can show a partial implementation or step-by-step approach.",
     }
+
+    prompt = hint_prompts[hint_number]
+
+    try:
+        client = groq_sdk.Groq(api_key=os.getenv("GROQ_API_KEY"))
+        completion = client.chat.completions.create(
+            model=os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            max_tokens=300,
+        )
+        hint_text = completion.choices[0].message.content.strip()
+    except Exception as exc:  # noqa: BLE001
+        return error(f"Failed to generate hint: {exc}", 502)
+
+    db.session.execute(
+        text(
+            "INSERT INTO coding_hints (user_id, challenge_id, hint_number, hint_text, created_at) "
+            "VALUES (:u, :c, :n, :t, NOW())"
+        ),
+        {"u": user_id, "c": challenge_id, "n": hint_number, "t": hint_text},
+    )
+    db.session.commit()
+
+    return success({
+        "hint_number": hint_number,
+        "max_hints":   MAX_HINTS,
+        "hint":        hint_text,
+    }, 200)
