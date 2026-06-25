@@ -184,3 +184,180 @@
 .task-grid.coding-grid {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 }
+
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Editor page
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Mobile top bar — hidden on desktop */
+.editor-topbar {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #252526;
+    border-bottom: 1px solid #333;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+}
+.editor-back-btn {
+    color: #ccc;
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.editor-back-btn:hover { color: #fff; }
+.editor-topbar-title {
+    flex: 1;
+    color: #e0e0e0;
+    font-size: 14px;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.editor-toggle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #3c3c3c;
+    border: 1px solid #555;
+    color: #ccc;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .2s;
+}
+.editor-toggle-btn:hover { background: #4d4d4d; color: #fff; }
+
+/* ── Tablet: stack panels vertically ── */
+@media (max-width: 991px) {
+    .editor-body { overflow: auto; }
+
+    .editor-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 100vh;
+    }
+
+    .problem-panel {
+        width: 100%;
+        min-width: 0;
+        border-right: none;
+        border-bottom: 1px solid #dcdbd7;
+        max-height: 45vh;
+        overflow-y: auto;
+    }
+
+    .workspace-panel {
+        width: 100%;
+        min-height: 55vh;
+    }
+
+    .monaco-container {
+        min-height: 340px;
+    }
+
+    .console-panel {
+        height: 160px;
+    }
+
+    .editor-header {
+        height: auto;
+        padding: 10px 14px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+}
+
+/* ── Mobile: show one panel at a time ── */
+@media (max-width: 768px) {
+    .editor-topbar { display: flex; }
+
+    .editor-body { overflow: hidden; }
+
+    .editor-container {
+        flex-direction: column;
+        height: calc(100vh - 57px); /* minus topbar */
+        height: calc(100dvh - 57px);
+        overflow: hidden;
+    }
+
+    .problem-panel {
+        width: 100%;
+        max-height: none;
+        height: 100%;
+        border-bottom: none;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+
+    .workspace-panel {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .editor-header {
+        height: auto;
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .lang-selector select {
+        font-size: 12px;
+        padding: 5px 8px;
+    }
+
+    .btn-small {
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+
+    .monaco-container {
+        flex: 1;
+        min-height: 0;
+    }
+
+    .console-panel {
+        height: 140px;
+        flex-shrink: 0;
+    }
+
+    .result-panel {
+        max-height: 160px;
+        overflow-y: auto;
+        flex-shrink: 0;
+    }
+}
+
+/* ── Very small phones ── */
+@media (max-width: 480px) {
+    .btn-label { display: none; } /* icon-only buttons */
+
+    .editor-actions { gap: 6px; }
+
+    .btn-small {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+
+    .console-panel { height: 120px; }
+}

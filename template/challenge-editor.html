@@ -9,15 +9,26 @@
     <link rel="stylesheet" href="/static/CSS/coding.css">
     <link rel="stylesheet" href="/static/CSS/responsive.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <!-- Monaco Editor Loader -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.41.0/min/vs/loader.min.js"></script>
 </head>
 
 <body class="editor-body">
-    <div class="editor-container">
+
+    <!-- Mobile top bar -->
+    <div class="editor-topbar">
+        <a href="/coding-challenges" class="editor-back-btn">
+            <i class="fa-solid fa-arrow-left"></i>
+        </a>
+        <span class="editor-topbar-title" id="mobile-problem-title">Loading...</span>
+        <button class="editor-toggle-btn" id="panel-toggle-btn" aria-label="Toggle panel">
+            <i class="fa-solid fa-file-code"></i>
+        </button>
+    </div>
+
+    <div class="editor-container" id="editor-container">
 
         <!-- LEFT PANEL: Problem Statement -->
-        <div class="problem-panel">
+        <div class="problem-panel" id="problem-panel">
             <div class="panel-header">
                 <a href="/coding-challenges" class="back-link"><i class="fa-solid fa-arrow-left"></i> Back to list</a>
                 <h2 id="problem-title">Loading...</h2>
@@ -29,12 +40,11 @@
             <div class="problem-content" id="problem-content">
                 <p>Loading description...</p>
             </div>
-            <div class="examples" id="problem-examples">
-            </div>
+            <div class="examples" id="problem-examples"></div>
         </div>
 
         <!-- RIGHT PANEL: Editor & Console -->
-        <div class="workspace-panel">
+        <div class="workspace-panel" id="workspace-panel">
             <!-- Editor Header -->
             <div class="editor-header">
                 <div class="lang-selector">
@@ -43,30 +53,30 @@
                         <option value="java">Java</option>
                         <option value="cpp">C++</option>
                         <option value="javascript">JavaScript</option>
-                        <option value="go">go</option>
-                        <option value="ruby">ruby</option>
-                        <option value="csharp">csharp</option>
+                        <option value="typescript">TypeScript</option>
+                        <option value="go">Go</option>
                         <option value="rust">Rust</option>
-                        <option value="kotlin" >kotlin</option>
-                        <option value="php">php</option>
-                        <option value="swift">swift</option>
-                        <option value="scala">scala</option>
-                        <option value="typescript">typescript</option>
+                        <option value="kotlin">Kotlin</option>
+                        <option value="ruby">Ruby</option>
+                        <option value="csharp">C#</option>
+                        <option value="php">PHP</option>
+                        <option value="swift">Swift</option>
+                        <option value="scala">Scala</option>
                     </select>
                 </div>
                 <div class="editor-actions">
-                    <button class="secondary-btn btn-small" id="run-btn"><i class="fa-solid fa-play"></i> Run Code</button>
-                    <button class="primary-btn btn-small" id="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Submit</button>
-                    <!-- ADD THIS: -->
                     <button class="secondary-btn btn-small" id="hint-btn" onclick="getHint()">
-                        <i class="fa-solid fa-lightbulb"></i> Get Hint
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span class="btn-label"> Hint</span>
                     </button>
-                </div>
-                <div class="editor-actions">
-                    <button class="secondary-btn btn-small" id="run-btn"><i class="fa-solid fa-play"></i> Run
-                        Code</button>
-                    <button class="primary-btn btn-small" id="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i>
-                        Submit</button>
+                    <button class="secondary-btn btn-small" id="run-btn">
+                        <i class="fa-solid fa-play"></i>
+                        <span class="btn-label"> Run</span>
+                    </button>
+                    <button class="primary-btn btn-small" id="submit-btn">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span class="btn-label"> Submit</span>
+                    </button>
                 </div>
             </div>
 
@@ -82,6 +92,7 @@
                     <span style="color: #888">Run your code to see output here...</span>
                 </div>
             </div>
+
             <!-- Hint Panel (hidden by default) -->
             <div class="result-panel hidden" id="hint-panel">
                 <div style="font-size:13px;font-weight:700;color:#856404;margin-bottom:8px;">
@@ -89,7 +100,8 @@
                 </div>
                 <div id="hint-content" style="font-size:14px;color:#444;line-height:1.6;"></div>
             </div>
-            <!-- Result / AI Feedback Panel (Hidden by default) -->
+
+            <!-- Result / AI Feedback Panel (hidden by default) -->
             <div class="result-panel hidden" id="feedback-panel">
                 <h3><i class="fa-solid fa-robot"></i> AI Code Review</h3>
                 <div id="ai-feedback-content"></div>
@@ -99,6 +111,54 @@
 
     <script src="/static/JS/script.js"></script>
     <script src="/static/JS/coding.js"></script>
+    <script src="/static/JS/responsive.js"></script>
+    <script>
+        // Mobile panel toggle: switch between problem and editor
+        (function () {
+            const toggleBtn = document.getElementById('panel-toggle-btn');
+            const problemPanel = document.getElementById('problem-panel');
+            const workspacePanel = document.getElementById('workspace-panel');
+            let showingEditor = false;
+
+            function applyMobileView() {
+                if (window.innerWidth <= 768) {
+                    if (showingEditor) {
+                        problemPanel.style.display = 'none';
+                        workspacePanel.style.display = 'flex';
+                        toggleBtn.innerHTML = '<i class="fa-solid fa-file-alt"></i>';
+                        toggleBtn.setAttribute('aria-label', 'Show problem');
+                    } else {
+                        problemPanel.style.display = 'flex';
+                        workspacePanel.style.display = 'none';
+                        toggleBtn.innerHTML = '<i class="fa-solid fa-file-code"></i>';
+                        toggleBtn.setAttribute('aria-label', 'Show editor');
+                    }
+                } else {
+                    problemPanel.style.display = '';
+                    workspacePanel.style.display = '';
+                }
+            }
+
+            toggleBtn.addEventListener('click', function () {
+                showingEditor = !showingEditor;
+                applyMobileView();
+                // Trigger Monaco layout recalc after display change
+                setTimeout(function () {
+                    if (window.monacoEditor) window.monacoEditor.layout();
+                }, 50);
+            });
+
+            window.addEventListener('resize', applyMobileView);
+            applyMobileView();
+
+            // Sync mobile title from problem title
+            const observer = new MutationObserver(function () {
+                const t = document.getElementById('problem-title');
+                if (t) document.getElementById('mobile-problem-title').textContent = t.textContent;
+            });
+            observer.observe(document.getElementById('problem-title'), { childList: true, subtree: true, characterData: true });
+        })();
+    </script>
 </body>
 
 </html>
