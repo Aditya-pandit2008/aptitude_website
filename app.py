@@ -257,6 +257,24 @@ def _register_error_handlers(app: Flask):
             "message": "Rate limit exceeded. Please slow down.",
         }), 429
 
+    @app.errorhandler(415)
+    def unsupported_media_type(e):
+        # Log request content-type and a short sample of the body for debugging
+        from flask import request
+        try:
+            sample = request.get_data()[:512]
+        except Exception:
+            sample = b"<no-body>"
+        current_app.logger.warning(
+            "415 Unsupported Media Type: content_type=%s headers=%s sample=%s",
+            request.content_type, dict(request.headers), sample[:300]
+        )
+        return jsonify({
+            "success": False,
+            "error": "Unsupported Media Type",
+            "content_type": request.content_type
+        }), 415
+
     @app.errorhandler(500)
     def internal_error(e):
         db.session.rollback()

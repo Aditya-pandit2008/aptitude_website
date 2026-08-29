@@ -21,6 +21,7 @@ import json
 import re
 import time
 import uuid
+import concurrent.futures
 
 from flask import current_app
 from groq import Groq, APIStatusError, APIConnectionError, RateLimitError
@@ -109,6 +110,48 @@ def _get_client() -> Groq:
     return Groq(api_key=api_key)
 
 
+# ------------------ LaTeX sanitization helpers ------------------
+def _strip_latex_delimiters(text: str) -> str:
+    r"""Remove common LaTeX math delimiters so raw math doesn't appear on pages
+    that should not render math. This preserves the inner expression.
+    Handles: $$...$$, \[...\], \(...\), $...$, and HTML-escaped variants.
+    """
+    if not isinstance(text, str) or not text:
+        return text
+    # Unwrap display/math delimiters (handle various escape patterns)
+    try:
+        # \[ ... \]  (with optional spaces)
+        text = re.sub(r'\\\\\s*\[\s*(.*?)\s*\\\\\s*\]', r'\1', text, flags=re.DOTALL)
+        # \( ... \)  (with optional spaces)
+        text = re.sub(r'\\\\\s*\(\s*(.*?)\s*\\\\\s*\)', r'\1', text, flags=re.DOTALL)
+        # $$ ... $$  (with optional spaces/newlines)
+        text = re.sub(r'\$\$\s*(.*?)\s*\$\$', r'\1', text, flags=re.DOTALL)
+        # $ ... $  (single dollar, conservative)
+        text = re.sub(r'\$\s*(.*?)\s*\$', r'\1', text, flags=re.DOTALL)
+        # Remove stray backslash escapes left in text (e.g. \[, \], \(, \))
+        text = text.replace('\\[', '[').replace('\\]', ']').replace('\\(', '(').replace('\\)', ')')
+        # Also handle HTML-encoded backslashes
+        text = text.replace('&#92;', '\\')
+    except Exception:
+        return text
+    return text
+
+
+def _sanitize_structure(obj):
+    """Recursively sanitize strings inside dicts/lists returned by AI.
+    Non-string values are left untouched.
+    """
+    if isinstance(obj, str):
+        return _strip_latex_delimiters(obj)
+    if isinstance(obj, list):
+        return [_sanitize_structure(i) for i in obj]
+    if isinstance(obj, dict):
+        return {k: _sanitize_structure(v) for k, v in obj.items()}
+    return obj
+
+# -----------------------------------------------------------------
+
+
 def _chat(messages: list[dict], max_tokens: int = 1024,
           temperature: float = 0.7, retries: int = 3) -> str:
     """
@@ -117,8 +160,8 @@ def _chat(messages: list[dict], max_tokens: int = 1024,
     If the primary model fails with status error (e.g. 404), retries using the fallback model.
     """
     client = _get_client()
-    model  = current_app.config.get("GROQ_MODEL", "llama-3.1-8b-instant")
-    fallback_model = current_app.config.get("GROQ_FALLBACK_MODEL", "llama3-8b-8192")
+    model  = current_app.config.get("GROQ_MODEL", "openai/gpt-oss-20b")
+    fallback_model = current_app.config.get("GROQ_FALLBACK_MODEL", "moonshotai/kimi-k2-instruct")
 
     last_exc = None
     for current_model in [model, fallback_model]:
@@ -247,6 +290,8 @@ Provide:
 Keep the explanation concise and student-friendly."""
 
     result = _chat([{"role": "user", "content": prompt}], max_tokens=800)
+    # Sanitize to remove LaTeX delimiters on non-math endpoints
+    result = _strip_latex_delimiters(result)
     cache[cache_key] = result
     return result
 
@@ -284,7 +329,7 @@ Return ONLY a valid JSON array (no markdown, no extra text) in this exact format
         questions = json.loads(raw)
         if not isinstance(questions, list):
             raise ValueError("Expected a JSON array")
-        return questions[:count]
+        return _sanitize_structure(questions[:count])
     except (json.JSONDecodeError, ValueError) as exc:
         current_app.logger.warning("Groq returned malformed JSON: %s", exc)
         return []
@@ -329,20 +374,14 @@ def generate_similar_questions(question_text: str, category: str,
         if not isinstance(questions, list):
             raise ValueError("Expected a JSON array")
         # Translate outputs back to original language
-        return _translate_output(questions[:count], orig_lang)
+        return _sanitize_structure(_translate_output(questions[:count], orig_lang))
     except (json.JSONDecodeError, ValueError) as exc:
         current_app.logger.warning("Groq returned malformed JSON: %s", exc)
         return []
 
-def generate_aptitude_questions(category: str, difficulty: str, count: int = 10) -> list[dict]:
-    """
-    Generate fresh aptitude MCQs for a selected category and difficulty.
-    """
-    clean_cat = _clean_input(category or "Mixed Aptitude", max_chars=100)
-    clean_diff = _clean_input(difficulty or "medium", max_chars=20).lower()
-
-    count      = min(max(int(count or 10), 1), 30)
-    context    = _difficulty_context(clean_diff)
+def _generate_aptitude_batch(clean_cat: str, clean_diff: str, count: int) -> list[dict]:
+    """Generate a single Groq batch of up to ~15 aptitude MCQs (internal helper)."""
+    context = _difficulty_context(clean_diff)
 
     prompt = f"""Generate {count} placement aptitude multiple-choice questions for a student preparing for campus placements.
 
@@ -413,7 +452,6 @@ Format:
             if correct < 0 or correct > 3:
                 continue
             cleaned.append({
-                "id":             f"ai-{len(cleaned) + 1}",
                 "text":           item["text"].strip(),
                 "options":        [str(o).strip() for o in options],
                 "correct_option": correct,
@@ -422,11 +460,62 @@ Format:
                 "category_name":  item.get("category_name", clean_cat),
                 "source":         "groq",
             })
-        return cleaned
+        return _sanitize_structure(cleaned)
 
     except (json.JSONDecodeError, ValueError) as exc:
         current_app.logger.warning("Groq aptitude questions parse error: %s", exc)
         return []
+
+
+def generate_aptitude_questions(category: str, difficulty: str, count: int = 10) -> list[dict]:
+    """
+    Generate fresh aptitude MCQs for a selected category and difficulty.
+
+    Supports counts beyond a single Groq call's reliable output size by
+    batching requests (BATCH_SIZE questions per call). Batches beyond the
+    first run concurrently (not one-after-another) so a large "custom"
+    count doesn't take proportionally longer to generate.
+    """
+    clean_cat = _clean_input(category or "Mixed Aptitude", max_chars=100)
+    clean_diff = _clean_input(difficulty or "medium", max_chars=20).lower()
+    count = min(max(int(count or 10), 1), 50)
+
+    BATCH_SIZE = 15
+
+    if count <= BATCH_SIZE:
+        results = _generate_aptitude_batch(clean_cat, clean_diff, count)
+        for i, q in enumerate(results):
+            q["id"] = f"ai-{i + 1}"
+        return results
+
+    batch_sizes = []
+    remaining = count
+    while remaining > 0:
+        b = min(BATCH_SIZE, remaining)
+        batch_sizes.append(b)
+        remaining -= b
+
+    # Flask's `current_app` is a context-local proxy — it isn't available
+    # inside a plain worker thread, so grab the real app object up front
+    # and push an app context inside each thread before calling Groq.
+    app = current_app._get_current_object()
+
+    def _run_batch(n: int) -> list[dict]:
+        with app.app_context():
+            return _generate_aptitude_batch(clean_cat, clean_diff, n)
+
+    results: list[dict] = []
+    with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(batch_sizes), 4)) as executor:
+        futures = [executor.submit(_run_batch, b) for b in batch_sizes]
+        for fut in futures:
+            batch = fut.result()
+            if batch:
+                results.extend(batch)
+
+    for i, q in enumerate(results[:count]):
+        q["id"] = f"ai-{i + 1}"
+
+    return results[:count]
 
 
 def generate_study_plan(weak_topics: list[str], strong_topics: list[str],
@@ -461,6 +550,7 @@ Requirements:
 - Use markdown headers and bullet points for clarity"""
 
     result = _chat([{"role": "user", "content": prompt}], max_tokens=1200)
+    result = _strip_latex_delimiters(result)
     cache[cache_key] = result
     return result
 
@@ -494,7 +584,7 @@ Return ONLY a valid JSON array (no markdown fences) in this exact format:
         questions = json.loads(raw)
         if not isinstance(questions, list):
             raise ValueError("Expected a JSON array")
-        return questions[:count]
+        return _sanitize_structure(questions[:count])
     except (json.JSONDecodeError, ValueError) as exc:
         current_app.logger.warning("Groq interview questions parse error: %s", exc)
         return []
@@ -520,7 +610,7 @@ Return ONLY a valid JSON object with the keys "is_correct" (boolean), "score" (n
         return {
             "is_correct": bool(res.get("is_correct", False)),
             "score": float(res.get("score", 0.0)),
-            "feedback": str(res.get("feedback", "No feedback provided."))
+            "feedback": _strip_latex_delimiters(str(res.get("feedback", "No feedback provided.")))
         }
     except Exception as exc:
         current_app.logger.warning("Error evaluating open-ended answer via Groq: %s", exc)
@@ -550,10 +640,10 @@ Return ONLY a valid JSON object with the keys "feedback" (string) and "optimizat
     try:
         raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=800, temperature=0.2))
         res = json.loads(raw)
-        return {
+        return _sanitize_structure({
             "feedback": str(res.get("feedback", "No feedback provided.")),
             "optimization_tips": str(res.get("optimization_tips", ""))
-        }
+        })
     except Exception as exc:
         current_app.logger.warning("Error reviewing coding challenge via Groq: %s", exc)
         return {
@@ -613,7 +703,10 @@ Format:
             exclude_str = ", ".join(f'"{t}"' for t in filtered_excludes[-50:])
             prompt += f"\n- CRITICAL DUPLICATE PREVENTION: Do NOT generate any coding challenges with the following titles: {exclude_str}. Design a completely different and unique problem statement."
 
-    raw = _chat([{"role": "user", "content": prompt}], max_tokens=2000, temperature=0.7)
+    raw = _chat([{"role": "user", "content": prompt}], max_tokens=4000, temperature=0.7)
+
+    # Strip markdown code fences first
+    raw = _strip_json_fences(raw)
 
     # strict=False lets json.loads accept literal newlines/tabs inside strings,
     # which Groq sometimes emits for multi-line problem descriptions.
@@ -629,15 +722,15 @@ Format:
     if start_idx != -1 and end_idx != -1 and end_idx > start_idx:
         candidate = raw[start_idx:end_idx + 1]
         parsed = _try_parse(candidate)
-        if parsed and "title" in parsed and "template_code" in parsed:
-            return parsed
+    if parsed and "title" in parsed and "template_code" in parsed:
+            return _sanitize_structure(parsed)
 
     # Last resort: parse the whole raw string
     parsed = _try_parse(raw)
     if parsed and isinstance(parsed, dict) and "title" in parsed:
-        return parsed
+        return _sanitize_structure(parsed)
 
-        # New fallback: use regex to find potential JSON objects and try each
+    # New fallback: use regex to find potential JSON objects and try each
     import re as _re
     for m in _re.finditer(r"\{.*?\}", raw, _re.DOTALL):
         cand = m.group(0)
@@ -646,7 +739,7 @@ Format:
             cand = cand.rstrip() + '}'
         parsed = _try_parse(cand)
         if parsed and isinstance(parsed, dict) and "title" in parsed:
-            return parsed
+            return _sanitize_structure(parsed)
 
     # Additional salvage: truncate at common non-JSON markers and close brace
     trunc = raw.split('Result:')[0].strip()
@@ -654,7 +747,7 @@ Format:
         trunc = trunc + '}'
     parsed = _try_parse(trunc)
     if parsed and isinstance(parsed, dict) and "title" in parsed:
-        return parsed
+        return _sanitize_structure(parsed)
 
     current_app.logger.warning(
         "Groq coding challenge parse error: no valid JSON found. Raw snippet: %s", raw[:300]
@@ -684,27 +777,27 @@ Format:
         raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=1000, temperature=0.7))
         questions = json.loads(raw)
         if isinstance(questions, list) and len(questions) > 0:
-            return [str(q).strip() for q in questions]
+            return [_strip_latex_delimiters(str(q).strip()) for q in questions]
     except Exception as exc:
         current_app.logger.warning("Error generating interview questions: %s", exc)
     
     # Fallback questions
     if clean_type.lower() == "hr":
-        return [
+        return _sanitize_structure([
             f"Tell me about yourself and your interest in the {clean_role} role.",
             "What are your greatest strengths and how do they apply to this job?",
             "Describe a time you faced a difficult challenge in a project and how you overcame it.",
             "Where do you see yourself in five years?",
             "Why should we hire you over other candidates?"
-        ]
+        ])
     else:
-        return [
+        return _sanitize_structure([
             f"What is the difference between OOP and procedural programming, and how does it relate to {clean_role}?",
             "Explain the time complexity of QuickSort versus MergeSort.",
             "What is a deadlock and how can it be prevented in an operating system?",
             "How do indexes work in databases, and what are their pros and cons?",
             "Describe a system architecture design pattern you've used recently."
-        ]
+        ])
 
 
 def evaluate_mock_interview(role: str, interview_type: str, questions: list[str], answers: list[str]) -> dict:
@@ -733,7 +826,7 @@ Return ONLY a valid JSON object with keys "score" (integer) and "feedback" (stri
         res = json.loads(raw)
         return {
             "score": min(max(int(res.get("score", 0)), 0), 100),
-            "feedback": str(res.get("feedback", "No feedback provided."))
+            "feedback": _strip_latex_delimiters(str(res.get("feedback", "No feedback provided.")))
         }
     except Exception as exc:
         current_app.logger.warning("Error evaluating mock interview: %s", exc)
@@ -769,13 +862,14 @@ Return ONLY a valid JSON object with the exact keys: "ats_score" (integer), "fee
     try:
         raw = _strip_json_fences(_chat([{"role": "user", "content": prompt}], max_tokens=1200, temperature=0.2))
         res = json.loads(raw)
-        return {
+        out = {
             "ats_score": min(max(int(res.get("ats_score", 0)), 0), 100),
             "feedback": str(res.get("feedback", "Could not complete layout summary.")),
             "improvements": list(res.get("improvements", [])),
             "skills_detected": list(res.get("skills_detected", [])),
             "skills_gap": list(res.get("skills_gap", []))
         }
+        return _sanitize_structure(out)
     except Exception as exc:
         current_app.logger.warning("Error analyzing resume: %s", exc)
         return {

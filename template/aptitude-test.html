@@ -286,45 +286,7 @@
 <div class="container">
 
   <!-- ── SIDEBAR ── -->
-  <aside class="sidebar" id="sidebar">
-    <button id="close-btn" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
-    <a class="logo" href="/Dashboard"><img src="/images/Apti-logo.png" alt="Logo"></a>
-
-    <div class="active-task" style="cursor:default;">
-      <i class="fa-solid fa-layer-group"></i>
-      <span>Practice Tests</span>
-    </div>
-
-    <div class="menu-section">
-      <h4>Sections</h4>
-      <ul id="sidebar-sections" style="list-style:none;padding:0;">
-        <li class="sidebar-link" data-topic="Quantitative Aptitude"><i class="fa-solid fa-chart-column"></i> Quantitative</li>
-        <li class="sidebar-link" data-topic="Logical Reasoning"><i class="fa-solid fa-chart-pie"></i> Logical Reasoning</li>
-        <li class="sidebar-link" data-topic="Verbal Ability"><i class="fa-solid fa-gears"></i> Verbal Ability</li>
-        <li class="sidebar-link" data-topic="Data Interpretation"><i class="fa-solid fa-signal"></i> Data Interpretation</li>
-        <li class="sidebar-link" data-topic="Puzzle Solving"><i class="fa-solid fa-lightbulb"></i> Puzzle Solving</li>
-        <li class="sidebar-link" data-topic="Quick Revision"><i class="fa-solid fa-chart-line"></i> Quick Revision</li>
-      </ul>
-    </div>
-
-    <hr>
-    <div class="menu-section">
-      <h4>Resources</h4>
-      <ul style="list-style:none;padding:0;">
-        <li class="sidebar-link"><i class="fa-solid fa-book"></i> Study Notes</li>
-        <li class="sidebar-link"><i class="fa-solid fa-graduation-cap"></i> Tips &amp; Tricks</li>
-        <li class="sidebar-link"><i class="fa-solid fa-heart"></i> Motivation</li>
-      </ul>
-    </div>
-
-    <hr>
-    <div class="menu-section">
-      <h4>Account</h4>
-      <ul style="list-style:none;padding:0;">
-        <li class="sidebar-link" data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-    </div>
-  </aside>
+  {% include "partials/sidebar.html" %}
 
   <!-- ── MAIN ── -->
   <main class="main-content">
@@ -399,11 +361,15 @@
         </label>
         <label class="config-label">
           Questions
-          <select id="m-count">
-            <option value="5">5 questions</option>
-            <option value="10" selected>10 questions</option>
-            <option value="15">15 questions</option>
-          </select>
+          <div style="display:flex;align-items:center;gap:10px">
+            <select id="m-count">
+              <option value="5">5 questions</option>
+              <option value="10" selected>10 questions</option>
+              <option value="15">15 questions</option>
+              <option value="custom">Custom…</option>
+            </select>
+            <input id="m-count-custom" type="number" min="1" max="50" placeholder="1–50" style="width:80px;display:none;padding:9px 10px;border:1px solid #ded6bd;border-radius:8px;font-size:13px;">
+          </div>
         </label>
         <label class="config-label">
           Timer
@@ -592,8 +558,16 @@
   });
 
   /* ── Sidebar toggle ── */
-  document.getElementById('menu-btn').addEventListener('click',  () => document.getElementById('sidebar').classList.add('show'));
-  document.getElementById('close-btn').addEventListener('click', () => document.getElementById('sidebar').classList.remove('show'));
+  const menuBtn = document.getElementById('menu-btn');
+  const closeBtn = document.getElementById('close-btn');
+  const sidebarEl = document.getElementById('sidebar');
+
+  if (menuBtn && sidebarEl) {
+    menuBtn.addEventListener('click', () => sidebarEl.classList.add('show'));
+  }
+  if (closeBtn && sidebarEl) {
+    closeBtn.addEventListener('click', () => sidebarEl.classList.remove('show'));
+  }
 
   /* ── Logout ── */
   document.querySelectorAll('[data-action="logout"]').forEach(el =>
@@ -624,6 +598,9 @@
     document.getElementById('modal-result').style.display     = 'none';
     document.getElementById('gen-btn').disabled               = false;
     document.getElementById('gen-btn').innerHTML              = '<i class="fa-solid fa-wand-magic-sparkles"></i> Generate &amp; Start';
+    document.getElementById('m-count').value                  = '10';
+    const mCountCustom = document.getElementById('m-count-custom');
+    if (mCountCustom) { mCountCustom.value = ''; mCountCustom.style.display = 'none'; }
 
     document.getElementById('modal-overlay').classList.add('open');
     clearQuizTimer();
@@ -642,7 +619,7 @@
   /* ── Generate questions ── */
   document.getElementById('gen-btn').addEventListener('click', async () => {
     const difficulty = document.getElementById('m-difficulty').value;
-    const count      = Number(document.getElementById('m-count').value);
+    const count      = getModalCount();
     const timerSecs  = Number(document.getElementById('m-timer').value);
     const btn        = document.getElementById('gen-btn');
 
@@ -651,7 +628,9 @@
 
     document.getElementById('modal-config').style.display     = 'none';
     document.getElementById('modal-status-row').style.display = 'flex';
-    document.getElementById('modal-status-text').textContent  = `✨ Generating ${count} AI questions on "${quiz.topic}"…`;
+    document.getElementById('modal-status-text').textContent  = count > 30
+      ? `✨ Generating ${count} AI questions on "${quiz.topic}"… running in parallel batches, just a moment.`
+      : `✨ Generating ${count} AI questions on "${quiz.topic}"…`;
     document.getElementById('modal-timer-text').textContent   = '—';
     document.getElementById('modal-questions').innerHTML      = '';
     document.getElementById('modal-result').style.display     = 'none';
@@ -759,7 +738,7 @@
         </span>
         ${!a.ok||skip ? `<span>Your answer: ${skip?'—':esc(a.q.options[a.sel])}</span>` : ''}
         <span>Correct: <strong>${esc(a.q.options[a.correct])}</strong></span>
-        ${a.q.explanation ? `<span>💡 ${esc(a.q.explanation)}</span>` : ''}
+        ${a.q.explanation ? `<span>💡 ${esc(stripLatex(a.q.explanation))}</span>` : ''}
       `;
       document.querySelector(`.modal-question[data-index="${i}"]`)?.appendChild(detail);
     });
@@ -837,9 +816,42 @@
   function esc(v) {
     return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
                     .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+  }  // Client-side LaTeX delimiter stripper (safety net)
+  function stripLatex(v) {
+    if (!v) return v;
+    return String(v)
+      .replace(/\\\\\s*\[\s*(.*?)\s*\\\\\s*\]/g, '$1')
+      .replace(/\\\\\s*\(\s*(.*?)\s*\\\\\s*\)/g, '$1')
+      .replace(/\$\$\s*(.*?)\s*\$\$/g, '$1')
+      .replace(/\$\s*(.*?)\s*\$/g, '$1')
+      .replace(/\\\[/g, '[').replace(/\\\]/g, ']')
+      .replace(/\\\(/g, '(').replace(/\\\)/g, ')')
+      .replace(/&#92;/g, '\\');
+  }
+  /* ── Init ── */
+  // Show/hide the custom question-count input based on the dropdown
+  (function(){
+    const sel    = document.getElementById('m-count');
+    const custom = document.getElementById('m-count-custom');
+    if (!sel || !custom) return;
+    sel.addEventListener('change', () => {
+      const isCustom = sel.value === 'custom';
+      custom.style.display = isCustom ? 'inline-block' : 'none';
+      if (isCustom) custom.focus();
+    });
+  })();
+
+  // Resolve the chosen question count, handling the "Custom…" option
+  function getModalCount() {
+    const sel = document.getElementById('m-count');
+    if (sel.value === 'custom') {
+      const raw = Number(document.getElementById('m-count-custom')?.value);
+      if (!raw || raw < 1) return 10;
+      return Math.min(Math.max(Math.round(raw), 1), 50);
+    }
+    return Number(sel.value || 10);
   }
 
-  /* ── Init ── */
   renderStats();
   renderTopics();
 })();

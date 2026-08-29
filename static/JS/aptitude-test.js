@@ -57,6 +57,7 @@
     categorySelect:   document.getElementById('category-select'),
     difficultySelect: document.getElementById('difficulty-select'),
     countSelect:      document.getElementById('count-select'),
+    countCustom:      document.getElementById('count-custom'),
     timerSelect:      document.getElementById('timer-select'),
     search:           document.getElementById('question-search'),
     start:            document.getElementById('start-test'),
@@ -127,27 +128,31 @@
   }
 
   function renderCategories(categories) {
-    if (!nodes.categorySelect || !nodes.categoryList) return;
+    if (!nodes.categorySelect) return;
     nodes.categorySelect.innerHTML = '<option value="">Mixed Aptitude</option>';
-    nodes.categoryList.innerHTML = '';
 
     categories.forEach(cat => {
       const opt = document.createElement('option');
       opt.value = cat.id;
       opt.textContent = cat.name;
       nodes.categorySelect.appendChild(opt);
+    });
 
+    // Older templates had a topic list inside the sidebar. It is optional now
+    // because the shared sidebar is reserved for navigation.
+    if (!nodes.categoryList) return;
+    nodes.categoryList.innerHTML = '';
+    categories.forEach(cat => {
       const li = document.createElement('li');
       li.innerHTML = `<i class="fa-solid fa-layer-group"></i> ${escapeHtml(cat.name)}`;
       li.addEventListener('click', () => {
         nodes.categorySelect.value = cat.id;
-        nodes.sidebar.classList.remove('show');
+        nodes.sidebar?.classList.remove('show');
         startTest();
       });
       nodes.categoryList.appendChild(li);
     });
   }
-
   function filterCategories() {
     const q = nodes.search.value.trim().toLowerCase();
     const filtered = state.categories.filter(c =>
@@ -173,11 +178,22 @@
     return data.questions || [];
   }
 
+  // ── Resolve question count (handles the "Custom…" dropdown option) ────────
+  function getSelectedCount() {
+    const selectVal = nodes.countSelect?.value;
+    if (selectVal === 'custom') {
+      const raw = Number(nodes.countCustom?.value);
+      if (!raw || raw < 1) return 10;
+      return Math.min(Math.max(Math.round(raw), 1), 50);
+    }
+    return Number(selectVal || 10);
+  }
+
   // ── Start test ────────────────────────────────────────────────────────────
   async function startTest() {
     const categoryId   = nodes.categorySelect?.value || '';
     const categoryName = getSelectedCategoryName();
-    const count        = Number(nodes.countSelect?.value || 10);
+    const count        = getSelectedCount();
     const timerVal     = Number(nodes.timerSelect?.value || 600);
 
     // Use user-level difficulty unless manually overridden
@@ -197,7 +213,9 @@
 
     const levelLabel = state.userLevel.charAt(0).toUpperCase() + state.userLevel.slice(1);
     if (nodes.status)
-      nodes.status.textContent = `✨ Generating ${count} Groq AI questions — Level: ${levelLabel} (${difficulty})…`;
+      nodes.status.textContent = count > 30
+        ? `✨ Generating ${count} Groq AI questions — Level: ${levelLabel} (${difficulty})… running in parallel batches, just a moment.`
+        : `✨ Generating ${count} Groq AI questions — Level: ${levelLabel} (${difficulty})…`;
     updateTimerText();
 
     try {

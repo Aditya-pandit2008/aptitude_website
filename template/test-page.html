@@ -49,37 +49,11 @@
     }
   </style>
 </head>
-<body>
+<body data-page="test-page">
   <div class="container">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <button id="close-btn" aria-label="Close menu">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" alt="Logo">
-      </a>
-      <a class="active-task" href="/Dashboard">
-        <i class="fa-solid fa-table-columns"></i>
-        <span>Dashboard</span>
-      </a>
-      <div class="menu-section">
-        <h4>Quick-start by Topic</h4>
-        <ul id="category-list">
-          <li><i class="fa-solid fa-spinner fa-spin"></i> Loading topics…</li>
-        </ul>
-      </div>
-      <hr>
-      <div class="menu-section">
-        <h4>Account</h4>
-        <ul>
-          <li data-action="logout">
-            <i class="fa-solid fa-right-from-bracket"></i> Logout
-          </li>
-        </ul>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
 
     <!-- MAIN -->
     <main class="main-content">
@@ -87,9 +61,8 @@
       <!-- NAVBAR -->
       <nav class="navbar">
         <div class="left-nav">
-          <i class="fa-solid fa-bars" id="menu-btn"></i>
-          <img src="/images/Apti-logo.png" alt="Logo">
-        </div>
+            <img src="/images/Apti-logo.png" alt="Logo">
+          </div>
         <div class="right-nav">
           <div class="search-box">
             <input id="question-search" type="text" placeholder="Search topic…">
@@ -138,11 +111,15 @@
 
           <label>
             Questions
-            <select id="count-select">
-              <option value="5">5 questions</option>
-              <option value="10" selected>10 questions</option>
-              <option value="15">15 questions</option>
-            </select>
+            <div style="display:flex;align-items:center;gap:10px">
+              <select id="count-select">
+                <option value="5">5 questions</option>
+                <option value="10" selected>10 questions</option>
+                <option value="15">15 questions</option>
+                <option value="custom">Custom…</option>
+              </select>
+              <input id="count-custom" type="number" min="1" max="50" placeholder="1–50" style="width:90px;display:none;padding:8px 10px;border:1px solid #ded6bd;border-radius:8px;font:inherit;">
+            </div>
           </label>
 
           <label>
@@ -170,6 +147,19 @@
           <span id="timer-text">Timer not started</span>
         </div>
       </section>
+        <script>
+          // show/hide the custom question-count input based on the dropdown
+          (function(){
+            const sel    = document.getElementById('count-select');
+            const custom = document.getElementById('count-custom');
+            if (!sel || !custom) return;
+            sel.addEventListener('change', () => {
+              const isCustom = sel.value === 'custom';
+              custom.style.display = isCustom ? 'inline-block' : 'none';
+              if (isCustom) custom.focus();
+            });
+          })();
+        </script>
 
       <!-- QUESTIONS -->
       <section id="question-area" class="question-area"></section>

@@ -10,10 +10,10 @@ let charts = {};
 // ── Init ──────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
     const token = localStorage.getItem('access_token');
-    if (!token) { window.location.href = '/login'; return; }
+    if (!token) { window.location.href = '/admin-login'; return; }
 
     const ok = await loadUserInfo();
-    if (!ok) return; // blocked by role check / promotion UI shown
+    if (!ok) return;
 
     await loadCategories();
     await loadDashboard();
@@ -26,12 +26,16 @@ function setupSidebar() {
     document.querySelectorAll('.admin-menu-item[data-section]').forEach(item => {
         item.addEventListener('click', () => showSection(item.dataset.section));
     });
+    document.querySelector('[data-page="/Dashboard"]')?.addEventListener('click', () => {
+        window.location.href = '/Dashboard';
+    });
     document.querySelector('[data-action="logout"]')?.addEventListener('click', () => {
-        localStorage.clear();
-        window.location.href = '/login';
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/admin-login';
     });
 }
-
 function showSection(name) {
     document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
     document.querySelectorAll('.admin-menu-item').forEach(i => i.classList.remove('active'));
@@ -52,91 +56,21 @@ async function loadUserInfo() {
     try {
         const res = await apiFetch(`${API_BASE}/auth/me`);
         const json = await res.json();
-        if (!res.ok) { window.location.href = '/login'; return false; }
+        const user = json.data?.user;
 
-        const data = json.data;
-
-        if (data.user.role !== 'admin') {
-            showPromotionUI(data.user);
+        if (!res.ok || !user || user.role !== 'admin') {
+            window.location.href = '/admin-login?reason=admin-required';
             return false;
         }
 
-        document.getElementById('admin-username').textContent = data.user.username;
-        const initial = data.user.username[0].toUpperCase();
-        document.getElementById('admin-avatar-circle').textContent = initial;
+        document.getElementById('admin-username').textContent = user.username;
+        document.getElementById('admin-avatar-circle').textContent = user.username[0].toUpperCase();
         return true;
     } catch {
-        window.location.href = '/login';
+        window.location.href = '/admin-login';
         return false;
     }
 }
-
-function showPromotionUI(user) {
-    document.querySelector('.admin-sidebar').style.display = 'none';
-    const main = document.querySelector('.admin-main');
-    main.innerHTML = `
-        <div class="promotion-wrap">
-            <div class="promotion-card">
-                <div class="promo-icon">🔐</div>
-                <h2>Admin Access Required</h2>
-                <p>Logged in as <strong>${escapeHtml(user.username)}</strong> (${escapeHtml(user.email)})</p>
-                <p class="promo-sub">Your account role is <code>${user.role}</code>. Admin access is needed to view this panel.</p>
-
-                <div class="promo-divider"><span>Promote via Secret Key</span></div>
-                <p class="promo-hint">Ask your server administrator for the <code>ADMIN_SECRET_KEY</code>, then enter it below.</p>
-
-                <div class="promo-form">
-                    <input type="password" id="promo-secret" class="promo-input" placeholder="Enter admin secret key…" />
-                    <button class="btn-primary" id="promo-btn" onclick="promoteToAdmin()">
-                        <i class="fas fa-shield-alt"></i> Promote Me to Admin
-                    </button>
-                </div>
-                <div id="promo-msg" class="promo-msg"></div>
-
-                <div class="promo-divider"><span>Or use the terminal</span></div>
-                <div class="promo-code">
-                    <code>flask --app app make-admin ${escapeHtml(user.email)}</code>
-                </div>
-                <p class="promo-hint">Run this on the server, then refresh this page.</p>
-
-                <div class="promo-footer">
-                    <a href="/Dashboard" class="btn-secondary-link">← Back to Dashboard</a>
-                    <button class="btn-secondary" onclick="localStorage.clear(); window.location.href='/login'">Log out</button>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-async function promoteToAdmin() {
-    const secret = document.getElementById('promo-secret')?.value.trim();
-    const msgEl = document.getElementById('promo-msg');
-    const btn = document.getElementById('promo-btn');
-
-    if (!secret) {
-        if (msgEl) { msgEl.textContent = 'Please enter the secret key.'; msgEl.className = 'promo-msg error'; }
-        return;
-    }
-
-    if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Promoting…'; }
-
-    const res = await apiFetch(`${API_BASE}/auth/make-admin`, {
-        method: 'POST',
-        body: JSON.stringify({ secret_key: secret })
-    });
-    const data = await res.json();
-
-    if (!res.ok) {
-        if (msgEl) { msgEl.textContent = data.error || 'Promotion failed. Check the secret key.'; msgEl.className = 'promo-msg error'; }
-        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-shield-alt"></i> Promote Me to Admin'; }
-        return;
-    }
-
-    if (msgEl) { msgEl.textContent = '✅ You are now admin! Reloading…'; msgEl.className = 'promo-msg success'; }
-    setTimeout(() => window.location.reload(), 1200);
-}
-
-// ── Dashboard ─────────────────────────────────────────────────────────────────
 async function loadDashboard() {
     try {
         const res = await apiFetch(`${API_BASE}/admin/dashboard`);

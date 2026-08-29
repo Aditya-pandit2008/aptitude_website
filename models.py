@@ -929,3 +929,5 @@ class ResumeAnalysis(db.Model):
             "skills_gap":      self.skills_gap,
             "created_at":      self.created_at.isoformat() if self.created_at else None,
         }
+
+

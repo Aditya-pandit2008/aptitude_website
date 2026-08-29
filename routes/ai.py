@@ -168,13 +168,13 @@ def generate_aptitude_questions():
     Request body:
         category   (str)       – topic/category name
         difficulty (str)       – easy | medium | hard
-        count      (int, 1-10) – number of questions
+        count      (int, 1-50) – number of questions (batched internally for larger counts)
     """
     data        = request.get_json(silent=True) or {}
     category    = _sanitize(data.get("category") or "Mixed Aptitude", _MAX_CATEGORY_LEN)
     category_id = data.get("category_id")
     difficulty  = _sanitize(data.get("difficulty") or "medium", 10).lower()
-    count       = min(max(int(data.get("count", 5)), 1), 10)
+    count       = min(max(int(data.get("count", 5)), 1), 50)
     user_id = get_jwt_identity()
     if difficulty == "adaptive" and user_id:
         from models import User

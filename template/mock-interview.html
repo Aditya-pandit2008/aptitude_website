@@ -138,39 +138,13 @@
     }
   </style>
 </head>
-<body>
+<body data-page="mock-interview">
   <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar-overlay" class="sidebar-overlay"></div>
   <div class="container">
     
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
-      </a>
-      <ul class="menu">
-        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
-        <li class="active" data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
-        <li data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
-        <li data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
-        <li data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
-        <li data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
-        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-      <div class="bottom-menu">
-        <div class="profile" data-page="/profile">
-          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
-          <span id="sidebar-username">Student</span>
-        </div>
-        <div class="bottom-item" data-page="/settings">
-          <i class="fa-solid fa-gear"></i> Settings
-        </div>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
     
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">
@@ -178,9 +152,6 @@
       <!-- HEADER -->
       <div class="dashboard-head">
         <div style="display:flex;align-items:center;gap:14px;">
-          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
           <div>
             <p class="eyebrow">AI Tools</p>
             <h1>Mock Interview</h1>
@@ -196,8 +167,8 @@
         <div style="margin-top:20px;">
           <label style="font-weight:700;font-size:13px;text-transform:uppercase;color:#4d4742;">Round Type</label>
           <div style="display:flex;gap:12px;margin:8px 0 20px;">
-            <button class="btn-primary" id="btn-type-tech" style="flex:1;">Technical Interview</button>
-            <button class="btn-secondary" id="btn-type-hr" style="flex:1;">HR / Behavioural</button>
+            <button type="button" class="btn-primary" id="btn-type-tech" style="flex:1;">Technical Interview</button>
+            <button type="button" class="btn-secondary" id="btn-type-hr" style="flex:1;">HR / Behavioural</button>
           </div>
         </div>
         
@@ -215,13 +186,13 @@
         <div style="margin-top:20px;">
           <label style="font-weight:700;font-size:13px;text-transform:uppercase;color:#4d4742;">Difficulty</label>
           <div style="display:flex;gap:12px;margin:8px 0 24px;">
-            <button class="role-option selected" id="btn-diff-easy" data-diff="easy" style="flex:1;">Easy</button>
-            <button class="role-option" id="btn-diff-med" data-diff="medium" style="flex:1;">Medium</button>
-            <button class="role-option" id="btn-diff-hard" data-diff="hard" style="flex:1;">Hard</button>
+            <button type="button" class="role-option selected" id="btn-diff-easy" data-diff="easy" style="flex:1;">Easy</button>
+            <button type="button" class="role-option" id="btn-diff-med" data-diff="medium" style="flex:1;">Medium</button>
+            <button type="button" class="role-option" id="btn-diff-hard" data-diff="hard" style="flex:1;">Hard</button>
           </div>
         </div>
         
-        <button id="start-interview-btn" class="btn-primary" style="width:100%;justify-content:center;padding:15px;">
+        <button type="button" id="start-interview-btn" class="btn-primary" style="width:100%;justify-content:center;padding:15px;">
           <i class="fa-solid fa-wand-magic-sparkles"></i> Generate and Start Interview
         </button>
       </div>
@@ -247,8 +218,8 @@
         </div>
         
         <div style="display:flex;gap:12px;">
-          <button id="skip-q-btn" class="btn-secondary" style="flex:1;justify-content:center;">Skip Question</button>
-          <button id="submit-q-btn" class="btn-primary" style="flex:2;justify-content:center;">
+          <button type="button" id="skip-q-btn" class="btn-secondary" style="flex:1;justify-content:center;">Skip Question</button>
+          <button type="button" id="submit-q-btn" class="btn-primary" style="flex:2;justify-content:center;">
             <i class="fa-solid fa-arrow-right"></i> Submit Answer
           </button>
         </div>
@@ -271,7 +242,7 @@
           <!-- Markdown analysis report -->
         </div>
         
-        <button onclick="window.location.reload()" class="btn-primary" style="width:100%;justify-content:center;margin-top:24px;padding:14px;">
+        <button type="button" onclick="window.location.reload()" class="btn-primary" style="width:100%;justify-content:center;margin-top:24px;padding:14px;">
           <i class="fa-solid fa-rotate-right"></i> Take Another Mock Interview
         </button>
       </div>
@@ -297,10 +268,17 @@
       } catch(e) {}
       
       document.querySelectorAll('[data-page]').forEach(item => {
-        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+        // Avoid binding the body (which also has data-page) — bind only actionable page links
+        if (item === document.body) return;
+        item.addEventListener('click', function (e) {
+          e.preventDefault(); e.stopPropagation();
+          const href = this.dataset.page;
+          if (href) window.location.href = href;
+        });
       });
       document.querySelectorAll('[data-action="logout"]').forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', function (e) {
+          e.preventDefault(); e.stopPropagation();
           localStorage.clear();
           window.location.href = '/login';
         });
@@ -314,14 +292,16 @@
       const btnTech = document.getElementById('btn-type-tech');
       const btnHR = document.getElementById('btn-type-hr');
       
-      btnTech.addEventListener('click', () => {
+      btnTech.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
         selectedType = "technical";
         btnTech.className = "btn-primary";
         btnHR.className = "btn-secondary";
         document.getElementById('interview-badge').textContent = "Technical Round";
       });
       
-      btnHR.addEventListener('click', () => {
+      btnHR.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
         selectedType = "hr";
         btnTech.className = "btn-secondary";
         btnHR.className = "btn-primary";
@@ -329,7 +309,8 @@
       });
       
       document.querySelectorAll('.role-grid .role-option').forEach(el => {
-        el.addEventListener('click', () => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation();
           document.querySelectorAll('.role-grid .role-option').forEach(item => item.classList.remove('selected'));
           el.classList.add('selected');
           selectedRole = el.dataset.role;
@@ -341,7 +322,8 @@
       const btnDiffHard = document.getElementById('btn-diff-hard');
       
       document.querySelectorAll('#btn-diff-easy, #btn-diff-med, #btn-diff-hard').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault(); e.stopPropagation();
           document.querySelectorAll('#btn-diff-easy, #btn-diff-med, #btn-diff-hard').forEach(b => b.classList.remove('selected'));
           btn.classList.add('selected');
           selectedDiff = btn.dataset.diff;
@@ -357,7 +339,8 @@
       
       // Handle Start Interview click
       const startBtn = document.getElementById('start-interview-btn');
-      startBtn.addEventListener('click', async () => {
+      startBtn.addEventListener('click', async (e) => {
+        e.preventDefault(); e.stopPropagation();
         startBtn.disabled = true;
         startBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing Questions...';
         
@@ -435,10 +418,11 @@
       }
       
       const submitBtn = document.getElementById('submit-q-btn');
-      submitBtn.addEventListener('click', () => submitAnswer(false));
+      submitBtn.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); submitAnswer(false); });
       
       const skipBtn = document.getElementById('skip-q-btn');
-      skipBtn.addEventListener('click', () => {
+      skipBtn.addEventListener('click', (e) => {
+        e.preventDefault(); e.stopPropagation();
         document.getElementById('answer-input').value = "[Skipped Question]";
         submitAnswer(false);
       });
@@ -487,7 +471,7 @@
               document.getElementById('report-view').classList.remove('hidden');
               document.getElementById('final-score').textContent = payload.score;
               document.getElementById('xp-grant-text').textContent = `You earned +${payload.xp_earned} XP ⭐`;
-              document.getElementById('feedback-report-content').innerHTML = payload.feedback.replace(/\n/g, '<br>');
+              document.getElementById('feedback-report-content').innerHTML = stripLatex(payload.feedback).replace(/\n/g, '<br>');
             } else {
               currentQuestionIdx = payload.next_question_index;
               showQuestion(payload.next_question);
@@ -509,6 +493,19 @@
       answerInput.addEventListener('input', () => {
         document.getElementById('word-count').textContent = `${answerInput.value.length} characters`;
       });
+      
+      // Client-side LaTeX delimiter stripper (safety net)
+      function stripLatex(v) {
+        if (!v) return v;
+        return String(v)
+          .replace(/\\\\\s*\[\s*(.*?)\s*\\\\\s*\]/g, '$1')
+          .replace(/\\\\\s*\(\s*(.*?)\s*\\\\\s*\)/g, '$1')
+          .replace(/\$\$\s*(.*?)\s*\$\$/g, '$1')
+          .replace(/\$\s*(.*?)\s*\$/g, '$1')
+          .replace(/\\\[/g, '[').replace(/\\\]/g, ']')
+          .replace(/\\\(/g, '(').replace(/\\\)/g, ')')
+          .replace(/&#92;/g, '\\');
+      }
     })();
   </script>
 </body>

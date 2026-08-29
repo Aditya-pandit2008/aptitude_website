@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body>
+<body class="admin-body">
     <a class="apti-skip-link" href="#admin-content">Skip to main content</a>
     <div class="admin-container">
         <!-- Sidebar -->
@@ -21,6 +21,10 @@
             </div>
 
             <ul class="admin-menu">
+                <li class="admin-menu-item" data-page="/Dashboard">
+                    <i class="fas fa-house"></i>
+                    <span>Learning Dashboard</span>
+                </li>
                 <li class="admin-menu-item active" data-section="dashboard">
                     <i class="fas fa-chart-line"></i>
                     <span>Dashboard</span>
@@ -53,13 +57,15 @@
         </aside>
 
         <!-- Main Content -->
-        <main class="admin-main">
+        <main class="admin-main" id="admin-content" tabindex="-1">
             <!-- Header -->
             <header class="admin-header">
                 <h1 id="section-title">Dashboard</h1>
-                <div class="admin-user">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <div class="admin-user">
                     <span id="admin-username">Admin</span>
                     <div class="admin-avatar-circle" id="admin-avatar-circle">A</div>
+                    </div>
                 </div>
             </header>
 
