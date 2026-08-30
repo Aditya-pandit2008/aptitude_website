@@ -201,6 +201,21 @@ body {
   box-shadow: 0 12px 26px rgba(255, 215, 112, 0.16), inset 0 1px 2px rgba(0, 0, 0, 0.18);
 }
 
+/* Chrome/Edge/Safari force their own light background on autofilled inputs
+   (e.g. after a saved-password suggestion), breaking the dark themed card.
+   Force the fill colors back to match the card via the inset-shadow trick,
+   since `background-color` alone can't override -webkit-autofill styling. */
+.admin-login-page .input-box input:-webkit-autofill,
+.admin-login-page .input-box input:-webkit-autofill:hover,
+.admin-login-page .input-box input:-webkit-autofill:focus,
+.admin-login-page .input-box input:-webkit-autofill:active {
+  -webkit-text-fill-color: #f7edd7;
+  caret-color: #f7edd7;
+  -webkit-box-shadow: 0 0 0 1000px #3a2f26 inset;
+  box-shadow: 0 0 0 1000px #3a2f26 inset;
+  transition: background-color 9999s ease-in-out 0s, color 9999s ease-in-out 0s;
+}
+
 .admin-login-page .input-box i {
   position: absolute;
   top: 50%;
