@@ -129,6 +129,7 @@ body {
   border-radius: 26px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(20px);
+  box-sizing: border-box;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
