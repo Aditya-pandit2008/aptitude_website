@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Secure administrator login for Aptitude Test." />
+  <title>Admin Login - Aptitude Test</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/CSS/responsive.css" />
+  <link rel="stylesheet" href="/static/CSS/admin-login.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Rye&family=Rozha+One&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="admin-login-page">
+  <main class="container">
+    <section class="left-section" aria-labelledby="admin-login-heading">
+      <div class="form-wrap">
+        <div class="welcome">
+          <p class="admin-eyebrow"><i class="fa-solid fa-shield-halved"></i> Restricted area</p>
+          <h1 class="welcome-title">Admin<br>Access</h1>
+          <p class="welcome-subtitle">Use your administrator account to manage users, questions, and platform data.</p>
+          <div class="admin-hero-chip"><i class="fa-solid fa-lock"></i> Secure admin portal</div>
+        </div>
+        <form class="login-card" id="admin-login-form" novalidate>
+          <div class="login-logo"><i class="fa-solid fa-user-shield"></i></div>
+          <h2 class="login-heading" id="admin-login-heading">ADMIN LOGIN</h2>
+          <p class="admin-login-help">Only accounts with admin access can continue.</p>
+
+          <label class="input-box" for="admin-login-email">
+            <span class="sr-only">Email address</span>
+            <input type="email" id="admin-login-email" placeholder="EMAIL" autocomplete="email" required />
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
+          </label>
+          <label class="input-box" for="admin-login-password">
+            <span class="sr-only">Password</span>
+            <input type="password" id="admin-login-password" placeholder="PASSWORD" autocomplete="current-password" required />
+            <i class="fa-solid fa-eye" id="admin-toggle-password" aria-hidden="true"></i>
+          </label>
+
+          <p id="admin-login-message" class="admin-login-message" role="alert" aria-live="polite"></p>
+          <button class="login-btn" id="admin-login-submit" type="submit">
+            <span class="btn-text">LOGIN TO ADMIN PANEL</span>
+            <i class="fa-solid fa-arrow-right btn-icon" aria-hidden="true"></i>
+          </button>
+          <p class="admin-back-link"><a href="/login"><i class="fa-solid fa-arrow-left"></i> Back to student login</a></p>
+        </form>
+      </div>
+    </section>
+
+    <section class="right-section" aria-hidden="true">
+      <div class="right-content">
+        <div class="brand-badge"><img src="/images/Apti-logo.png" alt="" class="brand-logo" /></div>
+        <h2 class="right-heading">Manage the platform<br>with confidence.</h2>
+        <p class="right-sub">Your admin panel lets you review learner activity, organize categories, and maintain quality questions.</p>
+        <div class="admin-security-note"><i class="fa-solid fa-lock"></i> This sign-in checks your administrator role before opening the panel.</div>
+        <div class="admin-feature-list">
+          <span><i class="fa-solid fa-chart-line"></i> Insights</span>
+          <span><i class="fa-solid fa-users-gear"></i> Team control</span>
+          <span><i class="fa-solid fa-box-archive"></i> Content review</span>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="/static/JS/responsive.js"></script>
+  <script src="/static/JS/admin-login.js"></script>
+</body>
+</html>

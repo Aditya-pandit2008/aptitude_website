@@ -115,6 +115,31 @@ def login():
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Dedicated administrator login
+@auth_bp.route("/admin/login", methods=["POST"])
+@limiter.limit("10 per minute")
+def admin_login():
+    """Authenticate an existing administrator for the admin panel."""
+    data = request.get_json(silent=True) or {}
+    errors = validate_login(data)
+    if errors:
+        return error("Validation failed.", 422, details=errors)
+
+    user = User.query.filter_by(email=data["email"].strip().lower()).first()
+    if not user or not user.check_password(data["password"]):
+        return error("Invalid email or password.", 401)
+    if user.role != "admin":
+        return error("This account does not have administrator access.", 403)
+
+    access_token = create_access_token(identity=str(user.id))
+    refresh_token = create_refresh_token(identity=str(user.id))
+    return success({
+        "message": "Admin login successful.",
+        "user": user.to_dict(include_sensitive=True),
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }, 200)
+
 # Logout
 # ─────────────────────────────────────────────────────────────────────────────
 

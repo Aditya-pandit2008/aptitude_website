@@ -99,7 +99,7 @@ COMPANY_PROFILES = {
 @company_bp.route("/details", methods=["GET"])
 def get_company_details():
     """Retrieve detailed recruitment syllabus and pattern for companies."""
-    return jsonify({"success": True, "companies": COMPANY_PROFILES}), 200
+    return success({"companies": COMPANY_PROFILES}, 200)
 
 
 @company_bp.route("/practice-test", methods=["POST"])

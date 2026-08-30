@@ -182,6 +182,16 @@ body {
   transform: translateY(-50%) scale(1.1);
 }
 
+.input-box input:focus+i {
+  color: #6b3f92;
+  transform: translateY(-50%) scale(1.1);
+}
+
+.input-box i:hover {
+  color: #6b3f92;
+  transform: translateY(-50%) scale(1.1);
+}
+
 /* ── PASSWORD STRENGTH ──────────────────────────────── */
 .pw-strength-wrap {
   height: 5px;
@@ -465,6 +475,19 @@ body {
 
 .hero-illustration img:hover {
   transform: scale(1.02);
+}
+
+/* ── ACCESSIBILITY ─────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* ── ANIMATIONS ─────────────────────────────────────── */

@@ -9,8 +9,12 @@
 
   // Sidebar navigation
   document.querySelectorAll('[data-page]').forEach((item) => {
-    item.addEventListener('click', () => {
-      window.location.href = item.dataset.page;
+    if (item === document.body) return;
+    item.addEventListener('click', (event) => {
+      const target = item.dataset.page;
+      if (!target) return;
+      event.preventDefault();
+      window.location.href = target.startsWith('/') ? target : `/${target}`;
     });
   });
 

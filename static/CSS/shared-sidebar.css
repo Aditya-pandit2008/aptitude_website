@@ -1,0 +1,109 @@
+/* Shared dashboard sidebar used across learner-facing pages. */
+.shared-sidebar {
+  width: 260px;
+  min-width: 260px;
+  min-height: 100vh;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 20px;
+  background: #dcdbd7;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.04);
+  font-family: "Poppins", sans-serif;
+}
+.shared-sidebar .logo { display: block; margin-bottom: 36px; text-decoration: none; }
+.shared-sidebar .logo img { display: block; width: min(100%, 210px); height: auto; }
+.shared-sidebar .menu { flex: 1; margin: 0; padding: 0; list-style: none; }
+.shared-sidebar .menu li {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.shared-sidebar .menu a,
+.shared-sidebar .menu button,
+.shared-sidebar .bottom-item,
+.shared-sidebar .profile {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  margin-bottom: 6px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  color: #4b4b4b;
+  cursor: pointer;
+  font-size: 14.5px;
+  font-weight: 600;
+  line-height: 1.25;
+  text-decoration: none;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  transition: background 0.25s ease, box-shadow 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  user-select: none;
+}
+.shared-sidebar .menu a:hover,
+.shared-sidebar .menu button:hover,
+.shared-sidebar .bottom-item:hover,
+.shared-sidebar .profile:hover {
+  background: #eadba3;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.07);
+  color: #222;
+  transform: translateX(5px);
+}
+.shared-sidebar .menu a.active,
+.shared-sidebar .bottom-item.active,
+.shared-sidebar .menu button.active {
+  background: rgba(234, 219, 163, 0.45);
+  box-shadow: inset 3px 0 0 #4d4742;
+  color: #3b3128;
+  font-weight: 700;
+}
+.shared-sidebar .menu a i,
+.shared-sidebar .menu button i,
+.shared-sidebar .bottom-item i { width: 18px; color: #7a7268; font-size: 15px; text-align: center; }
+.shared-sidebar .menu a.active i,
+.shared-sidebar .menu a:hover i,
+.shared-sidebar .menu button:hover i,
+.shared-sidebar .bottom-item:hover i { color: #4d4742; }
+.shared-sidebar .sidebar-action-btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+.shared-sidebar .bottom-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 0, 0, 0.07);
+}
+.shared-sidebar .profile { padding: 12px; }
+.shared-sidebar .profile img {
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  object-fit: cover;
+}
+.shared-sidebar .profile span {
+  overflow: hidden;
+  color: #3b3128;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* Existing page markup remains only as a compatibility fallback for old scripts. */
+.sidebar--legacy { display: none !important; }
+@media (max-width: 991px) {
+  .shared-sidebar { position: fixed; left: 0; top: 0; transform: translateX(-105%); transition: transform 0.25s ease; }
+  .shared-sidebar.is-open,
+  .shared-sidebar.show { transform: translateX(0); }
+}

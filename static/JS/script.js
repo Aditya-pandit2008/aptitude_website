@@ -74,13 +74,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Mobile menu toggle (if hamburger menu exists)
-  const hamburger = document.querySelector('.hamburger');
-  const navMenu = document.querySelector('nav');
-  if (hamburger) {
-    hamburger.addEventListener('click', function() {
+  // Mobile menu toggle (only for the header hamburger used on desktop layout)
+  // NOTE: responsive.js injects its own mobile hamburger for the sidebar.
+  // Use the header's hamburger by id to avoid conflicting handlers on mobile.
+  const headerHamburger = document.getElementById('hamburger');
+  const navMenu = document.querySelector('#main-nav') || document.querySelector('nav');
+  if (headerHamburger) {
+    headerHamburger.addEventListener('click', function() {
       navMenu?.classList.toggle('active');
-      hamburger.classList.toggle('active');
+      headerHamburger.classList.toggle('active');
     });
   }
 
@@ -342,5 +344,7 @@ window.addEventListener('load', function() {
   document.body.classList.add('loaded');
   addScrollAnimations();
 });
+
+// Site-wide KaTeX auto-loader removed — KaTeX is loaded per-template where needed
 
 console.log('✨ Aptitude Test Website Enhanced Script Loaded Successfully!');

@@ -1,3 +1,17 @@
+@import url('/static/CSS/shared-sidebar.css');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Rozha+One&display=swap');
+
+/* Global typography: body uses Poppins, headings use Rozha One */
+body {
+  font-family: 'Poppins', sans-serif;
+  color: #24211f;
+}
+
+h1, h2, h3, .app-topbar__title, .app-topbar__name {
+  font-family: 'Rozha One', Georgia, serif;
+}
+
 /* =========================================================================
    responsive.css — Shared UI/UX & responsive layer
    -------------------------------------------------------------------------
@@ -62,6 +76,11 @@ body.admin-body .app-topbar .hamburger { color: #ead690; }
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Use a friendly serif for headings across the app for beginners */
+h1, h2, h3, .app-topbar__title, .app-topbar__name {
+  font-family: 'Rozha One', Georgia, serif;
+}
 .app-topbar__name {
   font-size: 13px;
   font-weight: 600;
@@ -70,7 +89,7 @@ body.admin-body .app-topbar .hamburger { color: #ead690; }
 }
 
 .hamburger {
-  display: inline-flex;
+  display: none;
   align-items: center;
   justify-content: center;
   width: 44px;
@@ -189,6 +208,38 @@ textarea:focus-visible,
   border-radius: 4px;
 }
 
+/* Beginner-friendly defaults: slightly larger text and buttons for easier reading & tapping */
+html { font-size: 16px; }
+body { line-height: 1.6; }
+button, .primary-btn, .btn-primary, .secondary-btn, a.primary-btn { 
+  font-size: 15px; 
+  padding: 12px 16px; 
+  border-radius: 10px; 
+}
+input, select, textarea { font-size: 15px; padding: 10px 12px; }
+
+/* Ensure clickable sidebar items have larger tap targets */
+.menu li, .menu-section li, .sidebar .bottom-item { min-height: 44px; display:flex; align-items:center; }
+
+/* Topbar Help button */
+.app-topbar .topbar-help { background: transparent; border: 0; color: #4e3d6d; display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer; padding:8px 10px; border-radius:8px; }
+.app-topbar .topbar-help .help-label{ display:inline-block; font-size:14px; }
+.app-topbar .topbar-help:focus-visible { outline: 3px solid #6b3f92; }
+
+/* Help modal styles */
+.apti-help-modal { position:fixed; inset:0; display:none; align-items:center; justify-content:center; z-index:99999; }
+.apti-help-modal.is-open { display:flex; }
+.apti-help-modal__backdrop { position:absolute; inset:0; background:rgba(0,0,0,0.45); }
+.apti-help-modal__panel { position:relative; background: #fff; width: min(720px, 92%); max-height: 80vh; overflow:auto; padding:20px 22px; border-radius:12px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); font-size:15px; }
+.apti-help-modal__panel h2 { font-family: 'Rozha One', Georgia, serif; margin-top:0; }
+.apti-help-close { position:absolute; right:12px; top:10px; background:transparent; border:0; font-size:18px; cursor:pointer; }
+.apti-help-modal .primary-btn { background:#6b3f92; color:#fff; border:none; padding:10px 14px; border-radius:8px; }
+
+/* Pin button to keep help open */
+.apti-help-pin { background: transparent; border: 0; font-size:16px; cursor:pointer; padding:6px 8px; border-radius:6px; }
+.apti-help-pin.is-pinned { background: rgba(107,63,146,0.08); }
+.apti-help-pin:focus-visible { outline: 3px solid #6b3f92; }
+
 /* Buttons — subtle press feedback */
 .btn-primary:active,
 .primary-btn:active,
@@ -196,6 +247,23 @@ textarea:focus-visible,
 .login-btn:active,
 .btn-danger:active {
   transform: translateY(1px);
+}
+
+/* Global header auth pill buttons (applies to pages that include #main-nav) */
+#main-nav ul { display:flex; align-items:center; gap:12px; list-style:none; margin:0; padding:0; }
+#main-nav a.nav-login-btn, #main-nav a.nav-signup-btn { padding:10px 20px; border-radius:28px; font-weight:700; }
+#main-nav a.nav-login-btn { background: linear-gradient(135deg,#9b63af,#7a4a8e); color:#fff; box-shadow:0 10px 28px rgba(155,99,175,0.18); }
+#main-nav a.nav-signup-btn { background:#f3dcc9; color:#2d2b27; }
+
+/* mobile tap targets and touch-action improvements */
+button, a { -webkit-tap-highlight-color: rgba(0,0,0,0.06); touch-action: manipulation; }
+
+@media (max-width: 991.98px) {
+  /* Ensure header nav stacks nicely on small screens */
+  #main-header { padding: 12px 16px; }
+  #main-nav { margin-left: 0; }
+  #main-nav ul { gap:8px; }
+  #main-nav a { padding:10px 12px; border-radius:20px; }
 }
 
 /* Skip link for keyboard users */
@@ -233,8 +301,9 @@ textarea:focus-visible,
    ───────────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 991.98px) {
-  /* Show the top bar */
+  /* Show the top bar only on mobile */
   .app-topbar { display: flex; }
+  .hamburger { display: inline-flex; }
 
   /* Body should not scroll while sidebar open */
   body.sidebar-open { overflow: hidden; }

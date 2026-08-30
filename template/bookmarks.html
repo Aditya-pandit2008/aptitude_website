@@ -137,39 +137,7 @@
   <div class="container">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <button id="close-btn" aria-label="Close menu" style="display:none;position:absolute;top:18px;right:18px;border:none;background:none;font-size:24px;cursor:pointer;color:#555;">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" alt="Logo" />
-      </a>
-      <div class="menu-section">
-        <h4>Navigation</h4>
-        <ul>
-          <li onclick="location.href='/Dashboard'"><i class="fa-solid fa-house"></i> Dashboard</li>
-          <li onclick="location.href='/test-page'"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-          <li onclick="location.href='/aptitude-test'"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-          <li onclick="location.href='/resources'"><i class="fa-solid fa-book-open"></i> Resources</li>
-        </ul>
-      </div>
-      <div class="menu-section">
-        <h4>Revision</h4>
-        <ul>
-          <li class="active-task" onclick="location.href='/bookmarks'" style="background:#fff;border-radius:10px;color:#d17b43;font-weight:700;">
-            <i class="fa-regular fa-bookmark"></i> Saved Questions
-          </li>
-        </ul>
-      </div>
-      <div class="menu-section" style="margin-top:auto;">
-        <h4>Account</h4>
-        <ul>
-          <li onclick="location.href='/profile'"><i class="fa-solid fa-user"></i> Profile</li>
-          <li onclick="location.href='/settings'"><i class="fa-solid fa-gear"></i> Settings</li>
-          <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-        </ul>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
 
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">

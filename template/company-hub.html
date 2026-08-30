@@ -119,39 +119,13 @@
     }
   </style>
 </head>
-<body>
+<body data-page="company-hub">
   <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar-overlay" class="sidebar-overlay"></div>
   <div class="container">
     
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
-      </a>
-      <ul class="menu">
-        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
-        <li data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
-        <li class="active" data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
-        <li data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
-        <li data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
-        <li data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
-        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-      <div class="bottom-menu">
-        <div class="profile" data-page="/profile">
-          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
-          <span id="sidebar-username">Student</span>
-        </div>
-        <div class="bottom-item" data-page="/settings">
-          <i class="fa-solid fa-gear"></i> Settings
-        </div>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
     
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">
@@ -159,9 +133,6 @@
       <!-- HEADER -->
       <div class="dashboard-head">
         <div style="display:flex;align-items:center;gap:14px;">
-          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
           <div>
             <p class="eyebrow">Recruitment Preparation</p>
             <h1>Company Hub</h1>
@@ -182,7 +153,7 @@
               <h2 id="modal-company-name" style="font-size:22px;font-weight:800;color:#1a1714;">Company Name</h2>
               <p id="modal-company-diff" class="muted" style="margin-top:4px;">Difficulty: Easy</p>
             </div>
-            <button onclick="closeModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;"><i class="fa-solid fa-xmark"></i></button>
+            <button type="button" onclick="closeModal()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#888;"><i class="fa-solid fa-xmark"></i></button>
           </div>
           
           <div style="margin-bottom:20px;font-size:14px;line-height:1.6;color:#555;">
@@ -197,8 +168,8 @@
           </div>
           
           <div style="display:flex;gap:12px;margin-top:28px;">
-            <button onclick="closeModal()" class="btn-secondary" style="flex:1;justify-content:center;">Close</button>
-            <button id="launch-test-btn" class="btn-primary" style="flex:2;justify-content:center;">
+            <button type="button" onclick="closeModal()" class="btn-secondary" style="flex:1;justify-content:center;">Close</button>
+            <button type="button" id="launch-test-btn" class="btn-primary" style="flex:2;justify-content:center;">
               <i class="fa-solid fa-wand-magic-sparkles"></i> Launch 10-Q Practice Test
             </button>
           </div>
@@ -222,8 +193,8 @@
           </div>
           
           <div style="display:flex;justify-content:space-between;margin-top:20px;gap:12px;">
-            <button id="test-prev-btn" class="btn-secondary" style="flex:1;justify-content:center;">Previous</button>
-            <button id="test-next-btn" class="btn-primary" style="flex:2;justify-content:center;">Next / Submit</button>
+            <button type="button" id="test-prev-btn" class="btn-secondary" style="flex:1;justify-content:center;">Previous</button>
+            <button type="button" id="test-next-btn" class="btn-primary" style="flex:2;justify-content:center;">Next / Submit</button>
           </div>
         </div>
       </div>
@@ -255,7 +226,13 @@
       } catch(e) {}
       
       document.querySelectorAll('[data-page]').forEach(item => {
-        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+        if (item === document.body) return;
+        item.addEventListener('click', (event) => {
+          const target = item.dataset.page;
+          if (!target) return;
+          event.preventDefault();
+          window.location.href = target.startsWith('/') ? target : `/${target}`;
+        });
       });
       document.querySelectorAll('[data-action="logout"]').forEach(item => {
         item.addEventListener('click', () => {
@@ -270,19 +247,33 @@
         try {
           const res = await fetch('/api/v1/company/details');
           const data = await res.json();
-          if (data.success) {
-            companiesData = data.companies;
+          const payload = data?.data ?? data;
+          const companies = payload?.companies || {};
+
+          if (data?.success !== false) {
+            companiesData = companies;
             renderCompanyGrid(companiesData);
+          } else {
+            console.error('Company hub fetch failed:', data?.error || 'Unknown error');
           }
-        } catch(e) {
-          console.error("Failed to load company hub data.");
+        } catch (e) {
+          console.error('Failed to load company hub data.', e);
         }
       }
       
       function renderCompanyGrid(companies) {
         const grid = document.getElementById('company-cards-container');
-        grid.innerHTML = Object.keys(companies).map(key => {
+        if (!grid) return;
+
+        const entries = Object.keys(companies || {});
+        if (!entries.length) {
+          grid.innerHTML = '<div class="company-card" style="border-left-color:#e5d9b3;">No company profiles are available right now. Please refresh.</div>';
+          return;
+        }
+
+        grid.innerHTML = entries.map(key => {
           const c = companies[key];
+          if (!c) return '';
           return `
             <div class="company-card" style="border-left-color: ${c.color};" onclick="openCompanyModal('${key}')">
               <div>
@@ -297,72 +288,88 @@
               </div>
             </div>
           `;
-        }).join("");
+        }).join('');
       }
       
       const launchBtn = document.getElementById('launch-test-btn');
-      launchBtn.addEventListener('click', async () => {
-        launchBtn.disabled = true;
-        launchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing Practice Exam...';
-        
-        try {
-          const res = await fetch('/api/v1/company/practice-test', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-              company_name: activeCompanyKey,
-              count: 10
-            })
-          });
-          const data = await res.json();
-          if (data.success) {
-            const payload = data.data || data;
-            testQuestions = payload.questions;
-            if (testQuestions.length === 0) {
-              alert("No questions found in database for this company's syllabus. Try again.");
-              closeModal();
-              return;
+      if (launchBtn) {
+        launchBtn.addEventListener('click', async () => {
+          launchBtn.disabled = true;
+          launchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Preparing Practice Exam...';
+          
+          try {
+            const res = await fetch('/api/v1/company/practice-test', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                company_name: activeCompanyKey,
+                count: 10
+              })
+            });
+            const data = await res.json();
+            if (data.success) {
+              const payload = data.data || data;
+              testQuestions = payload.questions || [];
+              if (!testQuestions.length) {
+                alert("No questions found in database for this company's syllabus. Try again.");
+                closeModal();
+                return;
+              }
+              
+              const companyModal = document.getElementById('company-modal');
+              const testRunnerModal = document.getElementById('test-runner-modal');
+              if (companyModal) companyModal.classList.add('hidden');
+              if (testRunnerModal) testRunnerModal.classList.remove('hidden');
+              const testRunnerTitle = document.getElementById('test-runner-title');
+              if (testRunnerTitle) {
+                testRunnerTitle.textContent = `${payload.company_name || activeCompanyKey} Syllabus Mock Test`;
+              }
+              
+              currentQIdx = 0;
+              selectedAnswers = {};
+              loadTestQuestion(0);
+            } else {
+              alert(data.error || "Failed to create practice test.");
             }
-            
-            // Switch to test runner modal
-            document.getElementById('company-modal').classList.add('hidden');
-            document.getElementById('test-runner-modal').classList.remove('hidden');
-            document.getElementById('test-runner-title').textContent = `${payload.company_name} Syllabus Mock Test`;
-            
-            currentQIdx = 0;
-            selectedAnswers = {};
-            loadTestQuestion(0);
-          } else {
-            alert(data.error || "Failed to create practice test.");
+          } catch (e) {
+            alert("Network connection issue.");
+          } finally {
+            launchBtn.disabled = false;
+            launchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Launch 10-Q Practice Test';
           }
-        } catch(e) {
-          alert("Network connection issue.");
-        } finally {
-          launchBtn.disabled = false;
-          launchBtn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Launch 10-Q Practice Test';
-        }
-      });
+        });
+      }
       
     })();
     
     function openCompanyModal(key) {
       activeCompanyKey = key;
       const c = companiesData[key];
-      
-      document.getElementById('modal-company-name').textContent = c.name;
-      document.getElementById('modal-company-diff').innerHTML = `Difficulty: <strong style="color:${c.color}">${c.difficulty}</strong>`;
-      document.getElementById('modal-company-rounds').textContent = c.rounds;
-      document.getElementById('modal-company-pattern').textContent = c.test_pattern;
-      document.getElementById('modal-company-syllabus').textContent = c.syllabus.join(" • ");
-      
-      document.getElementById('company-modal').classList.remove('hidden');
+      if (!c) return;
+
+      const modalCompanyName = document.getElementById('modal-company-name');
+      const modalCompanyDiff = document.getElementById('modal-company-diff');
+      const modalCompanyRounds = document.getElementById('modal-company-rounds');
+      const modalCompanyPattern = document.getElementById('modal-company-pattern');
+      const modalCompanySyllabus = document.getElementById('modal-company-syllabus');
+      const companyModal = document.getElementById('company-modal');
+
+      if (modalCompanyName) modalCompanyName.textContent = c.name;
+      if (modalCompanyDiff) modalCompanyDiff.innerHTML = `Difficulty: <strong style="color:${c.color}">${c.difficulty}</strong>`;
+      if (modalCompanyRounds) modalCompanyRounds.textContent = c.rounds;
+      if (modalCompanyPattern) modalCompanyPattern.textContent = c.test_pattern;
+      if (modalCompanySyllabus) modalCompanySyllabus.textContent = Array.isArray(c.syllabus) ? c.syllabus.join(" • ") : '';
+      if (companyModal) companyModal.classList.remove('hidden');
     }
     
     function closeModal() {
-      document.getElementById('company-modal').classList.add('hidden');
+      const companyModal = document.getElementById('company-modal');
+      const testRunnerModal = document.getElementById('test-runner-modal');
+      if (companyModal) companyModal.classList.add('hidden');
+      if (testRunnerModal) testRunnerModal.classList.add('hidden');
     }
     
     function loadTestQuestion(idx) {

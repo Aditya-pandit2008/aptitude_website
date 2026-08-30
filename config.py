@@ -50,8 +50,8 @@ class Config:
 
     # ── Groq AI ───────────────────────────────────────────────────────────────
     GROQ_API_KEY      = os.getenv("GROQ_API_KEY", "")
-    GROQ_MODEL        = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
-    GROQ_FALLBACK_MODEL = os.getenv("GROQ_FALLBACK_MODEL", "llama3-8b-8192")
+    GROQ_MODEL        = os.getenv("GROQ_MODEL", "openai/gpt-oss-20b")
+    GROQ_FALLBACK_MODEL = os.getenv("GROQ_FALLBACK_MODEL", "moonshotai/kimi-k2-instruct")
 
     # AI response cache TTL (seconds)
     AI_CACHE_TTL     = int(os.getenv("AI_CACHE_TTL", "3600"))   # 1 hour

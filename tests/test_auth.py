@@ -100,3 +100,32 @@ def test_forgot_password_failures(client, test_user):
     res = client.post("/api/v1/auth/forgot-password", json=payload_missing)
     assert res.status_code == 404
 
+
+
+def test_admin_login_success(client, admin_user):
+    response = client.post("/api/v1/auth/admin/login", json={
+        "email": admin_user.email,
+        "password": "password123",
+    })
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["success"] is True
+    assert data["data"]["user"]["role"] == "admin"
+    assert "access_token" in data["data"]
+
+
+def test_admin_login_rejects_student(client, test_user):
+    response = client.post("/api/v1/auth/admin/login", json={
+        "email": test_user.email,
+        "password": "password123",
+    })
+    assert response.status_code == 403
+    assert response.get_json()["success"] is False
+
+def test_admin_dashboard_requires_admin_role(client, auth_headers, admin_headers):
+    student_response = client.get("/api/v1/admin/dashboard", headers=auth_headers)
+    assert student_response.status_code == 403
+
+    admin_response = client.get("/api/v1/admin/dashboard", headers=admin_headers)
+    assert admin_response.status_code == 200
+    assert "stats" in admin_response.get_json()

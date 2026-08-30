@@ -327,35 +327,13 @@
     }
   </style>
 </head>
-<body>
+<body data-page="profile">
   <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar-overlay" class="sidebar-overlay"></div>
   <div class="container">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
-      </a>
-      <ul class="menu">
-        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li data-page="/resources"><i class="fa-solid fa-book-open"></i> Resources</li>
-        <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
-        <li class="active" data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-      <div class="bottom-menu">
-        <div class="profile" data-page="/profile">
-          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
-          <span id="sidebar-username">Student</span>
-        </div>
-        <div class="bottom-item" data-page="/settings">
-          <i class="fa-solid fa-gear"></i> Settings
-        </div>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
 
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">
@@ -363,9 +341,6 @@
       <!-- PAGE HEAD -->
       <div class="profile-page-head">
         <div style="display:flex;align-items:center;gap:14px;">
-          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
           <div>
             <p class="eyebrow">Account</p>
             <h1 style="font-size:32px;font-weight:800;color:#1a1714;">My Profile</h1>

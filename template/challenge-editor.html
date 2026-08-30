@@ -157,6 +157,19 @@
                 if (t) document.getElementById('mobile-problem-title').textContent = t.textContent;
             });
             observer.observe(document.getElementById('problem-title'), { childList: true, subtree: true, characterData: true });
+            
+            // Client-side LaTeX delimiter stripper (safety net)
+            function stripLatex(v) {
+              if (!v) return v;
+              return String(v)
+                .replace(/\\\\\s*\[\s*(.*?)\s*\\\\\s*\]/g, '$1')
+                .replace(/\\\\\s*\(\s*(.*?)\s*\\\\\s*\)/g, '$1')
+                .replace(/\$\$\s*(.*?)\s*\$\$/g, '$1')
+                .replace(/\$\s*(.*?)\s*\$/g, '$1')
+                .replace(/\\\[/g, '[').replace(/\\\]/g, ']')
+                .replace(/\\\(/g, '(').replace(/\\\)/g, ')')
+                .replace(/&#92;/g, '\\');
+            }
         })();
     </script>
 </body>

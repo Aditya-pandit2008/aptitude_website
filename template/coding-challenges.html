@@ -9,38 +9,11 @@
   <link rel="stylesheet" href="/static/CSS/responsive.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
-<body>
+<body data-page="coding-challenges">
   <div class="container">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <button id="close-btn" aria-label="Close menu">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" alt="Logo">
-      </a>
-      <a class="active-task" href="/Dashboard">
-        <i class="fa-solid fa-table-columns"></i>
-        <span>Dashboard</span>
-      </a>
-      <div class="menu-section">
-        <h4>Modules</h4>
-        <ul>
-            <li><a href="/test-page"><i class="fa-solid fa-brain"></i> Aptitude Tests</a></li>
-            <li class="active"><a href="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</a></li>
-        </ul>
-      </div>
-      <hr>
-      <div class="menu-section">
-        <h4>Account</h4>
-        <ul>
-          <li data-action="logout">
-            <i class="fa-solid fa-right-from-bracket"></i> Logout
-          </li>
-        </ul>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
 
     <!-- MAIN -->
     <main class="main-content">
@@ -48,9 +21,8 @@
       <!-- NAVBAR -->
       <nav class="navbar">
         <div class="left-nav">
-          <i class="fa-solid fa-bars" id="menu-btn"></i>
-          <img src="/images/Apti-logo.png" alt="Logo">
-        </div>
+            <img src="/images/Apti-logo.png" alt="Logo">
+          </div>
         <div class="right-nav">
           <div class="search-box">
             <input id="challenge-search" type="text" placeholder="Search challenges…">

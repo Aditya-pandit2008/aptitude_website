@@ -412,44 +412,19 @@
     }
   </style>
 </head>
-<body>
+<body data-page="settings">
   <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar-overlay" class="sidebar-overlay"></div>
   <div class="container">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
-      </a>
-      <ul class="menu">
-        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li data-page="/resources"><i class="fa-solid fa-book-open"></i> Resources</li>
-        <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
-        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-      <div class="bottom-menu">
-        <div class="profile" data-page="/profile">
-          <div id="sidebar-avatar-circle" style="width:36px;height:36px;border-radius:50%;background:#eadba3;display:flex;align-items:center;justify-content:center;font-weight:800;color:#4d4742;font-size:16px;flex-shrink:0;">S</div>
-          <span id="sidebar-username">Student</span>
-        </div>
-        <div class="bottom-item active" data-page="/settings">
-          <i class="fa-solid fa-gear"></i> Settings
-        </div>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
 
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">
 
       <!-- PAGE HEAD -->
       <div class="page-head">
-        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
-          <i class="fa-solid fa-bars"></i>
-        </button>
         <div class="page-head-text">
           <p class="eyebrow">Your account</p>
           <h1>Settings</h1>
@@ -782,7 +757,13 @@
 
     // ── Sidebar navigation ──────────────────────────────
     document.querySelectorAll('[data-page]').forEach((item) => {
-      item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+      if (item === document.body) return;
+      item.addEventListener('click', (event) => {
+        const target = item.dataset.page;
+        if (!target) return;
+        event.preventDefault();
+        window.location.href = target.startsWith('/') ? target : `/${target}`;
+      });
     });
     document.querySelectorAll('[data-action="logout"]').forEach((item) => {
       item.addEventListener('click', () => {

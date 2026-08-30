@@ -89,8 +89,30 @@
   ready(function () {
     document.body.classList.add('js-ready');
 
-    var sidebar = document.querySelector('.sidebar') || document.querySelector('.admin-sidebar');
+    // Prevent accidental full-page reloads from generic buttons that are meant to trigger JS only.
+    document.querySelectorAll('button:not([type])').forEach(function (button) {
+      button.type = 'button';
+    });
+
+    var sidebar = document.querySelector('.sidebar, .shared-sidebar, .admin-sidebar');
     if (!sidebar) { return; } // landing/auth pages have no sidebar
+
+    // Keep all injected mobile UI for mobile only. Desktop nav should keep native layout.
+    var isMobileLayout = window.matchMedia('(max-width: 991.98px)').matches;
+    if (!isMobileLayout) {
+      return;
+    }
+
+    // Hydrate the common sidebar on pages without a dedicated profile script.
+    try {
+      var storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+      if (storedUser && storedUser.username) {
+        var username = document.getElementById('sidebar-username');
+        var avatar = document.getElementById('sidebar-avatar');
+        if (username) username.textContent = storedUser.username;
+        if (avatar) avatar.alt = storedUser.username;
+      }
+    } catch (e) {}
 
     var isAdmin = sidebar.classList.contains('admin-sidebar');
     if (isAdmin) document.body.classList.add('admin-body');
@@ -101,7 +123,7 @@
 
     var brand = document.createElement('div');
     brand.className = 'app-topbar__brand';
-    var brandLogo = document.querySelector('.sidebar .logo img, .admin-sidebar .admin-logo');
+    var brandLogo = document.querySelector('.sidebar .logo img, .shared-sidebar .logo img, .admin-sidebar .admin-logo');
     if (brandLogo) {
       var imgClone = brandLogo.cloneNode();
       imgClone.style.height = '34px';
@@ -126,8 +148,105 @@
     ham.innerHTML = '<i class="fa-solid fa-bars hamburger__icon" aria-hidden="true"></i>';
     topbar.appendChild(ham);
 
+    // Beginner-friendly: add a persistent Help button to the topbar
+    var helpBtn = document.createElement('button');
+    helpBtn.type = 'button';
+    helpBtn.className = 'topbar-help';
+    helpBtn.setAttribute('aria-label', 'Open getting started guide');
+    helpBtn.innerHTML = '<i class="fa-solid fa-circle-question" aria-hidden="true"></i> <span class="help-label">Help</span>';
+    topbar.appendChild(helpBtn);
+
+    // Improve mobile touch interactions: prefer touchstart to avoid 300ms delays
+    ham.addEventListener('touchstart', function (ev) {
+      ev.stopPropagation();
+    }, { passive: true });
+    helpBtn.addEventListener('touchstart', function (ev) {
+      ev.stopPropagation();
+    }, { passive: true });
+
     // Insert topbar as the first child of <body>
     document.body.insertBefore(topbar, document.body.firstChild);
+
+    // Determine page id for per-page help and pin storage
+    var pageId = document.body.getAttribute('data-page') || (document.querySelector('meta[name="page"]') && document.querySelector('meta[name="page"]').content) || 'default';
+
+    // Beginner guide modal (injected globally so every page has quick help)
+    var guideModal = document.createElement('div');
+    guideModal.className = 'apti-help-modal';
+    guideModal.setAttribute('role', 'dialog');
+    guideModal.setAttribute('aria-hidden', 'true');
+    guideModal.innerHTML = '\n      <div class="apti-help-modal__backdrop" tabindex="-1"></div>\n      <div class="apti-help-modal__panel" role="document" tabindex="-1">\n        <div style="display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:8px;">\n          <button class="apti-help-pin" aria-pressed="true" title="Keep help open">📌</button>\n          <button class="apti-help-close" aria-label="Close help">✕</button>\n        </div>\n        <div class="apti-help-modal__content" aria-live="polite">Loading help…</div>\n        <div style="text-align:right;margin-top:12px;"><button class="primary-btn apti-help-gotit">Got it</button></div>\n      </div>';
+    document.body.appendChild(guideModal);
+
+    // Load per-page help file (falls back to default)
+    (function loadPerPageHelp() {
+      var contentEl = guideModal.querySelector('.apti-help-modal__content');
+      if (!contentEl) return;
+      var helpPath = '/static/help/' + pageId + '.html';
+      function fallback() {
+        // try default
+        fetch('/static/help/default.html', { cache: 'no-cache' }).then(function (r) {
+          if (!r.ok) throw new Error('no default');
+          return r.text();
+        }).then(function (html) { contentEl.innerHTML = html; }).catch(function () {
+          contentEl.innerHTML = '<h3>Quick Help</h3><p>Use the menu to navigate. Click Help again for more tips.</p>';
+        });
+      }
+      fetch(helpPath, { cache: 'no-cache' }).then(function (resp) {
+        if (!resp.ok) throw new Error('not found');
+        return resp.text();
+      }).then(function (html) {
+        contentEl.innerHTML = html;
+      }).catch(function () {
+        fallback();
+      });
+    })();
+
+    // Help button open/close handlers and pin behaviour
+    var pinned = (localStorage.getItem('apti_help_pin_' + pageId) !== 'false'); // default true
+    function updatePinButton() {
+      var pinBtn = guideModal.querySelector('.apti-help-pin');
+      if (!pinBtn) return;
+      pinBtn.setAttribute('aria-pressed', pinned ? 'true' : 'false');
+      pinBtn.classList.toggle('is-pinned', pinned);
+      try { localStorage.setItem('apti_help_pin_' + pageId, pinned ? 'true' : 'false'); } catch (e) {}
+    }
+
+    function openHelp() {
+      guideModal.setAttribute('aria-hidden', 'false');
+      guideModal.classList.add('is-open');
+      var panel = guideModal.querySelector('.apti-help-modal__panel');
+      try { panel.focus(); } catch (e) {}
+      try { localStorage.setItem('apti_help_open_' + pageId, 'true'); } catch (e) {}
+    }
+    function closeHelp() {
+      guideModal.setAttribute('aria-hidden', 'true');
+      guideModal.classList.remove('is-open');
+      ham.focus();
+      try { localStorage.setItem('apti_help_open_' + pageId, 'false'); } catch (e) {}
+    }
+    helpBtn.addEventListener('click', openHelp);
+    guideModal.querySelector('.apti-help-close').addEventListener('click', closeHelp);
+    guideModal.querySelector('.apti-help-gotit').addEventListener('click', closeHelp);
+    // Backdrop click only closes when not pinned
+    guideModal.querySelector('.apti-help-modal__backdrop').addEventListener('click', function () { if (!pinned) closeHelp(); });
+    // Pin toggle
+    var pinBtn = guideModal.querySelector('.apti-help-pin');
+    if (pinBtn) {
+      pinBtn.addEventListener('click', function () { pinned = !pinned; updatePinButton(); });
+      updatePinButton();
+    }
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && guideModal.classList.contains('is-open') && !pinned) closeHelp(); });
+
+    // Auto-open help if pinned for this page — skip on interactive pages
+    try {
+      var openState = localStorage.getItem('apti_help_open_' + pageId);
+      var interactivePages = ['mock-interview', 'test-page', 'coding-challenges'];
+      if (pinned && (openState === 'true' || openState === null) && interactivePages.indexOf(pageId) === -1) {
+        // If user hasn't explicitly closed it, open automatically so they can read
+        openHelp();
+      }
+    } catch (e) {}
 
     // Build overlay
     var overlay = document.createElement('div');
@@ -177,7 +296,38 @@
     // Close after navigating via a sidebar link (data-page or href)
     sidebar.addEventListener('click', function (e) {
       var link = e.target.closest('[data-page], a[href], [data-action]');
-      if (link) { closeSidebar(); }
+      if (link) {
+        closeSidebar();
+      }
+    });
+
+    // Central navigation for all sidebar variants (shared sidebar, legacy sidebar, admin sidebar).
+    sidebar.addEventListener('click', function (e) {
+      var pageItem = e.target.closest('[data-page]');
+      if (pageItem && sidebar.contains(pageItem)) {
+        e.preventDefault();
+        var targetHref = pageItem.getAttribute('data-page');
+        if (targetHref) {
+          window.location.href = targetHref;
+          return;
+        }
+      }
+
+      var actionItem = e.target.closest('[data-action="logout"]');
+      if (actionItem && sidebar.contains(actionItem)) {
+        e.preventDefault();
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        return;
+      }
+
+      var anchorLink = e.target.closest('a[href]');
+      if (anchorLink && sidebar.contains(anchorLink)) {
+        e.preventDefault();
+        window.location.href = anchorLink.getAttribute('href');
+      }
     });
 
     // If the page provides its own #menu-btn / #close-btn (test-page), keep them in sync

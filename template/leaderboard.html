@@ -111,39 +111,13 @@
     }
   </style>
 </head>
-<body>
+<body data-page="leaderboard">
   <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar-overlay" class="sidebar-overlay"></div>
   <div class="container">
     
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
-      </a>
-      <ul class="menu">
-        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
-        <li data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
-        <li data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
-        <li data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
-        <li data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
-        <li class="active" data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
-        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-      <div class="bottom-menu">
-        <div class="profile" data-page="/profile">
-          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
-          <span id="sidebar-username">Student</span>
-        </div>
-        <div class="bottom-item" data-page="/settings">
-          <i class="fa-solid fa-gear"></i> Settings
-        </div>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
     
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">
@@ -151,9 +125,6 @@
       <!-- HEADER -->
       <div class="dashboard-head">
         <div style="display:flex;align-items:center;gap:14px;">
-          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
           <div>
             <p class="eyebrow">Aptifly Ranks</p>
             <h1>Leaderboard</h1>
@@ -218,7 +189,13 @@
       } catch(e) {}
       
       document.querySelectorAll('[data-page]').forEach(item => {
-        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+        if (item === document.body) return;
+        item.addEventListener('click', (event) => {
+          const target = item.dataset.page;
+          if (!target) return;
+          event.preventDefault();
+          window.location.href = target.startsWith('/') ? target : `/${target}`;
+        });
       });
       document.querySelectorAll('[data-action="logout"]').forEach(item => {
         item.addEventListener('click', () => {

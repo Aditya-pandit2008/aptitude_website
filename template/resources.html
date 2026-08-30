@@ -279,21 +279,7 @@
   <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div class="container">
     <!-- SIDEBAR -->
-    <aside class="sidebar">
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" width="210" height="82" alt="Aptitude Test Logo" />
-      </a>
-      <ul class="menu">
-        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li class="active" data-page="/resources"><i class="fa-solid fa-book-open"></i> Resources</li>
-        <li data-page="/bookmarks"><i class="fa-regular fa-bookmark"></i> Saved Questions</li>
-        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-        <li data-page="/settings"><i class="fa-solid fa-gear"></i> Settings</li>
-        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-    </aside>
+    {% include "partials/sidebar.html" %}
 
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">
@@ -460,7 +446,13 @@
 
       // Sidebar navigation
       document.querySelectorAll('[data-page]').forEach((item) => {
-        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+        if (item === document.body) return;
+        item.addEventListener('click', (event) => {
+          const target = item.dataset.page;
+          if (!target) return;
+          event.preventDefault();
+          window.location.href = target.startsWith('/') ? target : `/${target}`;
+        });
       });
       document.querySelectorAll('[data-action="logout"]').forEach((item) => {
         item.addEventListener('click', () => {

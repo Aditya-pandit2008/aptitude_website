@@ -8,8 +8,12 @@
   }
 
   document.querySelectorAll('[data-page]').forEach((item) => {
-    item.addEventListener('click', () => {
-      window.location.href = item.dataset.page;
+    if (item === document.body) return;
+    item.addEventListener('click', (event) => {
+      const target = item.dataset.page;
+      if (!target) return;
+      event.preventDefault();
+      window.location.href = target.startsWith('/') ? target : `/${target}`;
     });
   });
 
@@ -18,7 +22,7 @@
   });
 
   if (user?.username) {
-    document.getElementById('profile-name').textContent = user.username;
+    document.getElementById('sidebar-username').textContent = user.username;
     document.getElementById('dashboard-title').textContent = `${user.username}'s Dashboard`;
   }
 

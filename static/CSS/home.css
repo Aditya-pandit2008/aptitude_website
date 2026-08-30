@@ -86,9 +86,9 @@ body {
    ===================== */
 header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: 22px 80px;
+  padding: 18px 80px;
   background: var(--gold);
   position: sticky;
   top: 0;
@@ -106,6 +106,8 @@ header.scrolled {
 .logo {
   height: 50px;
   width: 150px;
+  position: absolute;
+  left: 80px;
 }
 
 .logo-img {
@@ -117,7 +119,7 @@ header.scrolled {
 nav ul {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 18px;
   list-style: none;
 }
 
@@ -146,13 +148,13 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 }
 
 .nav-login-btn {
-  background: var(--purple) !important;
+  background: linear-gradient(135deg,var(--purple),var(--purple-dark)) !important;
   color: var(--white) !important;
-  padding: 10px 28px !important;
-  border-radius: var(--radius-lg) !important;
-  font-weight: 600 !important;
+  padding: 10px 26px !important;
+  border-radius: 28px !important;
+  font-weight: 700 !important;
   transition: all var(--transition) !important;
-  box-shadow: var(--shadow-purple);
+  box-shadow: 0 12px 34px rgba(155,99,175,0.28);
 }
 
 .nav-login-btn:hover {
@@ -164,9 +166,9 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 .nav-signup-btn {
   background: var(--peach) !important;
   color: var(--text-dark) !important;
-  padding: 10px 28px !important;
-  border-radius: var(--radius-lg) !important;
-  font-weight: 600 !important;
+  padding: 10px 24px !important;
+  border-radius: 28px !important;
+  font-weight: 700 !important;
   transition: all var(--transition) !important;
 }
 
@@ -199,6 +201,15 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 .hamburger.active span:nth-child(2) { opacity: 0; }
 .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -6px); }
 
+/* Center nav and position hamburger on right */
+#main-nav {
+  margin: 0 auto;
+}
+#hamburger {
+  position: absolute;
+  right: 80px;
+}
+
 /* =====================
    HERO
    ===================== */
@@ -207,9 +218,10 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 60px 80px 90px;
+  padding: 80px 80px 140px;
   position: relative;
   overflow: hidden;
+  min-height: 640px;
 }
 
 .blob {
@@ -243,9 +255,10 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 }
 
 .left-content {
-  width: 48%;
+  width: 52%;
   position: relative;
   z-index: 1;
+  padding-right: 20px;
 }
 
 .hero-badge {
@@ -276,11 +289,12 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 
 .left-content h1 {
   font-family: "Rozha One", serif;
-  font-size: 3rem;
+  font-size: 4.2rem;
   color: var(--purple);
-  line-height: 1.35;
+  line-height: 1.15;
   animation: fadeInUp 0.8s ease-out 0.1s both;
-  text-shadow: 0 2px 12px rgba(155, 99, 175, 0.15);
+  text-shadow: 0 6px 22px rgba(155, 99, 175, 0.14);
+  margin-bottom: 6px;
 }
 
 .left-content h1 .highlight {
@@ -300,16 +314,16 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 }
 
 .hero-sub {
-  font-size: 16px;
+  font-size: 16.5px;
   color: var(--text-mid);
   margin-top: 18px;
   line-height: 1.7;
-  max-width: 420px;
+  max-width: 520px;
   animation: fadeInUp 0.8s ease-out 0.25s both;
 }
 
 .hero-btns {
-  margin-top: 36px;
+  margin-top: 40px;
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
@@ -320,11 +334,11 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
   background: linear-gradient(135deg, var(--purple), var(--purple-dark));
   color: var(--white);
   border: none;
-  padding: 14px 32px;
-  border-radius: var(--radius-lg);
+  padding: 16px 34px;
+  border-radius: 28px;
   cursor: pointer;
-  font-weight: 700;
-  font-size: 14px;
+  font-weight: 800;
+  font-size: 15px;
   transition: all var(--transition);
   box-shadow: var(--shadow-purple);
   text-decoration: none;
@@ -386,9 +400,9 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 
 /* Right Content */
 .right-content {
-  width: 46%;
+  width: 44%;
   position: relative;
-  height: 480px;
+  height: 560px;
   animation: fadeInRight 0.9s ease-out 0.2s both;
   z-index: 1;
 }
@@ -402,10 +416,10 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 
 .hero-glow {
   position: absolute;
-  width: 280px;
-  height: 280px;
+  width: 340px;
+  height: 340px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(155,99,175,0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(155,99,175,0.22) 0%, transparent 70%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -418,10 +432,10 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 }
 
 .hero-img {
-  width: 260px;
+  width: 320px;
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 8px 24px rgba(155, 99, 175, 0.3));
+  filter: drop-shadow(0 12px 32px rgba(155, 99, 175, 0.32));
   animation: heroFloat 5s ease-in-out infinite;
 }
 
@@ -432,19 +446,19 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
 
 /* Review Boxes */
 .review-box {
-  width: 180px;
-  background: linear-gradient(135deg, #87589d, var(--purple));
+  width: 220px;
+  background: linear-gradient(180deg, rgba(155,99,175,0.98), rgba(139,58,145,0.98));
   color: var(--white);
-  padding: 18px;
-  border-radius: var(--radius-md);
+  padding: 20px 18px;
+  border-radius: 18px;
   font-size: 13px;
-  box-shadow: var(--shadow-purple);
+  box-shadow: 0 18px 40px rgba(120,55,135,0.28);
   animation: float 3.5s ease-in-out infinite;
   position: absolute;
   text-align: center;
   line-height: 1.5;
-  border: 1.5px solid rgba(255,255,255,0.2);
-  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.06);
+  backdrop-filter: blur(6px);
   transition: transform var(--transition);
 }
 
@@ -464,11 +478,11 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 40px;
-  height: 40px;
-  background: rgba(255,255,255,0.15);
+  width: 46px;
+  height: 46px;
+  background: rgba(255,255,255,0.12);
   border-radius: 50%;
-  margin: 0 auto 6px;
+  margin: 0 auto 8px;
 }
 
 .review-box .user i {
@@ -482,9 +496,9 @@ nav a:not(.nav-login-btn):not(.nav-signup-btn):hover {
   font-weight: 600;
 }
 
-.review1 { left: -30px; top: 50px;   animation-delay: 0s;   }
-.review2 { right: -20px; top: 40px;  animation-delay: 0.7s; }
-.review3 { right: 20px;  bottom: 30px; animation-delay: 1.4s; }
+.review1 { left: -20px; top: 110px;   animation-delay: 0s;   }
+.review2 { right: -10px; top: 70px;  animation-delay: 0.7s; }
+.review3 { right: 28px;  bottom: 60px; animation-delay: 1.2s; }
 
 .stars {
   color: #f0d843;

@@ -84,41 +84,31 @@
     .hidden {
       display: none !important;
     }
+    /* Responsive tweaks */
+    .container > main { padding: 18px; }
+    .analyzer-box { max-width: 920px; margin-left: auto; margin-right: auto; }
+    .file-meta { display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px;font-size:13px;color:#6d6a64; }
+    .analyze-actions { display:flex;gap:12px;flex-wrap:wrap; }
+    .btn-secondary { background:#fff;color:#4d4742;border:1.25px solid rgba(0,0,0,0.06); }
+
+    @media (max-width: 720px) {
+      .analyzer-box { padding:18px; border-radius:12px; }
+      .ats-dial { width:100px;height:100px; }
+      .ats-dial h2 { font-size:26px; }
+      .skills-grid { gap:8px; }
+      .skill-tag { padding:6px 10px; font-size:12px; }
+      .analyzer-box input[type=file] { padding:10px; }
+      .dashboard-head h1 { font-size:20px; }
+    }
   </style>
 </head>
-<body>
+<body data-page="resume-analyzer">
   <a class="apti-skip-link" href="#main-content">Skip to main content</a>
   <div id="sidebar-overlay" class="sidebar-overlay"></div>
   <div class="container">
     
     <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-      <a class="logo" href="/Dashboard">
-        <img src="/images/Apti-logo.png" width="210" height="82" alt="Logo" />
-      </a>
-      <ul class="menu">
-        <li data-page="/Dashboard"><i class="fa-solid fa-house"></i> Dashboard</li>
-        <li data-page="/test-page"><i class="fa-solid fa-bullseye"></i> Set Tasks</li>
-        <li data-page="/aptitude-test"><i class="fa-regular fa-calendar"></i> Aptitude Tests</li>
-        <li data-page="/coding-challenges"><i class="fa-solid fa-code"></i> Coding Challenges</li>
-        <li data-page="/mock-interview"><i class="fa-solid fa-microphone"></i> Mock Interview</li>
-        <li data-page="/company-hub"><i class="fa-solid fa-building"></i> Company Hub</li>
-        <li class="active" data-page="/resume-analyzer"><i class="fa-solid fa-file-pdf"></i> Resume Analyzer</li>
-        <li data-page="/doubt-solver"><i class="fa-solid fa-circle-question"></i> Doubt Solver</li>
-        <li data-page="/leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</li>
-        <li data-page="/profile"><i class="fa-solid fa-user"></i> Profile</li>
-        <li data-action="logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
-      </ul>
-      <div class="bottom-menu">
-        <div class="profile" data-page="/profile">
-          <img id="sidebar-avatar" src="https://i.pravatar.cc/50" alt="Profile" />
-          <span id="sidebar-username">Student</span>
-        </div>
-        <div class="bottom-item" data-page="/settings">
-          <i class="fa-solid fa-gear"></i> Settings
-        </div>
-      </div>
-    </aside>
+    {% include "partials/sidebar.html" %}
     
     <!-- MAIN -->
     <main class="main-content" id="main-content" tabindex="-1">
@@ -126,9 +116,6 @@
       <!-- HEADER -->
       <div class="dashboard-head">
         <div style="display:flex;align-items:center;gap:14px;">
-          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Open menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
           <div>
             <p class="eyebrow">AI Tools</p>
             <h1>Resume Analyzer</h1>
@@ -139,8 +126,14 @@
       <!-- INPUT VIEW -->
       <div class="analyzer-box" id="input-view">
         <h2 style="font-size:20px;font-weight:700;margin-bottom:12px;">ATS Screening Optimization</h2>
-        <p class="muted" style="margin-bottom:24px;">Analyze your resume compatibility against target job roles. Copy and paste your details below.</p>
+        <p class="muted" style="margin-bottom:24px;">Analyze your resume compatibility against target job roles. Paste text or upload a resume file below.</p>
         
+        <div class="form-group" style="margin-bottom:18px;">
+          <label for="resume-file" style="font-weight:700;font-size:12.5px;color:#4d4742;text-transform:uppercase;">Upload Resume File</label>
+          <input id="resume-file" type="file" accept=".pdf,.doc,.docx,.txt,.md,.csv,.rtf,.png,.jpg,.jpeg,.bmp,.gif,.webp" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:12px;background:#fff;" />
+          <div class="file-meta"><small class="muted">Supported: PDF, DOCX, text, images.</small><small id="file-name" class="muted"></small></div>
+        </div>
+
         <div class="form-group" style="margin-bottom:18px;">
           <label for="resume-input" style="font-weight:700;font-size:12.5px;color:#4d4742;text-transform:uppercase;">Resume Text</label>
           <textarea id="resume-input" rows="10" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:12px;font:inherit;outline:none;" placeholder="Paste the text content of your resume (Education, Projects, Skills, Experience)..."></textarea>
@@ -151,9 +144,12 @@
           <textarea id="jd-input" rows="4" style="width:100%;border:1.5px solid #d8cfb5;border-radius:10px;padding:12px;font:inherit;outline:none;" placeholder="Paste the job description of your target job to perform keyword gap analysis..."></textarea>
         </div>
         
-        <button id="analyze-btn" class="btn-primary" style="width:100%;justify-content:center;padding:14px;">
-          <i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)
-        </button>
+        <div class="analyze-actions">
+          <button type="button" id="analyze-btn" class="btn-primary" style="flex:1;justify-content:center;padding:14px;">
+            <i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)
+          </button>
+          <button type="button" id="clear-btn" class="btn-secondary" style="padding:14px;">Clear</button>
+        </div>
       </div>
       
       <!-- RESULTS VIEW -->
@@ -190,7 +186,7 @@
           </div>
         </div>
         
-        <button onclick="window.location.reload()" class="btn-secondary" style="width:100%;justify-content:center;padding:12px;">
+        <button type="button" id="again-btn" class="btn-secondary" style="width:100%;justify-content:center;padding:12px;">
           <i class="fa-solid fa-arrow-left"></i> Analyze Another Resume
         </button>
       </div>
@@ -214,7 +210,13 @@
       } catch(e) {}
       
       document.querySelectorAll('[data-page]').forEach(item => {
-        item.addEventListener('click', () => { window.location.href = item.dataset.page; });
+        if (item === document.body) return;
+        item.addEventListener('click', (event) => {
+          const target = item.dataset.page;
+          if (!target) return;
+          event.preventDefault();
+          window.location.href = target.startsWith('/') ? target : `/${target}`;
+        });
       });
       document.querySelectorAll('[data-action="logout"]').forEach(item => {
         item.addEventListener('click', () => {
@@ -224,59 +226,92 @@
       });
       
       const analyzeBtn = document.getElementById('analyze-btn');
+      const resumeFileInput = document.getElementById('resume-file');
+      const fileNameEl = document.getElementById('file-name');
+      const clearBtn = document.getElementById('clear-btn');
+      const againBtn = document.getElementById('again-btn');
+
+      // show selected filename
+      resumeFileInput.addEventListener('change', () => {
+        const f = resumeFileInput.files && resumeFileInput.files[0];
+        fileNameEl.textContent = f ? f.name : '';
+      });
+
+      clearBtn.addEventListener('click', () => {
+        document.getElementById('resume-input').value = '';
+        document.getElementById('jd-input').value = '';
+        resumeFileInput.value = '';
+        fileNameEl.textContent = '';
+      });
+
+      againBtn.addEventListener('click', () => {
+        document.getElementById('results-view').classList.add('hidden');
+        document.getElementById('input-view').classList.remove('hidden');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        analyzeBtn.disabled = false;
+        analyzeBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)';
+      });
+
       analyzeBtn.addEventListener('click', async () => {
         const resumeText = document.getElementById('resume-input').value.trim();
         const jdText = document.getElementById('jd-input').value.trim();
-        
-        if (!resumeText) {
-          alert("Please paste your resume text to begin.");
+        const resumeFile = resumeFileInput && resumeFileInput.files ? resumeFileInput.files[0] : null;
+
+        if (!resumeText && !resumeFile) {
+          alert("Please paste your resume text or upload a resume file to begin.");
           return;
         }
-        
+
         analyzeBtn.disabled = true;
         analyzeBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Extracting & Scoring Resume...';
-        
+
         try {
+          const formData = new FormData();
+          const hasFile = Boolean(resumeFile);
+
+          if (hasFile) {
+            formData.append('resume_file', resumeFile);
+          }
+          if (resumeText) {
+            formData.append('resume_text', resumeText);
+          }
+          if (jdText) {
+            formData.append('job_description', jdText);
+          }
+
           const response = await fetch('/api/v1/resume/analyze', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify({
-              resume_text: resumeText,
-              job_description: jdText
-            })
+            body: formData
           });
           const data = await response.json();
           if (data.success) {
             const payload = data.data || data;
             const a = payload.analysis;
-            
+
             document.getElementById('input-view').classList.add('hidden');
             document.getElementById('results-view').classList.remove('hidden');
-            
+
             document.getElementById('ats-score-val').textContent = a.ats_score;
             document.getElementById('ats-verdict').textContent = a.feedback;
-            
-            // Populate improvements
+
             const impList = document.getElementById('improvements-list');
-            impList.innerHTML = a.improvements.map(imp => `<li>${imp}</li>`).join("");
-            if (a.improvements.length === 0) {
+            impList.innerHTML = (a.improvements || []).map(imp => `<li>${imp}</li>`).join("");
+            if (!(a.improvements || []).length) {
               impList.innerHTML = "<li>No specific formatting errors detected. Good job!</li>";
             }
-            
-            // Populate detected skills
+
             const detGrid = document.getElementById('detected-skills');
-            detGrid.innerHTML = a.skills_detected.map(s => `<span class="skill-tag">${s}</span>`).join("");
-            if (a.skills_detected.length === 0) {
+            detGrid.innerHTML = (a.skills_detected || []).map(s => `<span class="skill-tag">${s}</span>`).join("");
+            if (!(a.skills_detected || []).length) {
               detGrid.innerHTML = "<span class='muted'>No explicit technical skills extracted.</span>";
             }
-            
-            // Populate gaps
+
             const gapGrid = document.getElementById('missing-skills');
-            gapGrid.innerHTML = a.skills_gap.map(s => `<span class="skill-tag missing">${s}</span>`).join("");
-            if (a.skills_gap.length === 0) {
+            gapGrid.innerHTML = (a.skills_gap || []).map(s => `<span class="skill-tag missing">${s}</span>`).join("");
+            if (!(a.skills_gap || []).length) {
               gapGrid.innerHTML = "<span class='muted' style='color:#3f7d46;'>Perfect fit! No major skill gaps found.</span>";
             }
           } else {
@@ -284,7 +319,7 @@
             analyzeBtn.disabled = false;
             analyzeBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)';
           }
-        } catch(e) {
+        } catch (e) {
           alert("Network connection error.");
           analyzeBtn.disabled = false;
           analyzeBtn.innerHTML = '<i class="fa-solid fa-robot"></i> Run ATS Review (+15 XP)';
