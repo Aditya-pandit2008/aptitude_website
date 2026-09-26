@@ -28,7 +28,7 @@ class Config:
     # Secure session cookies
     SESSION_COOKIE_HTTPONLY  = True
     SESSION_COOKIE_SAMESITE  = "Lax"
-    SESSION_COOKIE_SECURE    = os.getenv("FLASK_ENV") == "production"
+    SESSION_COOKIE_SECURE    = (os.getenv("FLASK_ENV") == "production") or (os.getenv("VERCEL") == "1")
 
     # ── Rate Limiting ─────────────────────────────────────────────────────────
     # Set RATELIMIT_STORAGE_URI=redis://localhost:6379/0 in production
@@ -38,7 +38,12 @@ class Config:
     RATELIMIT_HEADERS_ENABLED = True
 
     # ── Database ──────────────────────────────────────────────────────────────
-    _raw_db_url = os.getenv("DATABASE_URL", "sqlite:///placement_prep.db").split("#")[0].strip()
+    _project_root = os.path.dirname(os.path.abspath(__file__))
+    _instance_dir = os.path.join(_project_root, "instance")
+    os.makedirs(_instance_dir, exist_ok=True)
+
+    _default_sqlite = f"sqlite:///{os.path.join(_instance_dir, 'placement_prep.db')}"
+    _raw_db_url = (os.getenv("DATABASE_URL") or _default_sqlite).split("#")[0].strip()
     if _raw_db_url.startswith("postgres://"):
         _raw_db_url = _raw_db_url.replace("postgres://", "postgresql://", 1)
     SQLALCHEMY_DATABASE_URI = _raw_db_url
@@ -91,6 +96,11 @@ class ProductionConfig(Config):
         if self.JWT_SECRET_KEY == "dev-jwt-secret-change-in-production":
             raise RuntimeError(
                 "JWT_SECRET_KEY env variable must be set in production."
+            )
+        if not os.getenv("DATABASE_URL"):
+            raise RuntimeError(
+                "DATABASE_URL env variable must be set for production or Vercel deployments. "
+                "Use a Postgres connection string, not the local SQLite fallback."
             )
 
     SESSION_COOKIE_SECURE = True

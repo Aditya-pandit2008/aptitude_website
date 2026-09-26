@@ -42,7 +42,8 @@ def create_app(env: str = None) -> Flask:
     )
 
     # ── Load configuration ────────────────────────────────────────────────────
-    env = env or os.getenv("FLASK_ENV", "default")
+    # Vercel does not reliably set FLASK_ENV, so treat it as production when detected.
+    env = env or os.getenv("FLASK_ENV") or ("production" if os.getenv("VERCEL") else "default")
     cfg_cls = config_map.get(env, config_map["default"])
     # ProductionConfig.__init__ raises RuntimeError if default secrets are used
     cfg_obj = cfg_cls() if env == "production" else cfg_cls
